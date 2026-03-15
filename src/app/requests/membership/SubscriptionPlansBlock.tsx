@@ -91,6 +91,43 @@ export function SubscriptionPlansBlock({
         )}
       </section>
 
+      <div className="membership-current-plan-card">
+        <p className="membership-current-plan-label">
+          Your current plan:{" "}
+          <strong>
+            {isLeakProtection && isPremium
+              ? `${premiumTitle} + ${protectionTitle}`
+              : currentPlan === "leak_protection"
+                ? protectionTitle
+                : currentPlan === "premium"
+                  ? premiumTitle
+                  : basicTitle}
+          </strong>
+        </p>
+        <div className="membership-current-plan-actions">
+          {currentPlan !== "premium" && currentPlan !== "leak_protection" && premiumJoinUrl && (
+            <Link
+              href={premiumJoinUrl}
+              className="membership-current-plan-cta membership-plan-cta-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {premiumCta}
+            </Link>
+          )}
+          {currentPlan !== "leak_protection" && protectionJoinUrl && (
+            <Link
+              href={protectionJoinUrl}
+              className="membership-current-plan-cta membership-plan-cta-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {protectionCta}
+            </Link>
+          )}
+        </div>
+      </div>
+
       {discountActive && (
         <div className="membership-billing-toggle-wrap">
           <div className="membership-billing-toggle" role="group" aria-label="Billing period">

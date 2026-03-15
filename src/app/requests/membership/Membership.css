@@ -38,6 +38,57 @@
   margin: 0;
 }
 
+/* Your current plan card (above Monthly/Annual toggle) */
+.membership-current-plan-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.08) 0%, transparent 50%),
+    color-mix(in srgb, var(--bg-secondary) 88%, var(--bg-primary));
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.membership-current-plan-label {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.membership-current-plan-label strong {
+  color: var(--text-primary);
+}
+
+.membership-current-plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.membership-current-plan-cta {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.membership-current-plan-cta:hover {
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(88, 101, 242, 0.4);
+}
+
 .membership-billing-toggle-wrap {
   display: flex;
   justify-content: center;
