@@ -1,0 +1,43 @@
+=== Debug API Requests - 2026-03-14T19:46:20.884Z ===
+
+DB config (passwords masked):
+{
+  "host": "localhost",
+  "port": 3306,
+  "user": "root",
+  "password": "(empty)",
+  "database": "6ure_requests"
+}
+
+1. DB connection: OK
+
+2. Tables:
+  requests: ERROR - 
+  users: ERROR - 
+  comments: ERROR - 
+  upvotes: ERROR - 
+  User: ERROR - 
+  Account: ERROR - 
+  Session: ERROR - 
+
+3. users columns (avatar_decoration, patreon_premium, roles):
+  users.avatar_decoration: ERROR - 
+  users.patreon_premium: ERROR - 
+  users.roles: ERROR - 
+
+4. requests columns (price_numeric, anonymous):
+  requests.price_numeric: ERROR - 
+  requests.anonymous: ERROR - 
+
+5. Test query (getRequestsList equivalent):
+  ERROR: 
+  Stack: Error
+    at PromisePool.execute (C:\Users\letab\6uresites\new complete site\node_modules\mysql2\lib\promise\pool.js:54:22)
+    at query (C:\Users\letab\6uresites\new complete site\tmp\debug-api-requests.js:58:31)
+    at run (C:\Users\letab\6uresites\new complete site\tmp\debug-api-requests.js:118:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+6. Count query:
+  ERROR: 
+
+=== Done ===

@@ -1,0 +1,320 @@
+
+> wiki-next@0.1.0 start:prod
+> node -r dotenv/config node_modules/.bin/next start -p 4000
+
+▲ Next.js 16.1.6
+- Local:         http://localhost:4000
+- Network:       http://173.249.56.89:4000
+
+✓ Starting...
+✓ Ready in 917ms
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[CreatorAvatarRefresh] Periodic refresh every 120 minutes
+[RequestInfoRefresh] Periodic refresh every 30 minutes
+[ImageAvailabilityRefresh] Starting product image availability check...
+[ImageAvailabilityRefresh] Periodic refresh every 120 minutes
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[DiscordAvatarRefresh] Periodic refresh every 120 minutes
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[ImageAvailabilityRefresh] Checking 513 product images...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[CreatorAvatarMigration] Fixing 2 rows with legacy creator_avatar for 2 creators
+[Bot] API URL: http://localhost:3002
+[Bot] sync-all-roles queued (runs in background)
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@3rd4nthm
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@3rd4nthm
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@3rd4nthm
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 1 protected: 0
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[Bot] API URL: http://localhost:3002
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Done. Requests updated: 1 Protected users updated: 0
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 514 product images...
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] Done. No social media creator avatars needed updating.
+Error: Failed to find Server Action "11135ae9fc37a39950b0eee522c0a2a2e7498124". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "5b2d8ebde098e7868487b33b80925901ba2e3b9a". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+Error: Failed to find Server Action "e7bd9a83206194edcf1ccb0a3b0239d3cd4d5cae". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "9a780fe6ffa63a88b510c23bae5cc2bde1279b8b". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 514 product images...
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] Done. No social media creator avatars needed updating.
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 514 product images...
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] Done. No social media creator avatars needed updating.
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 515 product images...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@taysvds
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@taysvds
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@taysvds
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 4 protected: 0
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@.kxnetlc
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@.kxnetlc
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@.kxnetlc
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 3 protected: 0
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] Done. Requests updated: 7 Protected users updated: 0
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 516 product images...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@marizenin
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@marizenin
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@marizenin
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 2 protected: 0
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@bbpill
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@bbpill
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@bbpill
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 1 protected: 0
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@flameae_
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@flameae_
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@flameae_
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 2 protected: 0
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@simplysatoru
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@simplysatoru
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@simplysatoru
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 1 protected: 0
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@nazstrreload
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@nazstrreload
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@nazstrreload
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 1 protected: 0
+[CreatorAvatarRefresh] Done. Requests updated: 7 Protected users updated: 0
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[CreatorAvatarRefresh] Starting social media creator avatar refresh...
+[ImageAvailabilityRefresh] Starting product image availability check...
+[DiscordAvatarRefresh] Starting Discord user avatar refresh...
+[ImageAvailabilityRefresh] Checking 518 product images...
+[CreatorAvatarRefresh] Checking 298 unique social media creators (from 366 requests + 25 protected users)
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@escapethuhnight
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@escapethuhnight
+[CreatorAvatarRefresh] Got new avatar URL | creator: https://www.tiktok.com/@escapethuhnight
+[CreatorAvatarRefresh] Updated avatar for creator | requests: 2 protected: 0
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[ImageAvailabilityRefresh] Product image unreachable for request 559 | re-fetching
+[ImageAvailabilityRefresh] Product image renewed for request 559
+[ImageAvailabilityRefresh] Done. Product images updated: 1
+[CreatorAvatarRefresh] Social media creator avatar missing, fetching | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@voidzwckd_r=1&_t=ZG-93qFvZWnNC5
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.youtube.com/@8haosz
+[CreatorAvatarRefresh] Social media creator avatar URL unreachable | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@cupidtear
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@clarsyzn
+[CreatorAvatarRefresh] Social media creator avatar legacy URL, renewing | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Fetching social media creator avatar via enrichCreator | creator: https://www.tiktok.com/@aep.vortexex
+[DiscordAvatarRefresh] Done. No Discord avatars needed updating.
+[CreatorAvatarRefresh] enrichCreator returned no avatar | creator: https://www.tiktok.com/@aep.vortexex
+[CreatorAvatarRefresh] Done. Requests updated: 2 Protected users updated: 0
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+Error: Failed to find Server Action "1". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+[RequestInfoRefresh] Filling missing social media creator info for 18 requests
+[RequestInfoRefresh] Filling missing product info for 20 requests
+[Scraper] scrapeProduct timeout, retrying in 1000 ms (attempt 1 of 2 )
+[Scraper] scrapeProduct timeout, retrying in 2000 ms (attempt 2 of 2 )
