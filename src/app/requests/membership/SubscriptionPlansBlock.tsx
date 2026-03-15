@@ -176,7 +176,7 @@ export function SubscriptionPlansBlock({
             {premiumJoinUrl ? (
               <Link
                 href={premiumJoinUrl}
-                className={`membership-plan-cta ${currentPlan === "premium" ? "membership-plan-cta-current" : "membership-plan-cta-primary"}`}
+                className="membership-plan-cta membership-plan-cta-primary"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -230,7 +230,7 @@ export function SubscriptionPlansBlock({
             {protectionJoinUrl ? (
               <Link
                 href={protectionJoinUrl}
-                className={`membership-plan-cta ${currentPlan === "leak_protection" ? "membership-plan-cta-current" : "membership-plan-cta-primary"}`}
+                className="membership-plan-cta membership-plan-cta-primary"
                 target="_blank"
                 rel="noopener noreferrer"
               >
