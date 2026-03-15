@@ -14,7 +14,6 @@ import { DiscordLinkedHandler } from "@/components/DiscordLinkedHandler";
 import { WhatsNewBanner } from "@/components/WhatsNewBanner";
 import { SiteThemeSync } from "@/components/SiteThemeSync";
 import { PromoPopupBanner } from "@/components/PromoPopupBanner";
-import { AnnouncementBarGate } from "@/components/AnnouncementBarGate";
 import { CookieNoticeBanner } from "@/components/CookieNoticeBanner";
 import { auth } from "@/auth";
 
@@ -103,7 +102,6 @@ export default async function RootLayout({
               <Header />
               <div className="wiki-main-wrap">
                 <div className="header-spacer" aria-hidden="true" />
-                <AnnouncementBarGate />
                 <main className="wiki-main">{children}</main>
                 <PromoPopupBanner />
                 <Footer />
