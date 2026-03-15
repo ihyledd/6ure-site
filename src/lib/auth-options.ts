@@ -88,9 +88,10 @@ export const authOptions: NextAuthOptions = {
         [user.id, "discord"]
       );
       const discordId = account?.providerAccountId ?? user.id;
-      const requestsUser = await queryOne<{
+      type RequestsUserRow = {
         roles: string | null;
         patreon_premium: boolean;
+        leak_protection?: boolean | number;
         guild_nickname: string | null;
         guild_avatar: string | null;
         username: string;
@@ -98,10 +99,19 @@ export const authOptions: NextAuthOptions = {
         display_name: string | null;
         boost_level: number;
         avatar_decoration: string | null;
-      }>(
-        "SELECT roles, patreon_premium, guild_nickname, guild_avatar, username, global_name, display_name, COALESCE(boost_level, 0) as boost_level, avatar_decoration FROM users WHERE id = ?",
-        [discordId]
-      );
+      };
+      let requestsUser: RequestsUserRow | null = null;
+      try {
+        requestsUser = (await queryOne<RequestsUserRow>(
+          "SELECT roles, patreon_premium, COALESCE(leak_protection, 0) as leak_protection, guild_nickname, guild_avatar, username, global_name, display_name, COALESCE(boost_level, 0) as boost_level, avatar_decoration FROM users WHERE id = ?",
+          [discordId]
+        )) ?? null;
+      } catch {
+        requestsUser = (await queryOne<RequestsUserRow>(
+          "SELECT roles, patreon_premium, guild_nickname, guild_avatar, username, global_name, display_name, COALESCE(boost_level, 0) as boost_level, avatar_decoration FROM users WHERE id = ?",
+          [discordId]
+        )) ?? null;
+      }
       const isStaff =
         (requestsUser && isStaffFromRoles(requestsUser.roles)) || discordId === WIKI_DEVELOPER_DISCORD_ID;
       return {
@@ -118,6 +128,7 @@ export const authOptions: NextAuthOptions = {
           role: isStaff ? ("ADMIN" as const) : ("USER" as const),
           username: requestsUser?.username ?? null,
           patreon_premium: requestsUser?.patreon_premium ?? false,
+          leak_protection: Boolean(requestsUser?.leak_protection ?? false),
           boost_level: requestsUser?.boost_level ?? 0,
           avatar_decoration: requestsUser?.avatar_decoration ?? null,
         },

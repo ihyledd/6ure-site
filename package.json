@@ -9,6 +9,7 @@
     "start": "next start",
     "start:prod": "node -r dotenv/config node_modules/.bin/next start -p 4000",
     "deploy": "bash build-and-restart.sh",
+    "deploy:vps": "bash scripts/deploy-vps.sh",
     "lint": "eslint",
     "db:seed-about": "node scripts/seed-about-content.js",
     "migrate:creator-avatars": "npx tsx scripts/migrate-legacy-creator-avatars.ts",

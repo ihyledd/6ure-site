@@ -249,6 +249,12 @@ const MEMBERSHIP_DEFAULTS_KEYS: Record<string, string> = {
     "Premium gets you access to leaks and perks. Leak Protection keeps your content safe and off the board.",
   discount_active: "true",
   show_faq: "true",
+  basic_card_title: "Basic",
+  basic_cta_text: "Get started",
+  basic_join_url: "",
+  footer_cta_text: "Upgrade Now",
+  footer_cta_url: "",
+  footer_security_line: "100% secure payment method with money back guarantee.",
   premium_monthly: "2.40",
   premium_yearly: "28.80",
   premium_old_price: "3",
@@ -271,6 +277,7 @@ const MEMBERSHIP_DEFAULTS_KEYS: Record<string, string> = {
   premium_warning: "",
   protection_warning:
     "Must open a ticket in our Discord server before subscribing.",
+  protection_note: "",
   protection_legal_note:
     "By subscribing, you agree that a refund will not be issued if you subscribed without first creating a ticket.",
   premium_badge_text: "Most popular",

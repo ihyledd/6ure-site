@@ -10,6 +10,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       patreon_premium?: boolean;
+      leak_protection?: boolean;
       boost_level?: number;
       /** Discord avatar decoration asset for Nitro profile frames */
       avatar_decoration?: string | null;

@@ -62,6 +62,10 @@ async function main() {
 }
 
 main().catch((e) => {
+  if (e.code === "ECONNREFUSED" || e.code === "ENOTFOUND") {
+    console.warn("Database not available, skipping about content seed. Run on VPS or when MySQL is running.");
+    process.exit(0);
+  }
   console.error(e);
   process.exit(1);
 });

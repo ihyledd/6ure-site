@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { EmbedsFormEditor } from "./EmbedsFormEditor";
+import { MembershipFormEditor } from "./MembershipFormEditor";
 import { PopupsFormEditor } from "./PopupsFormEditor";
 import { UserSettingsFormEditor } from "./UserSettingsFormEditor";
 
-type TabId = "embeds" | "popups" | "defaults";
+type TabId = "embeds" | "popups" | "membership" | "defaults";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "embeds", label: "Embeds" },
   { id: "popups", label: "Popups" },
+  { id: "membership", label: "Membership" },
   { id: "defaults", label: "Default user settings" },
 ];
 
@@ -17,6 +19,7 @@ export function RequestsSettingsClient() {
   const [activeTab, setActiveTab] = useState<TabId>("embeds");
   const [embeds, setEmbeds] = useState<Record<string, string>>({});
   const [popups, setPopups] = useState<Record<string, string>>({});
+  const [membership, setMembership] = useState<Record<string, string>>({});
   const [defaults, setDefaults] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [refreshStatus, setRefreshStatus] = useState<string | null>(null);
@@ -46,6 +49,18 @@ export function RequestsSettingsClient() {
     }
   }, []);
 
+  const loadMembership = useCallback(async () => {
+    try {
+      const r = await fetch("/api/site-settings/membership");
+      if (r.ok) {
+        const d = await r.json();
+        setMembership(d ?? {});
+      }
+    } catch {
+      setMembership({});
+    }
+  }, []);
+
   const loadDefaults = useCallback(async () => {
     try {
       const r = await fetch("/api/site-settings/default");
@@ -62,14 +77,14 @@ export function RequestsSettingsClient() {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      await Promise.all([loadEmbeds(), loadPopups(), loadDefaults()]);
+      await Promise.all([loadEmbeds(), loadPopups(), loadMembership(), loadDefaults()]);
       if (!cancelled) setLoading(false);
     }
     load();
     return () => {
       cancelled = true;
     };
-  }, [loadEmbeds, loadPopups, loadDefaults]);
+  }, [loadEmbeds, loadPopups, loadMembership, loadDefaults]);
 
   const updateEmbeds = useCallback((key: string, value: string) => {
     setEmbeds((prev) => ({ ...prev, [key]: value }));
@@ -77,6 +92,10 @@ export function RequestsSettingsClient() {
 
   const updatePopups = useCallback((key: string, value: string) => {
     setPopups((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const updateMembership = useCallback((key: string, value: string) => {
+    setMembership((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const updateDefaults = useCallback((key: string, value: string) => {
@@ -110,6 +129,20 @@ export function RequestsSettingsClient() {
       setSaving(false);
     }
   }, [popups, loadPopups]);
+
+  const saveMembership = useCallback(async () => {
+    setSaving(true);
+    try {
+      const r = await fetch("/api/site-settings/membership", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(membership),
+      });
+      if (r.ok) await loadMembership();
+    } finally {
+      setSaving(false);
+    }
+  }, [membership, loadMembership]);
 
   const saveDefaults = useCallback(async () => {
     setSaving(true);
@@ -182,6 +215,14 @@ export function RequestsSettingsClient() {
           update={updatePopups}
           saving={saving}
           onSave={savePopups}
+        />
+      )}
+      {activeTab === "membership" && (
+        <MembershipFormEditor
+          form={membership}
+          update={updateMembership}
+          saving={saving}
+          onSave={saveMembership}
         />
       )}
       {activeTab === "defaults" && (

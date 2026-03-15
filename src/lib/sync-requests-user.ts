@@ -6,7 +6,8 @@ const STAFF_ROLE_IDS = (process.env.DISCORD_STAFF_ROLE_IDS || "")
   .filter(Boolean);
 const GUILD_ID = process.env.DISCORD_SERVER_ID || process.env.DISCORD_GUILD_ID;
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
-const PREMIUM_ROLE_ID = process.env.DISCORD_PREMIUM_ROLE_ID || "1463910149432410152";
+const PREMIUM_ROLE_ID = process.env.DISCORD_PREMIUM_ROLE_ID || "1415313760243159100";
+const LEAK_PROTECTION_ROLE_ID = process.env.DISCORD_LEAK_PROTECTION_ROLE_ID || "1283627752229961800";
 
 export type DiscordProfile = {
   id: string;
@@ -100,6 +101,7 @@ export async function syncRequestsUser(
   const discordId = profile.id;
   const roles = guildMember?.roles ?? [];
   const hasPremiumRole = roles.includes(PREMIUM_ROLE_ID);
+  const hasLeakProtectionRole = roles.includes(LEAK_PROTECTION_ROLE_ID);
   const isStaff =
     STAFF_ROLE_IDS.length > 0 && STAFF_ROLE_IDS.some((id) => roles.includes(id));
 
@@ -133,8 +135,8 @@ export async function syncRequestsUser(
 
   const rolesJson = roles.length ? JSON.stringify(roles) : null;
   await execute(
-    `INSERT INTO users (id, username, discriminator, global_name, display_name, avatar, banner, accent_color, public_flags, premium_type, roles, patreon_premium, guild_nickname, guild_avatar, boost_level, premium_since, avatar_decoration, created_at, updated_at, last_login_at, last_activity_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW(), NOW())
+    `INSERT INTO users (id, username, discriminator, global_name, display_name, avatar, banner, accent_color, public_flags, premium_type, roles, patreon_premium, leak_protection, guild_nickname, guild_avatar, boost_level, premium_since, avatar_decoration, created_at, updated_at, last_login_at, last_activity_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW(), NOW())
      ON DUPLICATE KEY UPDATE
        username = VALUES(username),
        discriminator = VALUES(discriminator),
@@ -147,6 +149,7 @@ export async function syncRequestsUser(
        premium_type = VALUES(premium_type),
        roles = VALUES(roles),
        patreon_premium = VALUES(patreon_premium),
+       leak_protection = VALUES(leak_protection),
        guild_nickname = VALUES(guild_nickname),
        guild_avatar = VALUES(guild_avatar),
        boost_level = VALUES(boost_level),
@@ -168,6 +171,7 @@ export async function syncRequestsUser(
       (profile as { premium_type?: number }).premium_type ?? 0,
       rolesJson,
       hasPremiumRole,
+      hasLeakProtectionRole,
       guildNickname,
       guildAvatar,
       boostLvl,
