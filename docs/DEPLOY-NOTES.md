@@ -76,6 +76,15 @@ exit
 
 ---
 
+## 4. Finding the Turbopack error (when build retries)
+
+If you see **"Turbopack build failed, retrying with default bundler..."**, the script now **prints the full Turbopack error** above that line. Scroll up in the deploy output to see what failed.
+
+- The Turbopack log is also saved on the VPS as **`.build.turbopack.log`** in the project dir. After deploy, you can SSH in and run: `cat .build.turbopack.log`.
+- To run only the Turbopack build (no retry) and see the error: on the VPS run `npm run build -- --turbopack` (no log redirect).
+
+---
+
 ## Summary
 
 | Step   | Where   | Command              |

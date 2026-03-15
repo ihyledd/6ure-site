@@ -70,12 +70,19 @@ fi
 echo "==> Building (Turbopack + 4GB heap)..."
 # Next.js 15.3+: --turbopack for 2-5x faster production builds
 export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
-if npm run build -- --turbopack > "$ROOT/.build.log" 2>&1; then
+TURBOPACK_LOG="$ROOT/.build.turbopack.log"
+if npm run build -- --turbopack > "$TURBOPACK_LOG" 2>&1; then
   BUILD_EXIT=0
+  rm -f "$TURBOPACK_LOG"
 else
-  echo "Turbopack build failed, retrying with default bundler..."
+  echo "Turbopack build failed. Error output:"
+  echo "---"
+  cat "$TURBOPACK_LOG"
+  echo "---"
+  echo "Retrying with default bundler..."
   npm run build > "$ROOT/.build.log" 2>&1
   BUILD_EXIT=$?
+  # Keep Turbopack log on VPS for inspection: $ROOT/.build.turbopack.log
 fi
 if [ "$BUILD_EXIT" -eq 0 ]; then
   cat "$ROOT/.build.log"
