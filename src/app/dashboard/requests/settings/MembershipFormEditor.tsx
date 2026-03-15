@@ -378,7 +378,7 @@ export function MembershipFormEditor({
               type="text"
               value={form.footer_security_line ?? ""}
               onChange={(e) => update("footer_security_line", e.target.value)}
-              placeholder="100% secure payment method…"
+              placeholder="Secure payment. Refunds for monthly only…"
             />
           </div>
           <div className="dashboard-form-group">

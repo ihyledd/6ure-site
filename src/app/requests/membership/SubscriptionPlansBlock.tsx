@@ -75,7 +75,7 @@ export function SubscriptionPlansBlock({
   const protectionLegalNote = settings.protection_legal_note ?? "";
   const protectionFeatures = useMemo(() => parseFeaturesJson(settings.protection_features), [settings.protection_features]);
 
-  const footerSecurity = settings.footer_security_line ?? "100% secure payment method with money back guarantee.";
+  const footerSecurity = settings.footer_security_line ?? "Secure payment via Patreon (monthly) or PayPal (yearly). Refunds available for monthly Patreon only; yearly payments are non-refundable.";
   const footerCtaText = settings.footer_cta_text ?? "Upgrade Now";
   const footerCtaUrl = settings.footer_cta_url ?? "";
 

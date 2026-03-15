@@ -254,7 +254,7 @@ const MEMBERSHIP_DEFAULTS_KEYS: Record<string, string> = {
   basic_join_url: "",
   footer_cta_text: "Upgrade Now",
   footer_cta_url: "",
-  footer_security_line: "100% secure payment method with money back guarantee.",
+  footer_security_line: "Secure payment via Patreon (monthly) or PayPal (yearly). Refunds available for monthly Patreon only; yearly payments are non-refundable.",
   premium_monthly: "2.40",
   premium_yearly: "28.80",
   premium_old_price: "3",
