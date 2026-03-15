@@ -46,6 +46,7 @@ export function SubscriptionPlansBlock({
   const premiumLabel = settings.premium_card_label ?? "";
   const premiumMonthly = settings.premium_monthly ?? "0";
   const premiumYearly = settings.premium_yearly ?? "0";
+  const premiumOldPriceMonthly = settings.premium_old_price_monthly ?? "";
   const premiumOldPriceYearly = settings.premium_old_price_yearly ?? "";
   const premiumSaveLabel = settings.premium_save_label ?? "";
   const premiumBadge = settings.premium_badge_text ?? "";
@@ -59,6 +60,7 @@ export function SubscriptionPlansBlock({
   const protectionLabel = settings.protection_card_label ?? "";
   const protectionMonthly = settings.protection_monthly ?? "0";
   const protectionYearly = settings.protection_yearly ?? "0";
+  const protectionOldPriceMonthly = settings.protection_old_price_monthly ?? "";
   const protectionOldPriceYearly = settings.protection_old_price_yearly ?? "";
   const protectionSaveLabel = settings.protection_save_label ?? "";
   const protectionBadge = settings.protection_badge_text ?? "";
@@ -162,6 +164,9 @@ export function SubscriptionPlansBlock({
             <h2 className="membership-plan-title">{premiumTitle}</h2>
             {premiumLabel && <p className="membership-plan-label">{premiumLabel}</p>}
             <div className="membership-plan-price-row">
+              {billing === "monthly" && premiumOldPriceMonthly && (
+                <span className="membership-plan-old-price">{formatPrice(premiumOldPriceMonthly)}</span>
+              )}
               {billing === "annual" && premiumOldPriceYearly && (
                 <span className="membership-plan-old-price">{formatPrice(premiumOldPriceYearly)}</span>
               )}
@@ -216,6 +221,9 @@ export function SubscriptionPlansBlock({
             <h2 className="membership-plan-title">{protectionTitle}</h2>
             {protectionLabel && <p className="membership-plan-label">{protectionLabel}</p>}
             <div className="membership-plan-price-row">
+              {billing === "monthly" && protectionOldPriceMonthly && (
+                <span className="membership-plan-old-price">{formatPrice(protectionOldPriceMonthly)}</span>
+              )}
               {billing === "annual" && protectionOldPriceYearly && (
                 <span className="membership-plan-old-price">{formatPrice(protectionOldPriceYearly)}</span>
               )}

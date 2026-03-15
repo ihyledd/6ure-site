@@ -168,6 +168,15 @@ export function MembershipFormEditor({
               />
             </div>
             <div className="dashboard-form-group">
+              <label>Old price – monthly (original before discount, shown greyed out)</label>
+              <input
+                type="text"
+                value={form.premium_old_price_monthly ?? ""}
+                onChange={(e) => update("premium_old_price_monthly", e.target.value)}
+                placeholder="3"
+              />
+            </div>
+            <div className="dashboard-form-group">
               <label>Old price – annual (original before discount, shown greyed out)</label>
               <input
                 type="text"
@@ -278,6 +287,15 @@ export function MembershipFormEditor({
                 value={form.protection_save_label ?? ""}
                 onChange={(e) => update("protection_save_label", e.target.value)}
                 placeholder="$17 off"
+              />
+            </div>
+            <div className="dashboard-form-group">
+              <label>Old price – monthly (original before discount, shown greyed out)</label>
+              <input
+                type="text"
+                value={form.protection_old_price_monthly ?? ""}
+                onChange={(e) => update("protection_old_price_monthly", e.target.value)}
+                placeholder="7"
               />
             </div>
             <div className="dashboard-form-group">
