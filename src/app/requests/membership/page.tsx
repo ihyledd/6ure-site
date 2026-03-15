@@ -51,15 +51,15 @@ export default async function RequestsMembershipPage() {
       }
       let row: { patreon_premium: boolean; leak_protection?: boolean | number } | null = null;
       try {
-        row = await queryOne<{ patreon_premium: boolean; leak_protection?: boolean | number }>(
+        row = (await queryOne<{ patreon_premium: boolean; leak_protection?: boolean | number }>(
           "SELECT patreon_premium, COALESCE(leak_protection, 0) as leak_protection FROM users WHERE id = ?",
           [discordId]
-        );
+        )) ?? null;
       } catch {
-        row = await queryOne<{ patreon_premium: boolean }>(
+        row = (await queryOne<{ patreon_premium: boolean }>(
           "SELECT patreon_premium FROM users WHERE id = ?",
           [discordId]
-        );
+        )) ?? null;
       }
       if (row) {
         isPremium = Boolean(row.patreon_premium);
