@@ -38,20 +38,19 @@
   margin: 0;
 }
 
-/* Your current plan card (above Monthly/Annual toggle) */
+/* Your current plan card – compact pill (above Monthly/Annual toggle) */
 .membership-current-plan-card {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px 16px;
   margin-bottom: 24px;
-  padding: 16px 24px;
+  padding: 10px 18px;
   background:
     radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.08) 0%, transparent 50%),
     color-mix(in srgb, var(--bg-secondary) 88%, var(--bg-primary));
   border: 1px solid var(--glass-border);
-  border-radius: 14px;
+  border-radius: 999px;
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
@@ -59,8 +58,9 @@
 
 .membership-current-plan-label {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .membership-current-plan-label strong {
@@ -68,18 +68,19 @@
 }
 
 .membership-current-plan-actions {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .membership-current-plan-cta {
   text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

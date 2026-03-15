@@ -105,7 +105,7 @@ export function SubscriptionPlansBlock({
           </strong>
         </p>
         <div className="membership-current-plan-actions">
-          {currentPlan !== "premium" && currentPlan !== "leak_protection" && premiumJoinUrl && (
+          {premiumJoinUrl && (
             <Link
               href={premiumJoinUrl}
               className="membership-current-plan-cta membership-plan-cta-primary"
@@ -115,7 +115,7 @@ export function SubscriptionPlansBlock({
               {premiumCta}
             </Link>
           )}
-          {currentPlan !== "leak_protection" && protectionJoinUrl && (
+          {protectionJoinUrl && (
             <Link
               href={protectionJoinUrl}
               className="membership-current-plan-cta membership-plan-cta-primary"
