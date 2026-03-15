@@ -91,40 +91,20 @@ export function SubscriptionPlansBlock({
         )}
       </section>
 
-      <div className="membership-current-plan-card">
-        <p className="membership-current-plan-label">
-          Your current plan:{" "}
-          <strong>
-            {isLeakProtection && isPremium
-              ? `${premiumTitle} + ${protectionTitle}`
-              : currentPlan === "leak_protection"
-                ? protectionTitle
-                : currentPlan === "premium"
-                  ? premiumTitle
-                  : basicTitle}
-          </strong>
-        </p>
-        <div className="membership-current-plan-actions">
-          {premiumJoinUrl && (
-            <Link
-              href={premiumJoinUrl}
-              className="membership-current-plan-cta membership-plan-cta-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {premiumCta}
-            </Link>
-          )}
-          {protectionJoinUrl && (
-            <Link
-              href={protectionJoinUrl}
-              className="membership-current-plan-cta membership-plan-cta-primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {protectionCta}
-            </Link>
-          )}
+      <div className="membership-current-plan-wrap">
+        <div className="membership-current-plan-card">
+          <p className="membership-current-plan-label">
+            Your current plan:{" "}
+            <strong>
+              {isLeakProtection && isPremium
+                ? `${premiumTitle} + ${protectionTitle}`
+                : currentPlan === "leak_protection"
+                  ? protectionTitle
+                  : currentPlan === "premium"
+                    ? premiumTitle
+                    : basicTitle}
+            </strong>
+          </p>
         </div>
       </div>
 
@@ -200,11 +180,11 @@ export function SubscriptionPlansBlock({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {currentPlan === "premium" ? "Current Plan" : premiumCta}
+                {premiumCta}
               </Link>
             ) : (
               <span className={`membership-plan-cta ${currentPlan === "premium" ? "membership-plan-cta-current" : "membership-plan-cta-muted"}`}>
-                {currentPlan === "premium" ? "Current Plan" : premiumCta}
+                {premiumCta}
               </span>
             )}
             {premiumFeatures.length > 0 && (
@@ -254,11 +234,11 @@ export function SubscriptionPlansBlock({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {currentPlan === "leak_protection" ? "Current Plan" : protectionCta}
+                {protectionCta}
               </Link>
             ) : (
               <span className={`membership-plan-cta ${currentPlan === "leak_protection" ? "membership-plan-cta-current" : "membership-plan-cta-muted"}`}>
-                {currentPlan === "leak_protection" ? "Current Plan" : protectionCta}
+                {protectionCta}
               </span>
             )}
             {protectionFeatures.length > 0 && (
