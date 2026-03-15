@@ -48,6 +48,8 @@
 .membership-current-plan-card {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
   padding: 10px 18px;
   background:
     radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.08) 0%, transparent 50%),
@@ -60,14 +62,39 @@
 }
 
 .membership-current-plan-label {
-  margin: 0;
   font-size: 14px;
   color: var(--text-secondary);
   white-space: nowrap;
 }
 
-.membership-current-plan-label strong {
+.membership-current-plan-value {
+  font-size: 14px;
   color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* When user has both plans: two pills */
+.membership-current-plan-pills {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.membership-current-plan-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--discord-blurple) 16%, var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--discord-blurple) 35%, transparent);
+}
+
+.membership-current-plan-pill-accent {
+  background: color-mix(in srgb, var(--discord-blurple) 24%, var(--bg-secondary));
+  border-color: color-mix(in srgb, var(--discord-blurple) 50%, transparent);
 }
 
 .membership-billing-toggle-wrap {

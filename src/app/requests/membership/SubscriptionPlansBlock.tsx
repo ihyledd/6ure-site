@@ -99,18 +99,21 @@ export function SubscriptionPlansBlock({
 
       <div className="membership-current-plan-wrap">
         <div className="membership-current-plan-card">
-          <p className="membership-current-plan-label">
-            Your current plan:{" "}
-            <strong>
-              {isLeakProtection && isPremium
-                ? `${premiumTitle} + ${protectionTitle}`
-                : currentPlan === "leak_protection"
-                  ? protectionTitle
-                  : currentPlan === "premium"
-                    ? premiumTitle
-                    : basicTitle}
+          <span className="membership-current-plan-label">Your current plan:</span>
+          {isLeakProtection && isPremium ? (
+            <div className="membership-current-plan-pills" aria-label="Current plans: Premium and Leak Protection">
+              <span className="membership-current-plan-pill">{premiumTitle}</span>
+              <span className="membership-current-plan-pill membership-current-plan-pill-accent">{protectionTitle}</span>
+            </div>
+          ) : (
+            <strong className="membership-current-plan-value">
+              {currentPlan === "leak_protection"
+                ? protectionTitle
+                : currentPlan === "premium"
+                  ? premiumTitle
+                  : basicTitle}
             </strong>
-          </p>
+          )}
         </div>
       </div>
 
