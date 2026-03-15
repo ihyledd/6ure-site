@@ -142,7 +142,7 @@ export function SubscriptionPlansBlock({
             <h2 className="membership-plan-title">{basicTitle}</h2>
             <div className="membership-plan-price-row">
               <span className="membership-plan-price">$0</span>
-              <span className="membership-plan-period">/ Per user / Per month</span>
+              <span className="membership-plan-period">/ Per user / Per {billing === "annual" ? "year" : "month"}</span>
             </div>
             {basicJoinUrl ? (
               <Link
@@ -177,7 +177,7 @@ export function SubscriptionPlansBlock({
               <span className="membership-plan-price">
                 {formatPrice(billing === "annual" ? premiumYearly : premiumMonthly)}
               </span>
-              <span className="membership-plan-period">/ Per user / Per month</span>
+              <span className="membership-plan-period">/ Per user / Per {billing === "annual" ? "year" : "month"}</span>
               {billing === "annual" && premiumSaveLabel && (
                 <span className="membership-plan-save">{premiumSaveLabel}</span>
               )}
@@ -242,7 +242,7 @@ export function SubscriptionPlansBlock({
               <span className="membership-plan-price">
                 {formatPrice(billing === "annual" ? protectionYearly : protectionMonthly)}
               </span>
-              <span className="membership-plan-period">/ Per user / Per month</span>
+              <span className="membership-plan-period">/ Per user / Per {billing === "annual" ? "year" : "month"}</span>
               {billing === "annual" && protectionSaveLabel && (
                 <span className="membership-plan-save">{protectionSaveLabel}</span>
               )}
