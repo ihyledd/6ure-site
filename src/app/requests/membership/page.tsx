@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { getFaqsList } from "@/lib/dal/faqs";
-import { getMembershipSettings } from "@/lib/site-settings";
+import { getMembershipSettings, getSiteSetting } from "@/lib/site-settings";
 import { authOptions } from "@/lib/auth-options";
 import { RequestsMembershipContent } from "./RequestsMembershipContent";
 import { SubscriptionPlansBlock } from "./SubscriptionPlansBlock";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RequestsMembershipPage() {
-  const [faqs, settings, session] = await Promise.all([
+  const [faqs, settings, session, discordUrl] = await Promise.all([
     getFaqsList({ category: "membership" }).catch((e) => {
       console.error("[requests/membership] getFaqsList failed:", e);
       return [];
@@ -28,6 +28,7 @@ export default async function RequestsMembershipPage() {
       return {} as Record<string, string>;
     }),
     getServerSession(authOptions),
+    getSiteSetting("discord_url").catch(() => null),
   ]);
 
   const showFaq = settings.show_faq === "true";
@@ -42,6 +43,7 @@ export default async function RequestsMembershipPage() {
         settings={settings}
         isPremium={user?.patreon_premium ?? false}
         isLeakProtection={user?.leak_protection ?? false}
+        discordUrl={discordUrl ?? ""}
       />
       {showFaq && (
         <RequestsMembershipContent

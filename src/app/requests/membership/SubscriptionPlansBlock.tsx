@@ -3,11 +3,13 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { MarkdownProse } from "@/components/Markdown";
+import { MembershipInstructionModal, type MembershipInstructionType } from "./MembershipInstructionModal";
 
 type SubscriptionPlansBlockProps = {
   settings: Record<string, string>;
   isPremium: boolean;
   isLeakProtection: boolean;
+  discordUrl?: string;
 };
 
 function parseFeaturesJson(raw: string | undefined): string[] {
@@ -30,8 +32,10 @@ export function SubscriptionPlansBlock({
   settings,
   isPremium,
   isLeakProtection,
+  discordUrl = "",
 }: SubscriptionPlansBlockProps) {
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
+  const [instructionModal, setInstructionModal] = useState<MembershipInstructionType | null>(null);
   const currentPlan = useMemo(() => getCurrentPlanCard(isPremium, isLeakProtection), [isPremium, isLeakProtection]);
 
   const heroTitle = settings.hero_title ?? "Choose your membership";
@@ -178,7 +182,15 @@ export function SubscriptionPlansBlock({
                 <span className="membership-plan-save">{premiumSaveLabel}</span>
               )}
             </div>
-            {premiumJoinUrl ? (
+            {billing === "annual" ? (
+              <button
+                type="button"
+                className="membership-plan-cta membership-plan-cta-primary"
+                onClick={() => setInstructionModal("premium_annual")}
+              >
+                {premiumCta}
+              </button>
+            ) : premiumJoinUrl ? (
               <Link
                 href={premiumJoinUrl}
                 className="membership-plan-cta membership-plan-cta-primary"
@@ -235,20 +247,13 @@ export function SubscriptionPlansBlock({
                 <span className="membership-plan-save">{protectionSaveLabel}</span>
               )}
             </div>
-            {protectionJoinUrl ? (
-              <Link
-                href={protectionJoinUrl}
-                className="membership-plan-cta membership-plan-cta-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {protectionCta}
-              </Link>
-            ) : (
-              <span className={`membership-plan-cta ${currentPlan === "leak_protection" ? "membership-plan-cta-current" : "membership-plan-cta-muted"}`}>
-                {protectionCta}
-              </span>
-            )}
+            <button
+              type="button"
+              className="membership-plan-cta membership-plan-cta-primary"
+              onClick={() => setInstructionModal("leak_protection")}
+            >
+              {protectionCta}
+            </button>
             {protectionFeatures.length > 0 && (
               <ul className="membership-plan-features">
                 {protectionFeatures.map((text, i) => (
@@ -290,6 +295,14 @@ export function SubscriptionPlansBlock({
           </Link>
         )}
       </footer>
+
+      {instructionModal && (
+        <MembershipInstructionModal
+          type={instructionModal}
+          onClose={() => setInstructionModal(null)}
+          discordUrl={discordUrl}
+        />
+      )}
     </>
   );
 }
