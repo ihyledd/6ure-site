@@ -2670,6 +2670,9 @@ body:has(#ure-mobile-nav-toggle:checked) .wiki-main-wrap {
   .notification-panel-floating {
     z-index: 10001;
   }
+  .announcement-panel-floating {
+    z-index: 10001;
+  }
 }
 
 /* Light mode: floating actions */
