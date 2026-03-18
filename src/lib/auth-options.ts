@@ -9,9 +9,17 @@ import {
 } from "@/lib/sync-requests-user";
 import type { DiscordProfile } from "@/lib/sync-requests-user";
 
-const WIKI_DEVELOPER_DISCORD_ID = process.env.WIKI_DEVELOPER_DISCORD_ID || "1352515058738925669";
+// Optional dev override. If unset, nobody is force-marked as staff.
+const WIKI_DEVELOPER_DISCORD_ID = process.env.WIKI_DEVELOPER_DISCORD_ID || "";
 
-const STAFF_ROLE_IDS = (process.env.DISCORD_STAFF_ROLE_IDS || "")
+// Staff badge: driven by the developer role id (optionally plus any extra staff role ids).
+const STAFF_ROLE_IDS = (
+  [
+    process.env.DISCORD_DEVELOPER_ROLE_ID || "",
+    process.env.DISCORD_STAFF_ROLE_IDS || "",
+  ]
+    .join(",")
+)
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
@@ -113,7 +121,8 @@ export const authOptions: NextAuthOptions = {
         )) ?? null;
       }
       const isStaff =
-        (requestsUser && isStaffFromRoles(requestsUser.roles)) || discordId === WIKI_DEVELOPER_DISCORD_ID;
+        (requestsUser && isStaffFromRoles(requestsUser.roles)) ||
+        (WIKI_DEVELOPER_DISCORD_ID && discordId === WIKI_DEVELOPER_DISCORD_ID);
       return {
         ...session,
         user: {

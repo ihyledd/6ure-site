@@ -29,7 +29,10 @@ function toAbsoluteImageUrl(url, userId = null) {
 
 function isStaff(member) {
   if (!member) return false;
-  const staffIds = (process.env.DISCORD_STAFF_ROLE_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const staffIds = [
+    (process.env.DISCORD_DEVELOPER_ROLE_ID || '').trim(),
+    ...(process.env.DISCORD_STAFF_ROLE_IDS || '').split(',').map(s => s.trim()).filter(Boolean),
+  ].filter(Boolean);
   if (!staffIds.length) return false;
   return staffIds.some(id => member.roles.cache.has(id));
 }
@@ -68,13 +71,12 @@ const processingRequests = new Set(); // Lock to prevent duplicate message creat
 
 client.once('ready', async () => {
   console.log(`Bot logged in as ${client.user.tag}`);
+  const guildId = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID || process.env.DISCORD_SERVER_ID;
   
   // Register slash commands locally in the guild
   try {
-    const guildId = process.env.GUILD_ID || process.env.DISCORD_SERVER_ID;
-    
     if (!guildId) {
-      console.error('No GUILD_ID or DISCORD_SERVER_ID found in .env file');
+      console.error('No DISCORD_GUILD_ID / GUILD_ID / DISCORD_SERVER_ID found in .env file');
       return;
     }
     
@@ -156,7 +158,7 @@ client.once('ready', async () => {
   }
   
   // Fetch guild to ensure it's available
-  const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID).catch(err => {
+  const guild = await client.guilds.fetch(guildId).catch(err => {
     console.error('Failed to fetch guild:', err);
     return null;
   });
@@ -235,7 +237,7 @@ client.once('ready', async () => {
       console.log(`Leak forum found: ${leakForum.name} (${leakForum.type})`);
     }
   } else {
-    console.error(`Guild not found! Guild ID: ${process.env.DISCORD_SERVER_ID}`);
+    console.error(`Guild not found! Guild ID: ${guildId}`);
   }
   
   // Start polling for new requests (only if channel is available)
@@ -253,7 +255,7 @@ client.once('ready', async () => {
 
 // When a member's roles change, sync staff/premium rights to the app DB instantly
 client.on('guildMemberUpdate', async (oldMember, newMember) => {
-  const guildId = process.env.GUILD_ID || process.env.DISCORD_SERVER_ID;
+  const guildId = process.env.DISCORD_GUILD_ID || process.env.GUILD_ID || process.env.DISCORD_SERVER_ID;
   if (!guildId || newMember.guild.id !== guildId) return;
 
   const oldRoleIds = oldMember.roles.cache.map(r => r.id).sort().join(',');
@@ -261,7 +263,10 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
   if (oldRoleIds === newRoleIds) return;
 
   const roleIds = Array.from(newMember.roles.cache.keys());
-  const staffRoleIds = (process.env.DISCORD_STAFF_ROLE_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const staffRoleIds = [
+    (process.env.DISCORD_DEVELOPER_ROLE_ID || '').trim(),
+    ...(process.env.DISCORD_STAFF_ROLE_IDS || '').split(',').map(s => s.trim()).filter(Boolean),
+  ].filter(Boolean);
   const premiumRoleId = (process.env.DISCORD_PREMIUM_ROLE_ID || '').trim();
   const hasPremiumRole = premiumRoleId && roleIds.includes(premiumRoleId);
 

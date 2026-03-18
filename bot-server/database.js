@@ -828,11 +828,23 @@ const getUser = async (userId) => {
 const updateUserRoles = async (userId, roles, patreonPremium) => {
   const pool = getPool();
   const rolesJson = Array.isArray(roles) ? JSON.stringify(roles) : JSON.stringify([]);
-  const [result] = await pool.query(
-    'UPDATE users SET roles = ?, patreon_premium = ? WHERE id = ?',
-    [rolesJson, Boolean(patreonPremium), userId]
-  );
-  return result.affectedRows > 0;
+  // Leak Protection is role-based too, but older DBs may not have the column yet.
+  const leakRoleId = (process.env.DISCORD_LEAK_PROTECTION_ROLE_ID || '').trim();
+  const hasLeakProtection = leakRoleId && Array.isArray(roles) ? roles.includes(leakRoleId) : false;
+  try {
+    const [result] = await pool.query(
+      'UPDATE users SET roles = ?, patreon_premium = ?, leak_protection = ? WHERE id = ?',
+      [rolesJson, Boolean(patreonPremium), Boolean(hasLeakProtection), userId]
+    );
+    return result.affectedRows > 0;
+  } catch (e) {
+    // Fallback for older schemas without leak_protection
+    const [result] = await pool.query(
+      'UPDATE users SET roles = ?, patreon_premium = ? WHERE id = ?',
+      [rolesJson, Boolean(patreonPremium), userId]
+    );
+    return result.affectedRows > 0;
+  }
 };
 
 const createRequest = async (userId, requestData) => {
