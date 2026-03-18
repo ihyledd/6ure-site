@@ -137,8 +137,12 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("[API] POST /api/protection/users:", error);
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Failed to add protected user";
     return NextResponse.json(
-      { error: "Failed to add protected user" },
+      { error: message },
       { status: 500 }
     );
   }
