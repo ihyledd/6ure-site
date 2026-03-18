@@ -70,7 +70,7 @@ const DEFAULT_BURGER = DEFAULT_BURGER_MENU_SLUGS;
 
 export function HeaderNav({ session, discordUrl, discordLoginUrl, hasAdmin, burgerMenuItems = [] }: Props) {
   const pathname = usePathname();
-  const { data: clientSession } = useSession();
+  const { data: clientSession, update } = useSession();
   const [mounted, setMounted] = useState(false);
   const [activeBurger, setActiveBurger] = useState<string[]>(DEFAULT_BURGER);
 
@@ -109,6 +109,31 @@ export function HeaderNav({ session, discordUrl, discordLoginUrl, hasAdmin, burg
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [mounted]);
+
+  // Global role refresh: keeps staff/premium/leak flags in sync without sign-out/sign-in.
+  // Throttled per-user in localStorage to avoid spamming Discord/API.
+  useEffect(() => {
+    if (!mounted) return;
+    const uid = sessionToUse?.user?.id;
+    if (!uid) return;
+
+    const key = `rolesRefreshedAt:${uid}`;
+    const now = Date.now();
+    const last = Number(localStorage.getItem(key) || "0");
+    const THROTTLE_MS = 5 * 60 * 1000; // 5 minutes
+    if (now - last < THROTTLE_MS) return;
+
+    localStorage.setItem(key, String(now));
+    fetch("/api/auth/refresh-roles", { method: "POST" })
+      .then((r) => r.json().catch(() => ({})).then((j) => ({ ok: r.ok, body: j })))
+      .then(async ({ ok }) => {
+        if (ok) {
+          // Re-fetch NextAuth session so header updates immediately.
+          await update?.();
+        }
+      })
+      .catch(() => {});
+  }, [mounted, sessionToUse?.user?.id, update]);
 
   return (
     <>
