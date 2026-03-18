@@ -1447,6 +1447,7 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
+  padding-right: 40px;
 }
 .rf-step-dot {
   width: 28px;
