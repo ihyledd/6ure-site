@@ -732,6 +732,20 @@ export async function markAllNotificationsRead(userId: string): Promise<void> {
   ]);
 }
 
+export async function createNotification(
+  requestId: number | null,
+  userId: string,
+  type: string,
+  title: string,
+  message: string
+): Promise<number> {
+  const result = await execute(
+    "INSERT INTO notifications (request_id, user_id, type, title, message) VALUES (?, ?, ?, ?, ?)",
+    [requestId, userId, type, title, message]
+  );
+  return result.insertId ?? 0;
+}
+
 // --- Upvotes ---
 
 export async function hasUpvoted(

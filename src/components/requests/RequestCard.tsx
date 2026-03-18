@@ -1,18 +1,21 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import clsx from "clsx";
 
 import { CreatorAvatar } from "./CreatorAvatar";
 import { BiIcon } from "./BiIcon";
 import { UserAvatar } from "./UserAvatar";
+import { DeleteRequestModal } from "./DeleteRequestModal";
 import {
   formatDate,
   getRequestImageUrl,
   buildRequestTitle,
   decodeHtmlEntities,
 } from "@/lib/requests-utils";
+import { getPriceTier } from "@/lib/price-utils";
 
 export type RequestCardRequest = {
   id: number;
@@ -60,6 +63,26 @@ function truncateDescription(desc: string | null | undefined): string {
   return trimmed.slice(0, DESCRIPTION_SNIPPET_LENGTH).trim() + "…";
 }
 
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case "pending": return "PENDING";
+    case "completed": return "AVAILABLE";
+    case "rejected": return "REJECTED";
+    case "cancelled": return "CANCELLED";
+    default: return status.toUpperCase();
+  }
+}
+
+function getStatusIcon(status: string): string {
+  switch (status) {
+    case "pending": return "⏳";
+    case "completed": return "✅";
+    case "rejected": return "❌";
+    case "cancelled": return "🚫";
+    default: return "●";
+  }
+}
+
 export function RequestCard({
   request,
   variant,
@@ -71,6 +94,7 @@ export function RequestCard({
   onRefresh,
 }: Props) {
   const cardRef = useRef<HTMLAnchorElement | HTMLDivElement>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
@@ -82,12 +106,25 @@ export function RequestCard({
   };
 
   const title = buildRequestTitle(request);
-
   const descSnippet = truncateDescription(request.description);
   const imgUrl = getRequestImageUrl(request.image_url) ?? request.image_url;
+  const priceTier = getPriceTier(request.price);
+  const isCompleted = request.status === "completed";
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleted = () => {
+    setShowDeleteModal(false);
+    onRefresh?.();
+  };
 
   const cardContent = (
     <>
+      {/* Hero image with overlaid badges */}
       <div className="requests-card-image-wrapper">
         {imgUrl ? (
           <img
@@ -101,48 +138,88 @@ export function RequestCard({
             <BiIcon name="image" size={32} />
           </div>
         )}
-      </div>
-      <div className="requests-card-content">
-        <h3 className="requests-card-title">{decodeHtmlEntities(title)}</h3>
-        {descSnippet && (
-          <p className="requests-card-description">{decodeHtmlEntities(descSnippet)}</p>
-        )}
-        {request.price && (
-          <span className="requests-card-price">{request.price}</span>
-        )}
-        <div className="requests-card-tags">
-          <span
-            className={clsx(
-              "requests-tag",
-              "requests-tag-status",
-              `requests-tag-${request.status}`
+
+        {/* Overlay badges */}
+        <div className="requests-card-image-overlay">
+          <div className="requests-card-badges-left">
+            {request.has_priority && (
+              <span className="requests-card-badge requests-card-badge-priority">
+                ⭐ PRIORITY
+              </span>
             )}
-          >
-            {request.status}
-          </span>
-          {request.has_priority && (
-            <span className="requests-tag requests-tag-priority">Priority</span>
-          )}
-          {request.patreon_premium && (
-            <span className="requests-tag requests-tag-premium" title="Premium Request">
-              <BiIcon name="star-fill" size={12} style={{ marginRight: 4, color: "#ffd700" }} /> Premium
+            <span className={clsx(
+              "requests-card-badge",
+              `requests-card-badge-${request.status}`
+            )}>
+              {getStatusIcon(request.status)} {getStatusLabel(request.status)}
             </span>
+          </div>
+
+          {isStaff && (
+            <button
+              type="button"
+              className="requests-card-delete-btn"
+              onClick={handleDeleteClick}
+              title="Delete request"
+              aria-label="Delete request"
+            >
+              <BiIcon name="trash3-fill" size={16} />
+            </button>
           )}
         </div>
 
+        {/* Title overlay on image */}
+        <div className="requests-card-image-title-overlay">
+          <h3 className="requests-card-overlay-title">{decodeHtmlEntities(title)}</h3>
+        </div>
+      </div>
+
+      {/* Content section */}
+      <div className="requests-card-content">
+        <h3 className="requests-card-title">{decodeHtmlEntities(title)}</h3>
+
+        {descSnippet && (
+          <p className="requests-card-description">{decodeHtmlEntities(descSnippet)}</p>
+        )}
+
+        {request.price && (
+          <span className={clsx(
+            "requests-card-price",
+            priceTier && `requests-card-price-${priceTier}`
+          )}>
+            PRICE <strong>{request.price}</strong>
+          </span>
+        )}
+
         <div className="requests-card-footer">
           <div className="requests-card-author">
-            <UserAvatar
-              avatar={request.avatar}
-              userId={request.user_id}
-              avatarDecoration={request.avatar_decoration}
-              size={24}
-              displayName={request.username}
-            />
-            <span className="requests-card-username">{request.username}</span>
+            {request.username === "Anonymous" ? (
+              <span className="requests-card-anonymous-badge">
+                <BiIcon name="question-circle" size={16} />
+                <span>Anonymous</span>
+                {request.patreon_premium && (
+                  <span className="requests-card-premium-star" title="Premium">⭐</span>
+                )}
+              </span>
+            ) : (
+              <div className="requests-card-user-info">
+                <UserAvatar
+                  avatar={request.avatar}
+                  userId={request.user_id}
+                  avatarDecoration={request.avatar_decoration}
+                  size={22}
+                  displayName={request.username}
+                />
+                <span className="requests-card-username">{request.username}</span>
+                {request.patreon_premium && (
+                  <span className="requests-card-premium-star" title="Premium">⭐</span>
+                )}
+              </div>
+            )}
           </div>
           <span className="requests-card-date">{formatDate(request.created_at)}</span>
         </div>
+
         <div className="requests-links-row">
           <a
             href={request.creator_url}
@@ -166,40 +243,68 @@ export function RequestCard({
             <BiIcon name="box-arrow-up-right" size={14} />
           </a>
         </div>
+
+        {/* Discord download button for completed requests */}
+        {isCompleted && request.leak_message_url && (
+          <a
+            href={request.leak_message_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="requests-card-discord-btn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <BiIcon name="discord" size={18} />
+            Download in Discord
+          </a>
+        )}
+
         {variant === "main" && (
           <div className="requests-card-stats">
-            {canUpvote && onUpvote && (
+            {canUpvote && onUpvote ? (
               <button
                 type="button"
                 className={clsx(
-                  "requests-upvote-btn",
-                  request.hasUpvoted && "requests-upvote-btn-active"
+                  "requests-stat-pill",
+                  "requests-upvote-pill",
+                  request.hasUpvoted && "requests-upvote-pill-active"
                 )}
                 onClick={(e) => onUpvote(e, request.id, !!request.hasUpvoted)}
                 disabled={upvoting}
                 aria-pressed={request.hasUpvoted}
               >
-                <BiIcon name="hand-thumbs-up-fill" size={16} />
+                <BiIcon name="hand-thumbs-up-fill" size={14} />
                 <span>{request.upvotes}</span>
               </button>
-            )}
-            {!canUpvote && (
-              <span className="requests-stat-item">
+            ) : (
+              <span className="requests-stat-pill">
                 <BiIcon name="hand-thumbs-up" size={14} />
-                {request.upvotes}
+                <span>{request.upvotes}</span>
               </span>
             )}
-            <span className="requests-stat-item">
-              <BiIcon name="chat-dots" size={14} />
-              {request.comments_count}
-            </span>
-            <span className="requests-stat-item">
+            <span className="requests-stat-pill">
               <BiIcon name="eye" size={14} />
-              {request.views}
+              <span>{request.views}</span>
+            </span>
+            <span className="requests-stat-pill">
+              <BiIcon name="chat-dots" size={14} />
+              <span>{request.comments_count}</span>
             </span>
           </div>
         )}
       </div>
+
+      {/* Delete modal portal */}
+      {showDeleteModal &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <DeleteRequestModal
+            requestId={request.id}
+            requestTitle={title}
+            onClose={() => setShowDeleteModal(false)}
+            onDeleted={handleDeleted}
+          />,
+          document.body
+        )}
     </>
   );
 
@@ -217,7 +322,6 @@ export function RequestCard({
       >
         {cardContent}
       </Link>
-
     );
   }
 
@@ -229,7 +333,6 @@ export function RequestCard({
       className={clsx(
         "your-request-card",
         request.status
-
       )}
     >
       <div className="your-request-card-header">

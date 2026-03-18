@@ -8,6 +8,7 @@ import {
   updateRequest,
   recordView,
   deleteRequest,
+  createNotification,
 } from "@/lib/requests-api";
 import {
   embedUpdate,
@@ -137,6 +138,18 @@ export async function DELETE(
     const messageId = reqForBot?.message_id ?? null;
     const publicMessageId = reqForBot?.public_message_id ?? null;
     const requesterUsername = await getRequesterUsername(id);
+
+    // Create in-app notification for the requester before deleting
+    if (requester) {
+      const reasonText = body.reason ? ` Reason: ${body.reason}` : "";
+      await createNotification(
+        null, // request_id null since it will be deleted
+        requester,
+        "request_deleted",
+        "Request Deleted",
+        `Your request "${requestTitle}" has been deleted by staff.${reasonText}`
+      );
+    }
 
     if (requester && body.sendDm) {
       sendDeletionDm(requester, requestTitle, body.reason, id);
