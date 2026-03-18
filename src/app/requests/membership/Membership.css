@@ -468,12 +468,66 @@
 }
 
 @media (max-width: 600px) {
+  .membership-hero {
+    margin-bottom: 22px;
+  }
+
+  .membership-hero-subtitle-prose {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .membership-current-plan-wrap {
+    margin-bottom: 18px;
+  }
+
+  .membership-current-plan-card {
+    padding: 8px 14px;
+    gap: 8px 10px;
+  }
+
+  .membership-current-plan-label,
+  .membership-current-plan-value {
+    font-size: 13px;
+  }
+
   .membership-billing-toggle {
     width: 100%;
+    padding: 3px;
+    border-radius: 12px;
   }
 
   .membership-billing-toggle .protected-filter-pill {
     flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  .membership-plans-grid {
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .membership-plan-card {
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+
+  .membership-plan-title {
+    font-size: 18px;
+  }
+
+  .membership-plan-price {
+    font-size: 40px;
+  }
+
+  .membership-plan-price-row {
+    gap: 10px;
+  }
+
+  .membership-plan-cta {
+    padding: 12px 14px;
+    border-radius: 12px;
   }
 }
 

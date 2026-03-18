@@ -14,6 +14,7 @@ export const REQUESTS_SUB_LINKS: RequestsSubLink[] = [
   { href: "/requests/your-requests", label: "Your requests", slug: "your-requests" },
   { href: "/requests/discord-access", label: "Discord access", slug: "discord-access" },
   { href: "/requests/faq", label: "FAQ", slug: "faq" },
+  { href: "/requests/protected", label: "Protected", slug: "protected" },
   { href: "/requests/membership", label: "Membership", slug: "membership" },
 ];
 
@@ -22,5 +23,6 @@ export const DEFAULT_BURGER_MENU_SLUGS = [
   "your-requests",
   "discord-access",
   "faq",
+  "protected",
   "membership",
 ];

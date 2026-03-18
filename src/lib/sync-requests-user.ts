@@ -134,51 +134,98 @@ export async function syncRequestsUser(
   }
 
   const rolesJson = roles.length ? JSON.stringify(roles) : null;
-  await execute(
-    `INSERT INTO users (id, username, discriminator, global_name, display_name, avatar, banner, accent_color, public_flags, premium_type, roles, patreon_premium, leak_protection, guild_nickname, guild_avatar, boost_level, premium_since, avatar_decoration, created_at, updated_at, last_login_at, last_activity_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW(), NOW())
-     ON DUPLICATE KEY UPDATE
-       username = VALUES(username),
-       discriminator = VALUES(discriminator),
-       global_name = VALUES(global_name),
-       display_name = VALUES(display_name),
-       avatar = VALUES(avatar),
-       banner = VALUES(banner),
-       accent_color = VALUES(accent_color),
-       public_flags = VALUES(public_flags),
-       premium_type = VALUES(premium_type),
-       roles = VALUES(roles),
-       patreon_premium = VALUES(patreon_premium),
-       leak_protection = VALUES(leak_protection),
-       guild_nickname = VALUES(guild_nickname),
-       guild_avatar = VALUES(guild_avatar),
-       boost_level = VALUES(boost_level),
-       premium_since = VALUES(premium_since),
-       avatar_decoration = VALUES(avatar_decoration),
-       last_login_at = NOW(),
-       last_activity_at = NOW(),
-       updated_at = NOW()`,
-    [
-      discordId,
-      username,
-      profile.discriminator ?? null,
-      profile.global_name ?? null,
-      (profile as { display_name?: string }).display_name ?? null,
-      avatar,
-      bannerUrl,
-      profile.accent_color ?? null,
-      profile.public_flags ?? 0,
-      (profile as { premium_type?: number }).premium_type ?? 0,
-      rolesJson,
-      hasPremiumRole,
-      hasLeakProtectionRole,
-      guildNickname,
-      guildAvatar,
-      boostLvl,
-      premiumSince,
-      avatarDecoration,
-    ]
-  );
+  // Some deployments may not have `leak_protection` yet. Try full upsert; fall back if column missing.
+  try {
+    await execute(
+      `INSERT INTO users (id, username, discriminator, global_name, display_name, avatar, banner, accent_color, public_flags, premium_type, roles, patreon_premium, leak_protection, guild_nickname, guild_avatar, boost_level, premium_since, avatar_decoration, created_at, updated_at, last_login_at, last_activity_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW(), NOW())
+       ON DUPLICATE KEY UPDATE
+         username = VALUES(username),
+         discriminator = VALUES(discriminator),
+         global_name = VALUES(global_name),
+         display_name = VALUES(display_name),
+         avatar = VALUES(avatar),
+         banner = VALUES(banner),
+         accent_color = VALUES(accent_color),
+         public_flags = VALUES(public_flags),
+         premium_type = VALUES(premium_type),
+         roles = VALUES(roles),
+         patreon_premium = VALUES(patreon_premium),
+         leak_protection = VALUES(leak_protection),
+         guild_nickname = VALUES(guild_nickname),
+         guild_avatar = VALUES(guild_avatar),
+         boost_level = VALUES(boost_level),
+         premium_since = VALUES(premium_since),
+         avatar_decoration = VALUES(avatar_decoration),
+         last_login_at = NOW(),
+         last_activity_at = NOW(),
+         updated_at = NOW()`,
+      [
+        discordId,
+        username,
+        profile.discriminator ?? null,
+        profile.global_name ?? null,
+        (profile as { display_name?: string }).display_name ?? null,
+        avatar,
+        bannerUrl,
+        profile.accent_color ?? null,
+        profile.public_flags ?? 0,
+        (profile as { premium_type?: number }).premium_type ?? 0,
+        rolesJson,
+        hasPremiumRole,
+        hasLeakProtectionRole,
+        guildNickname,
+        guildAvatar,
+        boostLvl,
+        premiumSince,
+        avatarDecoration,
+      ]
+    );
+  } catch {
+    await execute(
+      `INSERT INTO users (id, username, discriminator, global_name, display_name, avatar, banner, accent_color, public_flags, premium_type, roles, patreon_premium, guild_nickname, guild_avatar, boost_level, premium_since, avatar_decoration, created_at, updated_at, last_login_at, last_activity_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), NOW(), NOW())
+       ON DUPLICATE KEY UPDATE
+         username = VALUES(username),
+         discriminator = VALUES(discriminator),
+         global_name = VALUES(global_name),
+         display_name = VALUES(display_name),
+         avatar = VALUES(avatar),
+         banner = VALUES(banner),
+         accent_color = VALUES(accent_color),
+         public_flags = VALUES(public_flags),
+         premium_type = VALUES(premium_type),
+         roles = VALUES(roles),
+         patreon_premium = VALUES(patreon_premium),
+         guild_nickname = VALUES(guild_nickname),
+         guild_avatar = VALUES(guild_avatar),
+         boost_level = VALUES(boost_level),
+         premium_since = VALUES(premium_since),
+         avatar_decoration = VALUES(avatar_decoration),
+         last_login_at = NOW(),
+         last_activity_at = NOW(),
+         updated_at = NOW()`,
+      [
+        discordId,
+        username,
+        profile.discriminator ?? null,
+        profile.global_name ?? null,
+        (profile as { display_name?: string }).display_name ?? null,
+        avatar,
+        bannerUrl,
+        profile.accent_color ?? null,
+        profile.public_flags ?? 0,
+        (profile as { premium_type?: number }).premium_type ?? 0,
+        rolesJson,
+        hasPremiumRole,
+        guildNickname,
+        guildAvatar,
+        boostLvl,
+        premiumSince,
+        avatarDecoration,
+      ]
+    );
+  }
 
   return { isStaff };
 }

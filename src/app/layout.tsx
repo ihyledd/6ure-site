@@ -11,7 +11,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FloatingActions } from "@/components/FloatingActions";
 import { DiscordLinkedHandler } from "@/components/DiscordLinkedHandler";
-import { WhatsNewBanner } from "@/components/WhatsNewBanner";
 import { SiteThemeSync } from "@/components/SiteThemeSync";
 import { PromoPopupBanner } from "@/components/PromoPopupBanner";
 import { CookieNoticeBanner } from "@/components/CookieNoticeBanner";
@@ -94,7 +93,6 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <DiscordLinkedHandler />
         </Suspense>
-        {session?.user && <WhatsNewBanner hasSession={true} />}
         <SessionProvider>
         <ThemeProvider>
           <SearchProvider>
