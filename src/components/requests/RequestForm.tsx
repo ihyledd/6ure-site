@@ -203,32 +203,48 @@ export function RequestForm({ user, isPremium, onRequestCreated, onClose, onNotI
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
+
+          {/* Step indicator */}
+          <div className="rf-step-indicator">
+            <span className="rf-step-dot active">1</span>
+            <div className="rf-step-line" />
+            <span className="rf-step-dot">2</span>
+          </div>
+
           <h2 className="requests-modal-title">Create New Request</h2>
 
           {!user && (
-            <p style={{ margin: "0 0 16px", fontSize: 14, color: "var(--text-secondary)" }}>
+            <div className="rf-login-notice">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={16} height={16}>
+                <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
               Please log in to submit a request. You can still submit anonymously to hide your name.
-            </p>
+            </div>
           )}
 
           <form onSubmit={handlePreview}>
-            <label style={{ display: "block", marginBottom: 12 }}>
-              <span style={{ fontWeight: 600, fontSize: 14 }}>Creator URL *</span>
+            <div className="rf-field">
+              <label className="rf-field-label">
+                <span className="rf-icon">🔗</span>
+                Creator URL <span style={{ color: "var(--discord-blurple)" }}>*</span>
+              </label>
               <input
                 type="url"
                 value={creatorUrl}
                 onChange={(e) => setCreatorUrl(e.target.value)}
-                placeholder="TikTok or YouTube only, e.g. tiktok.com/@user, youtube.com/@channel"
+                placeholder="TikTok or YouTube only, e.g. tiktok.com/@user"
                 className="requests-search-input"
                 style={{ width: "100%", marginTop: 4 }}
                 required
               />
-              <small style={{ display: "block", marginTop: 4, color: "var(--text-secondary)", fontSize: 12 }}>
-                TikTok or YouTube only
-              </small>
-            </label>
-            <label style={{ display: "block", marginBottom: 12 }}>
-              <span style={{ fontWeight: 600, fontSize: 14 }}>Product URL *</span>
+              <small className="rf-field-hint">TikTok or YouTube only</small>
+            </div>
+
+            <div className="rf-field">
+              <label className="rf-field-label">
+                <span className="rf-icon">📦</span>
+                Product URL <span style={{ color: "var(--discord-blurple)" }}>*</span>
+              </label>
               <input
                 type="url"
                 value={productUrl}
@@ -238,39 +254,53 @@ export function RequestForm({ user, isPremium, onRequestCreated, onClose, onNotI
                 style={{ width: "100%", marginTop: 4 }}
                 required
               />
-              <small style={{ display: "block", marginTop: 4, color: "var(--text-secondary)", fontSize: 12 }}>
-                Any valid product or page URL (http or https)
-              </small>
-            </label>
+              <small className="rf-field-hint">Any valid product or page URL (http or https)</small>
+            </div>
+
             {user && (
-              <label className="requests-toggle-wrap" style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, cursor: "pointer" }}>
+              <label className="rf-toggle-wrap">
                 <input
                   type="checkbox"
                   checked={anonymous}
                   onChange={(e) => setAnonymous(e.target.checked)}
-                  className="requests-toggle-input"
+                  className="rf-toggle-input"
                   aria-label="Submit anonymously"
                 />
-                <span className="requests-toggle-track" aria-hidden />
-                <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>Submit anonymously</span>
+                <span className="rf-toggle-track" aria-hidden />
+                <span className="rf-toggle-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={15} height={15}>
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  Submit anonymously
+                </span>
               </label>
             )}
+
             {duplicateId && (
-              <p style={{ marginBottom: 12, fontSize: 14, color: "var(--text-secondary)" }}>
-                A request for this product already exists.{" "}
-                <a href={`/requests/request/${duplicateId}`} style={{ color: "var(--discord-blurple)" }}>
-                  View existing request
-                </a>
-              </p>
+              <div className="rf-message rf-message-error">
+                <span className="rf-message-icon">⚠️</span>
+                <span>
+                  A request for this product already exists.{" "}
+                  <a href={`/requests/request/${duplicateId}`} className="rf-duplicate-link">
+                    View existing request →
+                  </a>
+                </span>
+              </div>
             )}
-            {error && (
-              <p style={{ color: "var(--error, #ef4444)", fontSize: 14, marginBottom: 12 }}>{error}</p>
+            {error && !duplicateId && (
+              <div className="rf-message rf-message-error">
+                <span className="rf-message-icon">⚠️</span>
+                <span>{error}</span>
+              </div>
             )}
             {success && (
-              <p style={{ color: "var(--success, #10b981)", fontSize: 14, marginBottom: 12 }}>
-                Request created successfully!
-              </p>
+              <div className="rf-message rf-message-success">
+                <span className="rf-message-icon">✅</span>
+                <span>Request created successfully!</span>
+              </div>
             )}
+
             <div className="requests-modal-actions">
               <button type="button" className="guild-invite-btn guild-invite-btn-secondary" onClick={onClose}>
                 Cancel
@@ -280,7 +310,14 @@ export function RequestForm({ user, isPremium, onRequestCreated, onClose, onNotI
                 className="guild-invite-btn guild-invite-btn-primary"
                 disabled={previewLoading || !user}
               >
-                {previewLoading ? "Loading Preview…" : "Preview Request"}
+                {previewLoading ? (
+                  <>
+                    <span className="rf-btn-spinner" />
+                    Loading Preview…
+                  </>
+                ) : (
+                  "Preview Request"
+                )}
               </button>
             </div>
           </form>
