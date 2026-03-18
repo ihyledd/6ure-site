@@ -66,8 +66,6 @@ export async function POST(req: Request) {
 
     const discord = await fetchDiscordUser(userId);
     if (discord) {
-      const { syncRequestsUser, fetchGuildMemberForSync } = await import("@/lib/sync-requests-user");
-      await syncRequestsUser(discord, await fetchGuildMemberForSync(userId));
       displayName =
         discord.global_name ||
         (discord as { display_name?: string }).display_name ||
