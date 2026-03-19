@@ -1033,23 +1033,28 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: center;
 }
 
 .requests-link-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: var(--glass-tertiary-bg);
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.2s;
   font-size: 13px;
+  flex: 1;
+  justify-content: center;
 }
 
 .requests-link-btn:hover {
   background: var(--discord-blurple);
+  border-color: var(--discord-blurple);
   color: #fff;
 }
 
@@ -1083,10 +1088,9 @@
 .requests-card-stats {
   display: flex;
   align-items: center;
-  gap: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin: 4px -16px -16px -16px;
-  padding: 0;
+  gap: 8px;
+  padding: 8px 16px 12px;
+  margin: 0;
 }
 
 .requests-stat-pill {
@@ -1095,13 +1099,13 @@
   justify-content: center;
   gap: 6px;
   flex: 1;
-  padding: 10px 8px;
+  padding: 10px 12px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 180, 170, 0.08);
+  border: 1px solid rgba(0, 180, 170, 0.15);
+  border-radius: 10px;
   cursor: default;
   transition: all 0.2s;
 }
@@ -1113,23 +1117,27 @@
 /* Upvote pill (interactive) */
 .requests-upvote-pill {
   cursor: pointer;
-  background: rgba(88, 101, 242, 0.08);
+  background: rgba(0, 180, 170, 0.12);
+  border-color: rgba(0, 180, 170, 0.22);
   color: var(--text-secondary);
 }
 
 .requests-upvote-pill:hover:not(:disabled) {
-  background: rgba(88, 101, 242, 0.2);
-  color: var(--discord-blurple);
+  background: rgba(0, 180, 170, 0.22);
+  border-color: rgba(0, 200, 190, 0.35);
+  color: #4fd1c5;
 }
 
 .requests-upvote-pill-active {
-  background: rgba(88, 101, 242, 0.2);
-  color: var(--discord-blurple);
+  background: rgba(0, 180, 170, 0.22);
+  border-color: rgba(0, 200, 190, 0.35);
+  color: #4fd1c5;
 }
 
 .requests-upvote-pill-active:hover:not(:disabled) {
-  background: rgba(88, 101, 242, 0.3);
-  color: var(--discord-blurple);
+  background: rgba(0, 180, 170, 0.3);
+  border-color: rgba(0, 200, 190, 0.45);
+  color: #4fd1c5;
 }
 
 .requests-upvote-pill:disabled {
@@ -1477,7 +1485,23 @@
   100% { background-position: -200% 0; }
 }
 
-/* Request detail page */
+/* ===== Request detail page ===== */
+
+.requests-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: color 0.2s;
+}
+.requests-back-link:hover {
+  color: var(--text-primary);
+}
+
 .request-detail-container {
   max-width: 720px;
   margin: 0 auto;
@@ -1485,19 +1509,59 @@
 }
 
 .request-detail-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--glass-bg);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  overflow: hidden;
+  --detail-control-height: 40px;
+  --detail-action-height: 48px;
+  --detail-font-control: 14px;
+  --detail-font-action: 15px;
+  --detail-gap: 16px;
+  --detail-section-gap: 24px;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(114, 137, 218, 0.08) 0%, transparent 50%),
+    color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary));
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 28px;
+  overflow: visible;
+  box-shadow: 0 0 32px rgba(88, 101, 242, 0.06), 0 0 24px rgba(0, 0, 0, 0.2), 0 2px 12px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   margin-bottom: 32px;
 }
 
+[data-theme="light"] .request-detail-card {
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.request-detail-card.premium {
+  border: 2px solid transparent;
+  background: linear-gradient(color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary)), color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary))) padding-box,
+              linear-gradient(135deg, #fbbf24, #f59e0b, #d97706) border-box;
+  box-shadow: 0 6px 28px rgba(251, 191, 36, 0.18), 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.request-detail-card.priority {
+  border: 2px solid transparent;
+  background: linear-gradient(color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary)), color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary))) padding-box,
+              linear-gradient(135deg, #fbbf24, #f59e0b, #d97706, #fbbf24) border-box;
+  box-shadow: 0 6px 28px rgba(251, 191, 36, 0.2), 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.request-detail-card.completed {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.request-detail-card.cancelled {
+  border-color: rgba(107, 114, 128, 0.4);
+}
+
+/* Hero image */
 .detail-image-wrapper {
-  aspect-ratio: 16 / 10;
-  background: var(--glass-tertiary-bg);
+  position: relative;
+  width: 100%;
+  height: 400px;
   overflow: hidden;
+  border-radius: 28px 28px 0 0;
+  background: linear-gradient(135deg, var(--bg-tertiary, var(--glass-tertiary-bg)) 0%, var(--bg-primary, var(--glass-bg)) 100%);
 }
 
 .detail-image {
@@ -1506,174 +1570,397 @@
   object-fit: cover;
 }
 
+.detail-image-wrapper::before,
+.detail-image-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent 10%, transparent 90%, rgba(0, 0, 0, 0.12));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.detail-image-wrapper::after,
+.detail-image-placeholder::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 180px;
+  background: linear-gradient(to bottom, transparent 0%, transparent 20%, color-mix(in srgb, var(--bg-secondary) 35%, transparent) 75%, color-mix(in srgb, var(--bg-secondary) 45%, transparent) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .detail-image-placeholder {
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 28px 28px 0 0;
+  background: linear-gradient(135deg, var(--bg-tertiary, var(--glass-tertiary-bg)) 0%, var(--bg-primary, var(--glass-bg)) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
 }
 
-.request-detail-body {
-  padding: 24px;
+/* Hero overlay (status badge + title on top of hero) */
+.detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px 28px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 100%);
+}
+.detail-hero-overlay .requests-tag {
+  align-self: flex-start;
+  margin-bottom: 12px;
+}
+.detail-hero-overlay .detail-title {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0;
 }
 
+/* Content area (overlaps hero) */
+.detail-content {
+  margin-top: -64px;
+  position: relative;
+  z-index: 2;
+  padding: 24px 28px 32px;
+}
+.detail-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--bg-secondary) 40%, transparent) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+.detail-content > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Title (standalone, outside hero) */
 .detail-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
   color: var(--text-primary);
-  margin: 0 0 16px 0;
-  line-height: 1.3;
+  margin: 0 0 12px 0;
 }
 
-.request-detail-meta {
-  margin-bottom: 16px;
-}
-
-.detail-author-row {
+/* Requested-by line */
+.detail-requested-by-line {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 10px;
 }
-
-.detail-username {
-  font-size: 15px;
+.detail-requested-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
   font-weight: 500;
-  color: var(--text-secondary);
+}
+.detail-date-sep {
+  color: var(--text-tertiary);
+  margin: 0 4px;
+  font-weight: 600;
+}
+.detail-date {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 500;
 }
 
-.detail-date {
-  font-size: 14px;
+/* Stats and links row */
+.detail-stats-and-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.detail-stats-and-links .detail-stats-line {
+  margin-bottom: 0;
+}
+
+.detail-stats-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--detail-font-control, 14px);
+  margin-bottom: var(--detail-gap, 16px);
+}
+
+.detail-stats-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--detail-control-height, 40px);
+  padding: 0 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-weight: 600;
+  box-shadow: none;
+  color: var(--text-secondary);
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.detail-stats-item-upvotes {
+  cursor: pointer;
+}
+.detail-stats-item-upvotes:hover {
+  background: rgba(88, 101, 242, 0.15);
+  border-color: rgba(88, 101, 242, 0.3);
+  color: var(--discord-blurple);
+}
+.detail-stats-item-upvotes.active {
+  background: rgba(88, 101, 242, 0.2);
+  border-color: var(--discord-blurple);
+  color: var(--discord-blurple);
+}
+
+.detail-stats-item-comments {
+  color: var(--text-tertiary);
+}
+.detail-stats-item-views {
   color: var(--text-tertiary);
 }
 
-.request-detail-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+/* Price pill */
+.detail-meta-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--detail-control-height, 40px);
+  padding: 0 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-weight: 700;
+  font-size: var(--detail-font-control, 14px);
+  color: #10b981;
+  box-shadow: none;
 }
 
-.detail-description {
-  margin-bottom: 20px;
+/* Share button */
+.detail-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--detail-control-height, 40px);
+  min-width: var(--detail-control-height, 40px);
+  padding: 0;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.detail-share-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+/* Status message */
+.detail-status-message {
+  margin-bottom: var(--detail-section-gap, 24px);
+  padding: 14px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.detail-status-message.status-completed {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+.detail-status-message.status-rejected {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+.detail-status-message.status-cancelled {
+  background: rgba(107, 114, 128, 0.1);
+  border: 1px solid rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+.detail-status-message p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Action row */
+.detail-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: var(--detail-section-gap, 24px);
+}
+.detail-action-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.detail-action-left .detail-link-btn {
+  min-height: var(--detail-control-height, 40px);
+  padding: 0 16px;
+  font-size: var(--detail-font-control, 14px);
+  width: auto;
+}
+.detail-action-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Description section */
+.detail-description-section {
+  margin-bottom: var(--detail-section-gap, 24px);
+  margin-top: 0;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02), 0 2px 8px rgba(0, 0, 0, 0.04);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.detail-description-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+.detail-description-section .requests-prose {
   font-size: 15px;
   line-height: 1.7;
   color: var(--text-secondary);
 }
-
-.detail-description p {
+.detail-description-section .requests-prose p {
   margin: 0 0 12px 0;
 }
-
-.detail-description p:last-child {
+.detail-description-section .requests-prose p:last-child {
   margin-bottom: 0;
 }
 
-.detail-price {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--discord-blurple);
-  margin: 0 0 20px 0;
-}
-
-.request-detail-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
+/* Link buttons */
 .detail-link-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: var(--glass-tertiary-bg);
+  min-height: var(--detail-control-height, 40px);
+  padding: 0 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 9999px;
   color: var(--text-secondary);
+  font-size: var(--detail-font-control, 14px);
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s;
-  font-size: 14px;
-  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  width: auto;
+  text-align: left;
 }
-
 .detail-link-btn:hover {
-  background: var(--discord-blurple);
-  color: #fff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.detail-link-btn:focus-visible {
+  outline: 2px solid var(--discord-blurple);
+  outline-offset: 2px;
 }
 
-.detail-creator-link:hover,
-.detail-creator-link:hover span {
-  color: #fff;
-  -webkit-text-fill-color: #fff;
+.detail-link-btn.leak-link {
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  border-color: #5865F2;
+  color: white;
+}
+.detail-link-btn.leak-link:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(88, 101, 242, 0.35);
 }
 
 .detail-creator-avatar {
   flex-shrink: 0;
 }
 
-.btn-leak {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+/* Full-width leak/download CTA */
+.leak-access-section {
+  margin-bottom: 24px;
 }
-
-.btn-leak:hover {
-  background: #10b981;
-  color: #fff;
-}
-
-.request-detail-actions {
+.btn-leak-large {
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--detail-action-height, 48px);
+  padding: 0 24px;
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  color: white;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: var(--detail-font-action, 15px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(88, 101, 242, 0.35);
+  border: none;
+  cursor: pointer;
+}
+.btn-leak-large:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 28px rgba(88, 101, 242, 0.45);
+  transform: translateY(-2px);
+}
+.btn-leak-large:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
-.detail-upvote-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
+/* Cancel request section */
+.detail-cancel-request-section {
+  margin-bottom: 24px;
+  padding: 16px 20px;
   background: var(--glass-tertiary-bg);
   border: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+  border-radius: 12px;
 }
-
-.detail-upvote-btn:hover:not(:disabled) {
-  background: var(--discord-blurple);
-  border-color: var(--discord-blurple);
-  color: #fff;
-}
-
-.detail-upvote-btn-active {
-  background: rgba(88, 101, 242, 0.2);
-  border-color: var(--discord-blurple);
-  color: var(--discord-blurple);
-}
-
-.detail-upvote-btn-active:hover:not(:disabled) {
-  background: var(--discord-blurple);
-  color: #fff;
-}
-
-.detail-upvote-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
 .detail-cancel-request-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: 9999px;
   background: rgba(239, 68, 68, 0.12);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: var(--text-secondary);
@@ -1682,16 +1969,53 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .detail-cancel-request-btn:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: rgba(239, 68, 68, 0.5);
   color: #ef4444;
 }
+.detail-cancel-request-btn:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
 
 .requests-tag-cancel-requested {
   background: rgba(245, 158, 11, 0.2);
   color: #f59e0b;
+}
+
+/* Upvote button (standalone, for logged-out display) */
+.detail-upvote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  min-height: var(--detail-control-height, 40px);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: var(--detail-font-control, 14px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.detail-upvote-btn:hover:not(:disabled) {
+  background: rgba(88, 101, 242, 0.15);
+  border-color: rgba(88, 101, 242, 0.3);
+  color: var(--discord-blurple);
+}
+.detail-upvote-btn-active {
+  background: rgba(88, 101, 242, 0.2);
+  border-color: var(--discord-blurple);
+  color: var(--discord-blurple);
+}
+.detail-upvote-btn-active:hover:not(:disabled) {
+  background: rgba(88, 101, 242, 0.25);
+}
+.detail-upvote-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .detail-stat {
@@ -1704,6 +2028,23 @@
 
 .request-detail-comments {
   margin-top: 8px;
+}
+
+/* Detail page responsive */
+@media (max-width: 768px) {
+  .request-detail-container { padding: 12px; }
+  .detail-content { padding: 20px 16px; }
+  .detail-title { font-size: 24px; }
+  .detail-image-wrapper,
+  .detail-image-placeholder { height: 280px; }
+}
+
+@media (max-width: 480px) {
+  .request-detail-container { padding: 8px; }
+  .detail-content { padding: 16px 12px; }
+  .detail-title { font-size: 20px; }
+  .detail-image-wrapper,
+  .detail-image-placeholder { height: 220px; }
 }
 
 /* ===== Popups & Modals (Join Discord, Already leaked, Protected, Preview, Premium upsell, Cancel request) ===== */
