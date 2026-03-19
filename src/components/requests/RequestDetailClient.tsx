@@ -10,6 +10,7 @@ import { BiIcon } from "./BiIcon";
 import { UserAvatar } from "./UserAvatar";
 import { Comments } from "./Comments";
 import { CancelRequestModal } from "./CancelRequestModal";
+import { DeleteRequestModal } from "./DeleteRequestModal";
 import { MarkdownProse } from "@/components/Markdown";
 import {
   formatDate,
@@ -33,10 +34,15 @@ export function RequestDetailClient({ initialRequest }: Props) {
   const [upvoting, setUpvoting] = useState(false);
   const [showStaffBadge, setShowStaffBadge] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loginHref, setLoginHref] = useState(
     `/api/auth/signin/discord?callbackUrl=${encodeURIComponent("/requests")}`
   );
+
+  const [showUpvoters, setShowUpvoters] = useState(false);
+  const [upvotersLoading, setUpvotersLoading] = useState(false);
+  const [upvoters, setUpvoters] = useState<any[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -64,9 +70,29 @@ export function RequestDetailClient({ initialRequest }: Props) {
     return () => { cancelled = true; };
   }, [request.id]);
 
+  useEffect(() => {
+    let active = true;
+    if (showUpvoters && upvoters.length === 0) {
+      setUpvotersLoading(true);
+      fetch(`/api/requests/${request.id}/upvoters`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => {
+          if (active) {
+            setUpvoters(Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : []);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (active) setUpvotersLoading(false);
+        });
+    }
+    return () => { active = false; };
+  }, [showUpvoters, request.id, upvoters.length]);
+
   const { data: session } = useSession();
   const canUpvote = !!session?.user;
   const isOwner = !!session?.user?.id && request.user_id === session.user.id;
+  const isAdmin = session?.user?.role === "ADMIN";
   const canRequestCancel =
     isOwner &&
     request.status === "pending" &&
@@ -110,8 +136,8 @@ export function RequestDetailClient({ initialRequest }: Props) {
 
   return (
     <div className="request-detail-container">
-      <Link href="/requests" className="requests-back-link">
-        ← Back to Requests
+      <Link href="/requests" className="btn-back-top">
+        <BiIcon name="arrow-left" size={16} /> Back to Requests
       </Link>
 
       <article className={cardClass}>
@@ -138,7 +164,7 @@ export function RequestDetailClient({ initialRequest }: Props) {
           </div>
         )}
 
-        {/* Content area (overlaps hero) */}
+        {/* Content area */}
         <div className="detail-content">
           {/* User + date */}
           <div className="detail-requested-by-line">
@@ -146,7 +172,7 @@ export function RequestDetailClient({ initialRequest }: Props) {
               avatar={request.avatar}
               userId={request.user_id}
               avatarDecoration={request.avatar_decoration}
-              size={28}
+              size={24}
               displayName={request.username}
             />
             <span className="detail-requested-label">
@@ -171,7 +197,7 @@ export function RequestDetailClient({ initialRequest }: Props) {
                   disabled={upvoting}
                   aria-pressed={request.hasUpvoted}
                 >
-                  <BiIcon name="hand-thumbs-up-fill" size={16} />
+                  <BiIcon name="hand-thumbs-up" size={16} />
                   {request.upvotes}
                 </button>
               ) : (
@@ -201,61 +227,88 @@ export function RequestDetailClient({ initialRequest }: Props) {
               onClick={handleShare}
               title={copied ? "Copied!" : "Share"}
             >
-              <BiIcon name={copied ? "check-lg" : "share"} size={18} />
+              <BiIcon name={copied ? "check-lg" : "share"} size={16} />
             </button>
           </div>
 
           {/* Status message */}
           {statusMsg && (
             <div className={clsx("detail-status-message", `status-${request.status}`)}>
-              {request.status === "completed" && <BiIcon name="check-circle-fill" size={18} />}
-              {request.status === "rejected" && <BiIcon name="x-circle-fill" size={18} />}
-              {request.status === "cancelled" && <BiIcon name="dash-circle-fill" size={18} />}
+              {request.status === "completed" && <BiIcon name="check-circle-fill" size={16} />}
+              {request.status === "rejected" && <BiIcon name="x-circle-fill" size={16} />}
+              {request.status === "cancelled" && <BiIcon name="dash-circle-fill" size={16} />}
               <p>{statusMsg}</p>
             </div>
           )}
 
-          {/* Action row: creator + product links */}
-          <div className="detail-action-row">
-            <div className="detail-action-left">
-              {request.creator_url && (
-                <a
-                  href={request.creator_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-link-btn"
-                >
-                  <CreatorAvatar url={request.creator_avatar} size={20} className="detail-creator-avatar" />
-                  <span>{request.creator_name || "Creator"}</span>
-                  {request.creator_platform && (
-                    <span style={{ fontSize: 11, opacity: 0.6 }}>{request.creator_platform}</span>
-                  )}
-                </a>
-              )}
-              {request.product_url && (
-                <a
-                  href={request.product_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-link-btn"
-                >
-                  <BiIcon name="box-arrow-up-right" size={14} />
-                  <span>View original product</span>
-                </a>
-              )}
-              {request.leak_message_url && (
-                <a
-                  href={request.leak_message_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="detail-link-btn"
-                >
-                  <BiIcon name="discord" size={16} />
-                  <span>Available in Discord</span>
-                </a>
-              )}
-            </div>
-          </div>
+          {/* Resource Info Section */}
+          <section className="detail-resource-info">
+            <dl className="detail-resource-list">
+              <dt>CREATOR</dt>
+              <dd>
+                {request.creator_name ? (
+                  <a
+                    href={request.creator_url || "#"}
+                    className="detail-resource-link detail-creator-link"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {request.creator_avatar && (
+                      <img
+                        src={request.creator_avatar}
+                        alt={request.creator_name}
+                        className="detail-creator-avatar"
+                        style={{ width: 24, height: 24, borderRadius: '50%' }}
+                      />
+                    )}
+                    <span>{request.creator_name}</span>
+                    {request.creator_platform && (
+                      <span className="requests-tag" style={{ fontSize: 10, padding: '2px 6px', transform: 'translateY(-1px)' }}>
+                        {request.creator_platform}
+                      </span>
+                    )}
+                  </a>
+                ) : (
+                  <span>-</span>
+                )}
+              </dd>
+
+              <dt>PRODUCT</dt>
+              <dd>
+                {request.product_url ? (
+                  <a
+                    href={request.product_url}
+                    className="detail-resource-link"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <BiIcon name="box" size={14} />
+                    View original product
+                  </a>
+                ) : (
+                  <span>-</span>
+                )}
+              </dd>
+
+              <dt>DOWNLOAD</dt>
+              <dd>
+                {request.leak_message_url ? (
+                  <a
+                    href={request.leak_message_url}
+                    className="detail-resource-link"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: '#5865F2' }}
+                  >
+                    <BiIcon name="discord" size={16} />
+                    Available in Discord
+                  </a>
+                ) : (
+                  <span>-</span>
+                )}
+              </dd>
+            </dl>
+          </section>
 
           {/* Description */}
           {request.description && (
@@ -285,10 +338,10 @@ export function RequestDetailClient({ initialRequest }: Props) {
             <div className="detail-cancel-request-section">
               <button
                 type="button"
-                className="detail-cancel-request-btn"
+                className="btn-cancel-request"
                 onClick={() => setShowCancelModal(true)}
               >
-                <BiIcon name="x-circle" size={18} />
+                <BiIcon name="x-circle" size={16} />
                 <span>Request cancellation</span>
               </button>
             </div>
@@ -307,6 +360,72 @@ export function RequestDetailClient({ initialRequest }: Props) {
               <span className="requests-tag requests-tag-priority">⭐ Priority</span>
             </div>
           )}
+
+          {/* Bottom Actions Row (Upvoters / Delete) */}
+          <div className="detail-action-row">
+            <div className="detail-action-left">
+              <div className="detail-upvoters-compact">
+                <button
+                  type="button"
+                  className="upvoters-trigger-compact"
+                  onClick={() => setShowUpvoters((v) => !v)}
+                  aria-expanded={showUpvoters}
+                  aria-controls="upvoters-dropdown"
+                >
+                  <BiIcon name="people" size={16} />
+                  <span>Upvoters ({request.upvotes})</span>
+                </button>
+
+                {showUpvoters && (
+                  <div id="upvoters-dropdown" className="upvoters-dropdown" role="menu">
+                    {upvotersLoading ? (
+                      <p className="upvoters-loading" style={{ margin: 0, padding: 8, fontSize: 13, color: 'var(--text-tertiary)' }}>Loading upvoters...</p>
+                    ) : upvoters.length === 0 ? (
+                      <p className="upvoters-loading" style={{ margin: 0, padding: 8, fontSize: 13, color: 'var(--text-tertiary)' }}>
+                        {isAdmin ? "No upvoters yet." : "You must be a staff member to see upvoters."}
+                      </p>
+                    ) : (
+                      <ul className="upvoters-list">
+                        {upvoters.map((user) => (
+                          <li key={user.id} className="upvoter-item">
+                            <img
+                              src={user.avatar || user.avatarUrl || `https://cdn.discordapp.com/embed/avatars/0.png`}
+                              alt={user.username}
+                              style={{ width: 24, height: 24, borderRadius: '50%' }}
+                            />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <a
+                                href={`https://discord.com/users/${user.discord_id || user.id}`}
+                                className="detail-resource-link"
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ fontSize: 13, fontWeight: 500 }}
+                              >
+                                {user.username}
+                              </a>
+                              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                                {user.created_at ? formatDate(user.created_at) : "Unknown date"}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="btn-delete-request"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  <BiIcon name="trash" size={16} /> Delete
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </article>
 
@@ -321,6 +440,22 @@ export function RequestDetailClient({ initialRequest }: Props) {
                 .then((r) => (r.ok ? r.json() : null))
                 .then((data) => data && setRequest(data))
                 .catch(() => {});
+            }}
+          />,
+          document.body
+        )}
+
+      {showDeleteModal &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <DeleteRequestModal
+            requestId={request.id}
+            requestTitle={title}
+            onClose={() => setShowDeleteModal(false)}
+            onDeleted={() => {
+              if (typeof window !== "undefined") {
+                window.location.href = "/requests";
+              }
             }}
           />,
           document.body
