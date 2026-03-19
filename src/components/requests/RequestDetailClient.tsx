@@ -147,6 +147,9 @@ export function RequestDetailClient({ initialRequest }: Props) {
             <img src={imgUrl} alt="" className="detail-image" />
             <div className="detail-hero-overlay">
               <span className={clsx("requests-tag", "requests-tag-status", `requests-tag-${request.status}`)}>
+                {request.status === "completed" && <BiIcon name="check-circle-fill" size={12} style={{ marginRight: 4 }} />}
+                {request.status === "pending" && <BiIcon name="clock-fill" size={12} style={{ marginRight: 4 }} />}
+                {request.status === "rejected" && <BiIcon name="x-circle-fill" size={12} style={{ marginRight: 4 }} />}
                 {request.status.toUpperCase()}
               </span>
               <h1 className="detail-title">{title}</h1>
@@ -156,6 +159,9 @@ export function RequestDetailClient({ initialRequest }: Props) {
           <div className="detail-image-placeholder">
             <div className="detail-hero-overlay">
               <span className={clsx("requests-tag", "requests-tag-status", `requests-tag-${request.status}`)}>
+                {request.status === "completed" && <BiIcon name="check-circle-fill" size={12} style={{ marginRight: 4 }} />}
+                {request.status === "pending" && <BiIcon name="clock-fill" size={12} style={{ marginRight: 4 }} />}
+                {request.status === "rejected" && <BiIcon name="x-circle-fill" size={12} style={{ marginRight: 4 }} />}
                 {request.status.toUpperCase()}
               </span>
               <h1 className="detail-title">{title}</h1>
@@ -175,7 +181,7 @@ export function RequestDetailClient({ initialRequest }: Props) {
               size={24}
               displayName={request.username}
             />
-            <span className="detail-requested-label">
+            <span className="detail-requested-label" style={{ color: "var(--text-primary)", fontWeight: 600 }}>
               {request.anonymous ? "Anonymous" : request.username}
             </span>
             <span className="detail-date-sep">·</span>
@@ -241,74 +247,72 @@ export function RequestDetailClient({ initialRequest }: Props) {
             </div>
           )}
 
-          {/* Resource Info Section */}
-          <section className="detail-resource-info">
-            <dl className="detail-resource-list">
-              <dt>CREATOR</dt>
-              <dd>
-                {request.creator_name ? (
-                  <a
-                    href={request.creator_url || "#"}
-                    className="detail-resource-link detail-creator-link"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {request.creator_avatar && (
-                      <img
-                        src={request.creator_avatar}
-                        alt={request.creator_name}
-                        className="detail-creator-avatar"
-                        style={{ width: 24, height: 24, borderRadius: '50%' }}
-                      />
-                    )}
-                    <span>{request.creator_name}</span>
-                    {request.creator_platform && (
-                      <span className="requests-tag" style={{ fontSize: 10, padding: '2px 6px', transform: 'translateY(-1px)' }}>
-                        {request.creator_platform}
+          {/* Resource Info Card */}
+          {(request.creator_name || request.product_url || request.leak_message_url) && (
+            <div className="detail-resource-card">
+              {request.creator_name && (
+                <div className="resource-row">
+                  {request.creator_avatar ? (
+                    <img
+                      src={request.creator_avatar}
+                      alt={request.creator_name}
+                      className="resource-avatar"
+                    />
+                  ) : (
+                    <div className="resource-icon-box">
+                      <BiIcon name="person" size={20} />
+                    </div>
+                  )}
+                  <div className="resource-text-col">
+                    <span className="resource-label">Creator</span>
+                    {request.creator_url ? (
+                      <a href={request.creator_url} target="_blank" rel="noreferrer" className="resource-value">
+                        @{request.creator_name}
+                        {request.creator_platform && (
+                          <span className="resource-platform-tag">{request.creator_platform}</span>
+                        )}
+                      </a>
+                    ) : (
+                      <span className="resource-value no-link">
+                        @{request.creator_name}
+                        {request.creator_platform && (
+                          <span className="resource-platform-tag">{request.creator_platform}</span>
+                        )}
                       </span>
                     )}
-                  </a>
-                ) : (
-                  <span>-</span>
-                )}
-              </dd>
+                  </div>
+                </div>
+              )}
 
-              <dt>PRODUCT</dt>
-              <dd>
-                {request.product_url ? (
-                  <a
-                    href={request.product_url}
-                    className="detail-resource-link"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <BiIcon name="box" size={14} />
-                    View original product
-                  </a>
-                ) : (
-                  <span>-</span>
-                )}
-              </dd>
+              {request.product_url && (
+                <div className="resource-row">
+                  <div className="resource-icon-box">
+                    <BiIcon name="box" size={20} />
+                  </div>
+                  <div className="resource-text-col">
+                    <span className="resource-label">Product</span>
+                    <a href={request.product_url} target="_blank" rel="noreferrer" className="resource-value">
+                      View original product
+                    </a>
+                  </div>
+                </div>
+              )}
 
-              <dt>DOWNLOAD</dt>
-              <dd>
-                {request.leak_message_url ? (
-                  <a
-                    href={request.leak_message_url}
-                    className="detail-resource-link"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: '#5865F2' }}
-                  >
-                    <BiIcon name="discord" size={16} />
-                    Available in Discord
-                  </a>
-                ) : (
-                  <span>-</span>
-                )}
-              </dd>
-            </dl>
-          </section>
+              {request.leak_message_url && (
+                <div className="resource-row">
+                  <div className="resource-icon-box" style={{ color: "#5865F2", background: "rgba(88, 101, 242, 0.1)" }}>
+                    <BiIcon name="discord" size={20} />
+                  </div>
+                  <div className="resource-text-col">
+                    <span className="resource-label">Download</span>
+                    <span className="resource-value no-link">
+                      Available in Discord
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Description */}
           {request.description && (
