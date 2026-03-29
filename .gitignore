@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Ignore logs and temp data for local development
+wiki.log
+build-log.txt
+.lockfile-hash
+/tmp/
