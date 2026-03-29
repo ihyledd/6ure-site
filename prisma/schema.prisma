@@ -321,6 +321,7 @@ model RequestsUser {
   protectedUsers        ProtectedUser[]
   userSettings          RequestUserSetting[]
   protectedUsersCreated ProtectedUser[] @relation("ProtectedUserCreatedBy")
+  subscriptions         Subscription[]
 
   @@map("users")
 }
@@ -556,5 +557,80 @@ model RequestUserSetting {
 model Migration {
   name String @id @db.VarChar(100)
   @@map("_migrations")
+}
+
+// ─── PayPal Subscription System ───────────────────────────────────────────────
+
+model Subscription {
+  id                    String    @id @db.VarChar(64)
+  userId                String    @map("user_id") @db.VarChar(20)
+  paypalSubscriptionId  String?   @map("paypal_subscription_id") @db.VarChar(64)
+  paypalOrderId         String?   @map("paypal_order_id") @db.VarChar(64)
+  planCategory          String    @map("plan_category") @db.VarChar(20)  // PREMIUM | LEAK_PROTECTION
+  planInterval          String    @map("plan_interval") @db.VarChar(20)  // MONTHLY | YEARLY | LIFETIME
+  status                String    @default("PENDING") @db.VarChar(20)    // PENDING | ACTIVE | CANCELLED | SUSPENDED | EXPIRED
+  amount                Decimal   @db.Decimal(10, 2)
+  currency              String    @default("USD") @db.VarChar(3)
+  email                 String?   @db.VarChar(255)
+  payerName             String?   @map("payer_name") @db.VarChar(255)
+  currentPeriodStart    DateTime? @map("current_period_start")
+  currentPeriodEnd      DateTime? @map("current_period_end")
+  cancelledAt           DateTime? @map("cancelled_at")
+  cancelReason          String?   @map("cancel_reason") @db.Text
+  promoCodeId           String?   @map("promo_code_id") @db.VarChar(64)
+  discountApplied       Decimal?  @map("discount_applied") @db.Decimal(10, 2)
+  instructionsSentAt    DateTime? @map("instructions_sent_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user      RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoCode PromoCode?    @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  payments  Payment[]
+
+  @@index([userId])
+  @@index([paypalSubscriptionId])
+  @@index([paypalOrderId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                  String    @id @db.VarChar(64)
+  subscriptionId      String    @map("subscription_id") @db.VarChar(64)
+  paypalTransactionId String?   @map("paypal_transaction_id") @db.VarChar(64)
+  paypalSaleId        String?   @map("paypal_sale_id") @db.VarChar(64)
+  amount              Decimal   @db.Decimal(10, 2)
+  currency            String    @default("USD") @db.VarChar(3)
+  status              String    @default("PENDING") @db.VarChar(20)  // PENDING | COMPLETED | REFUNDED | PARTIALLY_REFUNDED
+  payerEmail          String?   @map("payer_email") @db.VarChar(255)
+  payerName           String?   @map("payer_name") @db.VarChar(255)
+  refundAmount        Decimal?  @map("refund_amount") @db.Decimal(10, 2)
+  refundReason        String?   @map("refund_reason") @db.Text
+  refundedAt          DateTime? @map("refunded_at")
+  refundedBy          String?   @map("refunded_by") @db.VarChar(20)
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([paypalSaleId])
+  @@map("payments")
+}
+
+model PromoCode {
+  id              String    @id @db.VarChar(64)
+  code            String    @unique @db.VarChar(32)
+  discountPercent Int       @map("discount_percent")
+  maxUses         Int?      @map("max_uses")
+  usedCount       Int       @default(0) @map("used_count")
+  validFrom       DateTime? @map("valid_from")
+  validUntil      DateTime? @map("valid_until")
+  planCategory    String?   @map("plan_category") @db.VarChar(20)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  subscriptions Subscription[]
+
+  @@map("promo_codes")
 }
 
