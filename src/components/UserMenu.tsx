@@ -198,8 +198,13 @@ export function UserMenu({
               <ShieldIcon /> STAFF
             </span>
           ) : null}
+          {user.patreon_premium ? (
+            <span className="ure-premium-badge" title="Premium Member">
+              ⭐ Premium
+            </span>
+          ) : null}
           {(user.boost_level ?? 0) > 0 ? (
-            <span className="ure-premium-badge" title="Server Boost">
+            <span className="ure-boost-badge" title="Server Boost">
               <BoltIcon /> Boost
             </span>
           ) : null}
@@ -223,8 +228,13 @@ export function UserMenu({
                   <ShieldIcon />
                 </div>
               ) : null}
+              {user.patreon_premium ? (
+                <div className="ure-dropdown-avatar-badge ure-dropdown-avatar-badge-patreon" title="Premium Member">
+                  <span style={{ fontSize: 11, lineHeight: 1 }}>⭐</span>
+                </div>
+              ) : null}
               {(user.boost_level ?? 0) > 0 ? (
-                <div className="ure-dropdown-avatar-badge ure-dropdown-avatar-badge-premium" title="Server Boost">
+                <div className="ure-dropdown-avatar-badge ure-dropdown-avatar-badge-boost" title="Server Boost">
                   <BoltIcon />
                 </div>
               ) : null}
@@ -232,6 +242,9 @@ export function UserMenu({
             <div className="ure-dropdown-user-info">
               <div className="ure-dropdown-username-row">
                 <span className="ure-dropdown-username">{displayName}</span>
+                {!!user.patreon_premium && (
+                  <span className="ure-dropdown-premium-tag">PREMIUM</span>
+                )}
               </div>
               {handleText && <div className="ure-dropdown-discord-name">{handleText}</div>}
             </div>

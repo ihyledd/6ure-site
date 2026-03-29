@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
     maxAge: 24 * 60 * 60, // 24 hours
-    updateAge: 60 * 60, // 1 hour
+    updateAge: 0, // Always refresh from DB so role changes take effect immediately
   },
   cookies: {
     sessionToken: {
@@ -123,6 +123,25 @@ export const authOptions: NextAuthOptions = {
       const isStaff =
         (requestsUser && isStaffFromRoles(requestsUser.roles)) ||
         (WIKI_DEVELOPER_DISCORD_ID && discordId === WIKI_DEVELOPER_DISCORD_ID);
+
+      // Check PayPal subscriptions for premium / leak protection status
+      let hasPaypalPremium = false;
+      let hasPaypalLeakProtection = false;
+      try {
+        const activeSubs = await import("@/lib/db").then((db) =>
+          db.query<{ plan_category: string }>(
+            "SELECT plan_category FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE'",
+            [discordId]
+          )
+        );
+        for (const sub of activeSubs) {
+          if (sub.plan_category === "PREMIUM") hasPaypalPremium = true;
+          if (sub.plan_category === "LEAK_PROTECTION") hasPaypalLeakProtection = true;
+        }
+      } catch {
+        // subscriptions table may not exist yet
+      }
+
       return {
         ...session,
         user: {
@@ -136,10 +155,11 @@ export const authOptions: NextAuthOptions = {
           image: requestsUser?.guild_avatar ?? session.user.image,
           role: isStaff ? ("ADMIN" as const) : ("USER" as const),
           username: requestsUser?.username ?? null,
-          patreon_premium: requestsUser?.patreon_premium ?? false,
-          leak_protection: Boolean(requestsUser?.leak_protection ?? false),
+          patreon_premium: (requestsUser?.patreon_premium ?? false) || hasPaypalPremium,
+          leak_protection: Boolean(requestsUser?.leak_protection ?? false) || hasPaypalLeakProtection,
           boost_level: requestsUser?.boost_level ?? 0,
           avatar_decoration: requestsUser?.avatar_decoration ?? null,
+          is_developer: WIKI_DEVELOPER_DISCORD_ID ? discordId === WIKI_DEVELOPER_DISCORD_ID : false,
         },
       };
     },

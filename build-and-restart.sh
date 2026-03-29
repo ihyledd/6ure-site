@@ -47,11 +47,25 @@ echo "==> Ensuring public/uploads/creator-avatars exists (server-created avatars
 mkdir -p "public/uploads/creator-avatars"
 chmod -R 755 "public/uploads" 2>/dev/null || true
 
-echo "==> Clearing .next cache..."
-rm -rf .next
+# Only clear .next cache if --clean flag passed (incremental builds are much faster)
+if [ "${1:-}" = "--clean" ]; then
+  echo "==> Clearing .next cache (--clean flag)..."
+  rm -rf .next
+else
+  echo "==> Keeping .next cache (incremental build). Pass --clean to force full rebuild."
+fi
 
-echo "==> Installing dependencies (npm ci --prefer-offline)..."
-npm ci --prefer-offline 2>/dev/null || npm install --prefer-offline
+# Smart install: only run npm ci when lockfile changed
+LOCK_HASH_FILE="$ROOT/.lockfile-hash"
+CURRENT_HASH=$(md5sum "$ROOT/package-lock.json" 2>/dev/null | cut -d' ' -f1 || echo "none")
+PREV_HASH=$(cat "$LOCK_HASH_FILE" 2>/dev/null || echo "")
+if [ "$CURRENT_HASH" != "$PREV_HASH" ] || [ ! -d "$ROOT/node_modules" ]; then
+  echo "==> Installing dependencies (lockfile changed or node_modules missing)..."
+  npm ci --prefer-offline 2>/dev/null || npm install --prefer-offline
+  echo "$CURRENT_HASH" > "$LOCK_HASH_FILE"
+else
+  echo "==> Skipping npm install (lockfile unchanged)."
+fi
 
 # Load .env so DB vars are available during next build (prerender of /wiki/sitemap.xml needs DB)
 if [ ! -f "$ROOT/.env" ]; then
@@ -67,10 +81,9 @@ if [ -z "${DB_HOST}" ]; then
   exit 1
 fi
 
-echo "==> Building (webpack, 4GB heap)..."
-# package.json has "build": "next build --webpack" so we run that only (no --turbopack here)
+echo "==> Building (turbopack, 4GB heap)..."
 export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}"
-if npm run build > "$ROOT/.build.log" 2>&1; then
+if npm run build -- --turbopack > "$ROOT/.build.log" 2>&1; then
   cat "$ROOT/.build.log"
   rm -f "$ROOT/.build.log"
 else

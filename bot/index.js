@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, SlashCommandBuilder, PermissionFlagsBits, REST, Routes, StringSelectMenuBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder, TextInputBuilder, TextInputStyle, SlashCommandBuilder, PermissionFlagsBits, REST, Routes, StringSelectMenuBuilder, ContainerBuilder, SectionBuilder, TextDisplayBuilder, SeparatorBuilder, ThumbnailBuilder, MessageFlags } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
 
@@ -571,16 +571,35 @@ async function handleRequestSlash(interaction, subcommand) {
       const list = result.requests || [];
       const total = result.pagination?.total ?? list.length;
       const totalPages = result.pagination?.totalPages ?? 1;
-      const filterLabel = status ? ` *(${status})*` : '';
+      const filterLabel = status ? ` (${status})` : '';
       const body = list.length === 0
         ? '*No requests match.*'
         : list.map((r, i) => `\`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 48)}**\n  → \`${r.status}\` · ${r.upvotes || 0} upvotes`).join('\n\n');
-      const embed = new EmbedBuilder()
-        .setTitle('Request list')
-        .setColor(0x5865F2)
-        .setDescription(`**Page ${page}** of **${totalPages}**${filterLabel}\n\n${body}`)
-        .setFooter({ text: `${total} total · Open: ${FRONTEND_URL}` });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 📋 Request List${filterLabel}\n**Page ${page}** of **${totalPages}** · ${total} total\n\n${body}`));
+      const components = [container];
+      if (totalPages > 1) {
+        const row = new ActionRowBuilder();
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`list_page_${page - 1}_${status || 'all'}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`list_page_${page + 1}_${status || 'all'}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page >= totalPages),
+          new ButtonBuilder()
+            .setLabel('Open Website')
+            .setStyle(ButtonStyle.Link)
+            .setURL(`${FRONTEND_URL}/requests`)
+        );
+        components.push(row);
+      }
+      await interaction.editReply({ components, flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -589,31 +608,29 @@ async function handleRequestSlash(interaction, subcommand) {
       await interaction.deferReply({ ephemeral });
       const request = await getRequest(id);
       if (!request) {
-        const embed = new EmbedBuilder()
-          .setColor(0xED4245)
-          .setTitle('Request not found')
-          .setDescription(`No request exists with ID **${id}**. Check the number and try again.`);
-        await interaction.editReply({ embeds: [embed] });
+        const container = new ContainerBuilder()
+          .setAccentColor(0xED4245)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent('## ❌ Request not found\nNo request exists with that ID. Check the number and try again.'));
+        await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
         return;
       }
-      const statusStyle = request.status === 'completed' ? 0x57F287 : request.status === 'rejected' ? 0xED4245 : 0xFEE75C;
-      const desc = (request.description || '*No description.*').slice(0, 1000);
-      const embed = new EmbedBuilder()
-        .setTitle((request.title || 'Untitled').slice(0, 256))
-        .setURL(requestUrlFor(id))
-        .setColor(statusStyle)
-        .setDescription(desc)
-        .addFields(
-          { name: 'Status', value: `\`${request.status || 'pending'}\``, inline: true },
-          { name: 'Upvotes', value: `**${request.upvotes || 0}**`, inline: true },
-          { name: 'Comments', value: `**${request.comments_count || 0}**`, inline: true },
-          { name: 'Product', value: request.product_url ? `[Open product](${request.product_url})` : '*-*', inline: false },
-          { name: 'Creator', value: request.creator_url ? (request.creator_name ? `**${request.creator_name}** - [Open profile](${request.creator_url})` : `[Open creator](${request.creator_url})`) : '*-*', inline: false }
-        )
-        .setFooter({ text: `Request #${id} · by ${formatUserWithMention({ username: request.username }, request.user_id)}` })
-        .setTimestamp(new Date(request.created_at));
-      if (request.image_url) embed.setImage(request.image_url);
-      await interaction.editReply({ embeds: [embed] });
+      const statusColor = request.status === 'completed' ? 0x57F287 : request.status === 'rejected' ? 0xED4245 : 0xFEE75C;
+      const statusEmoji = request.status === 'completed' ? '✅' : request.status === 'rejected' ? '❌' : '⏳';
+      const desc = (request.description || '*No description.*').slice(0, 800);
+      const creatorInfo = request.creator_url ? (request.creator_name ? `**${request.creator_name}** — [Profile](${request.creator_url})` : `[View Creator](${request.creator_url})`) : '*—*';
+      const productInfo = request.product_url ? `[View Product](${request.product_url})` : '*—*';
+      const container = new ContainerBuilder()
+        .setAccentColor(statusColor)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${(request.title || 'Untitled').slice(0, 200)}\n${desc}`))
+        .addSeparatorComponents(new SeparatorBuilder())
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${statusEmoji} **Status:** \`${request.status || 'pending'}\`\n👍 **Upvotes:** ${request.upvotes || 0} · 💬 **Comments:** ${request.comments_count || 0} · 👁️ **Views:** ${request.views || 0}\n\n🔗 **Product:** ${productInfo}\n👤 **Creator:** ${creatorInfo}\n📅 **Requested:** <t:${Math.floor(new Date(request.created_at).getTime() / 1000)}:R>`));
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('View on Website')
+          .setStyle(ButtonStyle.Link)
+          .setURL(requestUrlFor(id))
+      );
+      await interaction.editReply({ components: [container, row], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -628,12 +645,27 @@ async function handleRequestSlash(interaction, subcommand) {
       const body = list.length === 0
         ? '*This user has not submitted any requests.*'
         : list.map(r => `\`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 48)}** → \`${r.status}\` (${r.upvotes || 0} upvotes)`).join('\n');
-      const embed = new EmbedBuilder()
-        .setTitle(`Requests by ${user.username} (<@${user.id}>)`)
-        .setColor(0x5865F2)
-        .setDescription(`**Page ${page}** of **${totalPages}**\n\n${body}`)
-        .setFooter({ text: `${total} total · ${FRONTEND_URL}` });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👤 Requests by ${user.username}\n<@${user.id}> · **Page ${page}** of **${totalPages}** · ${total} total\n\n${body}`));
+      const components = [container];
+      if (totalPages > 1) {
+        const row = new ActionRowBuilder();
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`user_page_${page - 1}_${user.id}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`user_page_${page + 1}_${user.id}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page >= totalPages)
+        );
+        components.push(row);
+      }
+      await interaction.editReply({ components, flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -646,12 +678,10 @@ async function handleRequestSlash(interaction, subcommand) {
       const body = list.length === 0
         ? `*No requests found for* \`${query.slice(0, 50).replace(/`/g, '')}\`*.*`
         : list.map(r => `\`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 50)}** → \`${r.status}\` · ${r.upvotes || 0} upvotes`).join('\n');
-      const embed = new EmbedBuilder()
-        .setTitle('Search results')
-        .setColor(0x5865F2)
-        .setDescription(`Query: **${query.slice(0, 80).replace(/\*/g, '')}**\n\n${body}`)
-        .setFooter({ text: `${list.length} result(s) · ${FRONTEND_URL}` });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 🔍 Search Results\nQuery: **${query.slice(0, 80).replace(/\*/g, '')}** · ${list.length} result(s)\n\n${body}`));
+      await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -666,17 +696,16 @@ async function handleRequestSlash(interaction, subcommand) {
       const c = completed.pagination?.total ?? 0;
       const r = rejected.pagination?.total ?? 0;
       const total = p + c + r;
-      const embed = new EmbedBuilder()
-        .setTitle('Request statistics')
-        .setColor(0x5865F2)
-        .setDescription(`**${total}** requests in total.`)
-        .addFields(
-          { name: 'Pending', value: `\`${p}\``, inline: true },
-          { name: 'Completed', value: `\`${c}\``, inline: true },
-          { name: 'Rejected', value: `\`${r}\``, inline: true }
-        )
-        .setFooter({ text: FRONTEND_URL });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 📊 Request Statistics\n**${total}** requests in total\n\n⏳ Pending: **${p}**\n✅ Completed: **${c}**\n❌ Rejected: **${r}**`));
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('View All Requests')
+          .setStyle(ButtonStyle.Link)
+          .setURL(`${FRONTEND_URL}/requests`)
+      );
+      await interaction.editReply({ components: [container, row], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -688,12 +717,10 @@ async function handleRequestSlash(interaction, subcommand) {
       const body = list.length === 0
         ? '*No requests yet.*'
         : list.map((r, i) => `${i + 1}. \`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 45)}** · \`${r.status}\` · ${r.upvotes || 0} upvotes`).join('\n');
-      const embed = new EmbedBuilder()
-        .setTitle(`Last ${limit} requests`)
-        .setColor(0x5865F2)
-        .setDescription(body)
-        .setFooter({ text: FRONTEND_URL });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 🕐 Last ${limit} Requests\n\n${body}`));
+      await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -703,16 +730,14 @@ async function handleRequestSlash(interaction, subcommand) {
       await interaction.deferReply({ ephemeral });
       const result = await getRequests(status === 'any' ? null : status, 1, limit);
       const list = result.requests || [];
-      const filterLabel = status && status !== 'any' ? ` *(${status} only)*` : '';
+      const filterLabel = status && status !== 'any' ? ` (${status} only)` : '';
       const body = list.length === 0
         ? '*No requests.*'
         : list.map((r, i) => `${i + 1}. **${r.upvotes || 0}** upvotes → \`#${r.id}\` ${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 40)}`).join('\n');
-      const embed = new EmbedBuilder()
-        .setTitle(`Top ${limit} by upvotes${filterLabel}`)
-        .setColor(0x5865F2)
-        .setDescription(body)
-        .setFooter({ text: FRONTEND_URL });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 🏆 Top ${limit} by Upvotes${filterLabel}\n\n${body}`));
+      await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -721,11 +746,10 @@ async function handleRequestSlash(interaction, subcommand) {
       await interaction.deferReply({ ephemeral });
       const request = await getRequest(id);
       if (!request) {
-        const embed = new EmbedBuilder()
-          .setColor(0xED4245)
-          .setTitle('Request not found')
-          .setDescription(`No request with ID **${id}**.`);
-        await interaction.editReply({ embeds: [embed] });
+        const container = new ContainerBuilder()
+          .setAccentColor(0xED4245)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent('## ❌ Request not found\nNo request with that ID.'));
+        await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
         return;
       }
       const voters = await getUpvoters(id, 1, 25);
@@ -734,14 +758,16 @@ async function handleRequestSlash(interaction, subcommand) {
       const body = list.length === 0
         ? '*No voters yet.*'
         : list.map((v, i) => `\`${i + 1}.\` ${v.username || 'Unknown'} (<@${v.id}>)`).join('\n');
-      const embed = new EmbedBuilder()
-        .setTitle(`Voters for request #${id}`)
-        .setURL(requestUrlFor(id))
-        .setColor(0x5865F2)
-        .setDescription(body)
-        .addFields({ name: 'Total upvotes', value: `**${total}**`, inline: true })
-        .setFooter({ text: `Showing up to 25 · ${FRONTEND_URL}` });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👥 Voters for Request #${id}\nTotal upvotes: **${total}** · Showing up to 25\n\n${body}`));
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('View Request')
+          .setStyle(ButtonStyle.Link)
+          .setURL(requestUrlFor(id))
+      );
+      await interaction.editReply({ components: [container, row], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -750,11 +776,10 @@ async function handleRequestSlash(interaction, subcommand) {
       await interaction.deferReply({ ephemeral });
       const request = await getRequest(id);
       if (!request) {
-        const embed = new EmbedBuilder()
-          .setColor(0xED4245)
-          .setTitle('Request not found')
-          .setDescription(`No request with ID **${id}**.`);
-        await interaction.editReply({ embeds: [embed] });
+        const container = new ContainerBuilder()
+          .setAccentColor(0xED4245)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent('## ❌ Request not found\nNo request with that ID.'));
+        await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
         return;
       }
       const comments = await getComments(id);
@@ -764,16 +789,16 @@ async function handleRequestSlash(interaction, subcommand) {
         const text = (c.content || '').slice(0, 80).replace(/\n/g, ' ');
         return `**${author}**\n${text}${(c.content || '').length > 80 ? '…' : ''}`;
       }).join('\n\n');
-      const embed = new EmbedBuilder()
-        .setTitle(`Comments for request #${id}`)
-        .setURL(requestUrlFor(id))
-        .setColor(0x5865F2)
-        .addFields(
-          { name: 'Comment count', value: `**${count}**`, inline: true },
-          { name: 'Latest', value: preview || '*No comments yet.*', inline: false }
-        )
-        .setFooter({ text: `Request: ${request.title || 'Untitled'} · ${FRONTEND_URL}` });
-      await interaction.editReply({ embeds: [embed] });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 💬 Comments for Request #${id}\n**${request.title || 'Untitled'}** · ${count} comment(s)\n\n${preview || '*No comments yet.*'}`));
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel('View on Website')
+          .setStyle(ButtonStyle.Link)
+          .setURL(requestUrlFor(id))
+      );
+      await interaction.editReply({ components: [container, row], flags: MessageFlags.IsComponentsV2 });
       return;
     }
 
@@ -1292,6 +1317,93 @@ client.on('interactionCreate', async (interaction) => {
   if (!interaction.isButton()) return;
   
   const customId = interaction.customId;
+
+  // Handle list pagination buttons
+  if (customId.startsWith('list_page_')) {
+    const parts = customId.split('_');
+    const page = parseInt(parts[2]);
+    const status = parts[3] === 'all' ? null : parts[3];
+    try {
+      await interaction.deferUpdate();
+      const result = await getRequests(status, page, 10);
+      const list = result.requests || [];
+      const total = result.pagination?.total ?? list.length;
+      const totalPages = result.pagination?.totalPages ?? 1;
+      const filterLabel = status ? ` (${status})` : '';
+      const body = list.length === 0
+        ? '*No requests match.*'
+        : list.map((r, i) => `\`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 48)}**\n  → \`${r.status}\` · ${r.upvotes || 0} upvotes`).join('\n\n');
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 📋 Request List${filterLabel}\n**Page ${page}** of **${totalPages}** · ${total} total\n\n${body}`));
+      const components = [container];
+      if (totalPages > 1) {
+        const row = new ActionRowBuilder();
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`list_page_${page - 1}_${status || 'all'}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`list_page_${page + 1}_${status || 'all'}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page >= totalPages),
+          new ButtonBuilder()
+            .setLabel('Open Website')
+            .setStyle(ButtonStyle.Link)
+            .setURL(`${FRONTEND_URL}/requests`)
+        );
+        components.push(row);
+      }
+      await interaction.editReply({ components, flags: MessageFlags.IsComponentsV2 });
+    } catch (error) {
+      console.error('Error paginating list:', error);
+    }
+    return;
+  }
+
+  // Handle user pagination buttons
+  if (customId.startsWith('user_page_')) {
+    const parts = customId.split('_');
+    const page = parseInt(parts[2]);
+    const userId = parts[3];
+    try {
+      await interaction.deferUpdate();
+      const result = await getUserRequests(userId, page, 10);
+      const list = result.requests || [];
+      const total = result.pagination?.total ?? 0;
+      const totalPages = result.pagination?.totalPages ?? 1;
+      const body = list.length === 0
+        ? '*No requests.*'
+        : list.map(r => `\`#${r.id}\` **${(r.title || 'Untitled').replace(/\*/g, '').slice(0, 48)}** → \`${r.status}\` (${r.upvotes || 0} upvotes)`).join('\n');
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👤 Requests by <@${userId}>\n**Page ${page}** of **${totalPages}** · ${total} total\n\n${body}`));
+      const components = [container];
+      if (totalPages > 1) {
+        const row = new ActionRowBuilder();
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`user_page_${page - 1}_${userId}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`user_page_${page + 1}_${userId}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(page >= totalPages)
+        );
+        components.push(row);
+      }
+      await interaction.editReply({ components, flags: MessageFlags.IsComponentsV2 });
+    } catch (error) {
+      console.error('Error paginating user requests:', error);
+    }
+    return;
+  }
   
   // Handle request management buttons
   if (customId.startsWith('request_complete_')) {
@@ -1366,59 +1478,48 @@ client.on('interactionCreate', async (interaction) => {
       const { upvoters, pagination } = result;
       
       if (upvoters.length === 0) {
+        const container = new ContainerBuilder()
+          .setAccentColor(0x5865F2)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👥 Upvoters for Request #${requestId}\n*No upvoters yet.*`));
         await interaction.reply({ 
-          content: `📊 No upvoters for request #${requestId} yet.`, 
-          ephemeral: true 
+          components: [container],
+          flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
         });
         return;
       }
       
-      // Create embed with voter list
+      // Create Components v2 with voter list
       const voterList = upvoters.map((voter, index) => {
         const position = (pagination.page - 1) * pagination.limit + index + 1;
         return `${position}. ${voter.username || 'Unknown'} (<@${voter.id}>)`;
       }).join('\n');
       
-      const votersEmbed = new EmbedBuilder()
-        .setTitle(`👥 Upvoters for Request #${requestId}`)
-        .setDescription(voterList.length > 2000 ? voterList.substring(0, 1997) + '...' : voterList)
-        .setColor(0x5865F2)
-        .setFooter({ 
-          text: `Page ${pagination.page} of ${pagination.totalPages} • Total: ${pagination.total} upvoters` 
-        });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👥 Upvoters for Request #${requestId}\nPage ${pagination.page} of ${pagination.totalPages} · ${pagination.total} total\n\n${voterList.length > 1800 ? voterList.substring(0, 1797) + '...' : voterList}`));
       
       // Create pagination buttons if needed
-      const components = [];
+      const components = [container];
       if (pagination.totalPages > 1) {
         const row = new ActionRowBuilder();
-        
-        if (pagination.page > 1) {
-          row.addComponents(
-            new ButtonBuilder()
-              .setCustomId(`voters_prev_${requestId}_${pagination.page - 1}`)
-              .setLabel('◀ Previous')
-              .setStyle(ButtonStyle.Secondary)
-          );
-        }
-        
-        if (pagination.page < pagination.totalPages) {
-          row.addComponents(
-            new ButtonBuilder()
-              .setCustomId(`voters_next_${requestId}_${pagination.page + 1}`)
-              .setLabel('Next ▶')
-              .setStyle(ButtonStyle.Secondary)
-          );
-        }
-        
-        if (row.components.length > 0) {
-          components.push(row);
-        }
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`voters_prev_${requestId}_${pagination.page - 1}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(pagination.page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`voters_next_${requestId}_${pagination.page + 1}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(pagination.page >= pagination.totalPages)
+        );
+        components.push(row);
       }
       
       await interaction.reply({ 
-        embeds: [votersEmbed], 
-        components: components.length > 0 ? components : [],
-        ephemeral: true 
+        components,
+        flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
       });
     } catch (error) {
       console.error('Error fetching voters:', error);
@@ -1434,6 +1535,7 @@ client.on('interactionCreate', async (interaction) => {
     const page = parseInt(parts[3]);
     
     try {
+      await interaction.deferUpdate();
       const result = await getUpvoters(requestId, page, 20);
       const { upvoters, pagination } = result;
       
@@ -1442,48 +1544,31 @@ client.on('interactionCreate', async (interaction) => {
         return `${position}. ${voter.username || 'Unknown'} (<@${voter.id}>)`;
       }).join('\n');
       
-      const votersEmbed = new EmbedBuilder()
-        .setTitle(`👥 Upvoters for Request #${requestId}`)
-        .setDescription(voterList.length > 2000 ? voterList.substring(0, 1997) + '...' : voterList)
-        .setColor(0x5865F2)
-        .setFooter({
-          text: `Page ${pagination.page} of ${pagination.totalPages} • Total: ${pagination.total} upvoters`
-        });
+      const container = new ContainerBuilder()
+        .setAccentColor(0x5865F2)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 👥 Upvoters for Request #${requestId}\nPage ${pagination.page} of ${pagination.totalPages} · ${pagination.total} total\n\n${voterList.length > 1800 ? voterList.substring(0, 1797) + '...' : voterList}`));
       
-      const components = [];
+      const components = [container];
       if (pagination.totalPages > 1) {
         const row = new ActionRowBuilder();
-        
-        if (pagination.page > 1) {
-          row.addComponents(
-            new ButtonBuilder()
-              .setCustomId(`voters_prev_${requestId}_${pagination.page - 1}`)
-              .setLabel('◀ Previous')
-              .setStyle(ButtonStyle.Secondary)
-          );
-        }
-        
-        if (pagination.page < pagination.totalPages) {
-          row.addComponents(
-            new ButtonBuilder()
-              .setCustomId(`voters_next_${requestId}_${pagination.page + 1}`)
-              .setLabel('Next ▶')
-              .setStyle(ButtonStyle.Secondary)
-          );
-        }
-        
-        if (row.components.length > 0) {
-          components.push(row);
-        }
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`voters_prev_${requestId}_${pagination.page - 1}`)
+            .setLabel('◀ Previous')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(pagination.page <= 1),
+          new ButtonBuilder()
+            .setCustomId(`voters_next_${requestId}_${pagination.page + 1}`)
+            .setLabel('Next ▶')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(pagination.page >= pagination.totalPages)
+        );
+        components.push(row);
       }
       
-      await interaction.update({ 
-        embeds: [votersEmbed], 
-        components: components.length > 0 ? components : []
-      });
+      await interaction.editReply({ components, flags: MessageFlags.IsComponentsV2 });
     } catch (error) {
       console.error('Error fetching voters:', error);
-      await interaction.update({ content: 'Failed to fetch voters', embeds: [], components: [] });
     }
     return;
   }
@@ -2084,6 +2169,59 @@ apiServer.post('/send-cancel-dm', async (req, res) => {
   } catch (err) {
     console.warn('[Send-cancel-dm] Failed:', err.message);
     res.status(500).json({ error: 'Failed to send DM' });
+  }
+});
+
+// Notify creator + upvoters when a request is fulfilled (called by website PATCH handler)
+apiServer.post('/notify-fulfillment', async (req, res) => {
+  try {
+    const { requestId, requestTitle, requestUrl, leakMessageUrl, creatorUserId, upvoterUserIds } = req.body;
+    if (!requestId) {
+      return res.status(400).json({ error: 'requestId is required' });
+    }
+
+    // Get full request data for the embed
+    const request = await getRequest(requestId);
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const rUrl = requestUrl || requestUrlFor(requestId);
+    const leakUrl = leakMessageUrl || request.leak_message_url || rUrl;
+    let notifiedCount = 0;
+
+    // DM the request creator
+    if (creatorUserId) {
+      try {
+        const discordUser = await client.users.fetch(creatorUserId);
+        const embed = await createLeakNotificationEmbed(request, leakUrl, null, rUrl, false, requestTitle || request.title);
+        await discordUser.send({ embeds: [embed] });
+        notifiedCount++;
+        console.log(`[Notify-fulfillment] DM sent to creator ${creatorUserId} for request #${requestId}`);
+      } catch (error) {
+        console.log(`[Notify-fulfillment] Could not DM creator ${creatorUserId}: ${error.message}`);
+      }
+    }
+
+    // DM all upvoters (skip creator to avoid duplicate)
+    const voterIds = upvoterUserIds || await getUpvoterIds(requestId);
+    for (const userId of voterIds) {
+      if (userId === creatorUserId) continue; // already notified
+      try {
+        const discordUser = await client.users.fetch(userId);
+        const embed = await createLeakNotificationEmbed(request, leakUrl, null, rUrl, true, requestTitle || request.title);
+        await discordUser.send({ embeds: [embed] });
+        notifiedCount++;
+      } catch (error) {
+        console.log(`[Notify-fulfillment] Could not DM upvoter ${userId}: ${error.message}`);
+      }
+    }
+
+    console.log(`[Notify-fulfillment] Request #${requestId} fulfilled — notified ${notifiedCount} user(s)`);
+    res.json({ success: true, notified: notifiedCount });
+  } catch (err) {
+    console.error('[Notify-fulfillment] Failed:', err.message);
+    res.status(500).json({ error: 'Failed to send fulfillment notifications' });
   }
 });
 

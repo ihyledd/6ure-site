@@ -37,7 +37,9 @@ export interface RequestData {
 
 export interface LeakInfo {
   name: string;
+  editor?: string | null;
   place: string;
+  premium?: boolean;
   discordMessageUrl?: string | null;
   thumbnail?: string | null;
 }

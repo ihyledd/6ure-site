@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "Page" ADD COLUMN IF NOT EXISTS "viewCount" INTEGER NOT NULL DEFAULT 0;
-
--- DropTable
-DROP TABLE IF EXISTS "Comment";
