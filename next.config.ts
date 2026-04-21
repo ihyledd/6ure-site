@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
 
   /* ── Strict React mode for development ────────────────────────────────── */
   reactStrictMode: true,
+
+  /* ── Allow large uploads (ad videos up to 100MB) through middleware ──── */
+  experimental: {
+    middlewareClientMaxBodySize: "110mb",
+  },
 };
 
 export default nextConfig;
