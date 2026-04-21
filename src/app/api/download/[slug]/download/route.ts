@@ -46,9 +46,9 @@ export async function POST(request: NextRequest, { params }: Params) {
   await trackAdEvent(link.id, "download", request);
 
   // If sftpgoPath is set, generate a fresh SFTPGo share on-the-fly
-  if (link.sftpgoPath) {
+  if (link.sftpgo_path) {
     try {
-      const share = await createSftpgoShare(link.sftpgoPath, {
+      const share = await createSftpgoShare(link.sftpgo_path, {
         maxTokens: 1,       // single-use
         expiryHours: 24,    // 24 hour expiry
       });
@@ -56,8 +56,8 @@ export async function POST(request: NextRequest, { params }: Params) {
     } catch (err) {
       console.error("[ad-download] SFTPGo share creation failed:", err);
       // Fall back to static URL if SFTPGo fails
-      if (link.downloadUrl) {
-        return NextResponse.json({ url: link.downloadUrl });
+      if (link.download_url) {
+        return NextResponse.json({ url: link.download_url });
       }
       return NextResponse.json(
         { error: "Failed to generate download link. Please try again." },
@@ -67,5 +67,5 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   // Otherwise use the static download URL
-  return NextResponse.json({ url: link.downloadUrl });
+  return NextResponse.json({ url: link.download_url });
 }

@@ -6,12 +6,12 @@ import Link from "next/link";
 interface Campaign {
   id: string;
   name: string;
-  isActive: boolean;
-  sponsorEnabled: boolean;
-  sponsorName: string | null;
-  videoUrl: string;
-  videoDurationSecs: number;
-  createdAt: string;
+  is_active: boolean;
+  sponsor_enabled: boolean;
+  sponsor_name: string | null;
+  video_url: string;
+  video_duration_secs: number;
+  created_at: string;
 }
 
 export default function CampaignsPage() {
@@ -32,7 +32,7 @@ export default function CampaignsPage() {
       body: JSON.stringify({ isActive: !current }),
     });
     setCampaigns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, isActive: !current } : c))
+      prev.map((c) => (c.id === id ? { ...c, is_active: !current } : c))
     );
   }
 
@@ -84,19 +84,19 @@ export default function CampaignsPage() {
                     </Link>
                   </td>
                   <td>
-                    {c.sponsorEnabled ? (
-                      <span className="promo-badge promo-badge-active">{c.sponsorName || "Enabled"}</span>
+                    {c.sponsor_enabled ? (
+                      <span className="promo-badge promo-badge-active">{c.sponsor_name || "Enabled"}</span>
                     ) : (
                       <span className="promo-badge promo-badge-off">Disabled</span>
                     )}
                   </td>
-                  <td>{c.videoDurationSecs}s</td>
+                  <td>{c.video_duration_secs}s</td>
                   <td>
                     <button
-                      className={`promo-toggle ${c.isActive ? "promo-toggle-on" : "promo-toggle-off"}`}
-                      onClick={() => toggleActive(c.id, c.isActive)}
+                      className={`promo-toggle ${c.is_active ? "promo-toggle-on" : "promo-toggle-off"}`}
+                      onClick={() => toggleActive(c.id, c.is_active)}
                     >
-                      {c.isActive ? "Active" : "Inactive"}
+                      {c.is_active ? "Active" : "Inactive"}
                     </button>
                   </td>
                   <td>

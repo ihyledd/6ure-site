@@ -6,15 +6,15 @@ import Link from "next/link";
 interface DownloadLink {
   id: string;
   slug: string;
-  resourceName: string;
-  adEnabled: boolean;
-  campaignName: string | null;
-  campaignMode: string;
-  totalViews: number;
-  totalCompletes: number;
-  totalDownloads: number;
-  isActive: boolean;
-  createdAt: string;
+  resource_name: string;
+  ad_enabled: boolean;
+  campaign_name: string | null;
+  campaign_mode: string;
+  total_views: number;
+  total_completes: number;
+  total_downloads: number;
+  is_active: boolean;
+  created_at: string;
 }
 
 export default function LinksPage() {
@@ -34,7 +34,7 @@ export default function LinksPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ adEnabled: !current }),
     });
-    setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, adEnabled: !current } : l)));
+    setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, ad_enabled: !current } : l)));
   }
 
   async function deleteLink(id: string) {
@@ -86,10 +86,10 @@ export default function LinksPage() {
             </thead>
             <tbody>
               {links.map((l) => (
-                <tr key={l.id} className={!l.isActive ? "promo-row-inactive" : undefined}>
+                <tr key={l.id} className={!l.is_active ? "promo-row-inactive" : undefined}>
                   <td>
                     <Link href={`/dashboard/promotions/links/${l.id}/edit`} className="promo-link-name">
-                      {l.resourceName}
+                      {l.resource_name}
                     </Link>
                   </td>
                   <td>
@@ -98,21 +98,21 @@ export default function LinksPage() {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                     </button>
                   </td>
-                  <td>{l.campaignName || "—"}</td>
-                  <td><span className="promo-badge promo-badge-mode">{l.campaignMode}</span></td>
+                  <td>{l.campaign_name || "—"}</td>
+                  <td><span className="promo-badge promo-badge-mode">{l.campaign_mode}</span></td>
                   <td>
                     <button
-                      className={`promo-toggle ${l.adEnabled ? "promo-toggle-on" : "promo-toggle-off"}`}
-                      onClick={() => toggleAd(l.id, l.adEnabled)}
+                      className={`promo-toggle ${l.ad_enabled ? "promo-toggle-on" : "promo-toggle-off"}`}
+                      onClick={() => toggleAd(l.id, l.ad_enabled)}
                     >
-                      {l.adEnabled ? "ON" : "OFF"}
+                      {l.ad_enabled ? "ON" : "OFF"}
                     </button>
                   </td>
-                  <td>{l.totalViews}</td>
-                  <td>{l.totalDownloads}</td>
+                  <td>{l.total_views}</td>
+                  <td>{l.total_downloads}</td>
                   <td>
-                    {l.totalViews > 0
-                      ? `${Math.round((l.totalDownloads / l.totalViews) * 100)}%`
+                    {l.total_views > 0
+                      ? `${Math.round((l.total_downloads / l.total_views) * 100)}%`
                       : "—"}
                   </td>
                   <td>

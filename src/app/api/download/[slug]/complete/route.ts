@@ -24,7 +24,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   // If ad is disabled, no completion needed — return token immediately
-  if (!link.adEnabled || !link.campaign) {
+  if (!link.ad_enabled || !link.campaign) {
     const { token, expiresAt } = generateDownloadToken(link.id);
     return NextResponse.json({ token, expiresAt });
   }

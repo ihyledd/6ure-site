@@ -13,10 +13,10 @@ export async function GET() {
   await requireAdmin();
 
   const links = await query(
-    `SELECT l.*, c.name as campaignName
+    `SELECT l.*, c.name as campaign_name
      FROM ad_download_links l
-     LEFT JOIN ad_campaigns c ON l.campaignId = c.id
-     ORDER BY l.createdAt DESC`
+     LEFT JOIN ad_campaigns c ON l.campaign_id = c.id
+     ORDER BY l.created_at DESC`
   );
 
   return NextResponse.json(links);
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   const id = crypto.randomUUID().replace(/-/g, "").slice(0, 25);
 
   await execute(
-    `INSERT INTO ad_download_links (id, slug, resourceName, downloadUrl, adEnabled, campaignId, campaignMode, thumbnailUrl, editorName, description, password, sftpgoPath, isActive, expiresAt, totalViews, totalCompletes, totalDownloads, createdAt, updatedAt)
+    `INSERT INTO ad_download_links (id, slug, resource_name, download_url, ad_enabled, campaign_id, campaign_mode, thumbnail_url, editor_name, description, password, sftpgo_path, is_active, expires_at, total_views, total_completes, total_downloads, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, 0, 0, NOW(), NOW())`,
     [
       id,

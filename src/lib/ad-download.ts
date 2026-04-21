@@ -11,47 +11,47 @@ import { query, queryOne, execute } from "@/lib/db";
 import type { NextRequest } from "next/server";
 
 // ---------------------------------------------------------------------------
-// Types
+// Types (match actual snake_case MySQL column names)
 // ---------------------------------------------------------------------------
 
 export interface AdCampaignRow {
   id: string;
   name: string;
-  isActive: boolean;
-  sponsorEnabled: boolean;
-  sponsorName: string | null;
-  sponsorTagline: string | null;
-  sponsorLogoUrl: string | null;
-  sponsorCtaText: string | null;
-  sponsorCtaUrl: string | null;
-  videoUrl: string;
-  videoDurationSecs: number;
-  headlineTemplate: string | null;
+  is_active: boolean;
+  sponsor_enabled: boolean;
+  sponsor_name: string | null;
+  sponsor_tagline: string | null;
+  sponsor_logo_url: string | null;
+  sponsor_cta_text: string | null;
+  sponsor_cta_url: string | null;
+  video_url: string;
+  video_duration_secs: number;
+  headline_template: string | null;
   subheadline: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface AdDownloadLinkRow {
   id: string;
   slug: string;
-  resourceName: string;
-  downloadUrl: string;
-  adEnabled: boolean;
-  campaignId: string | null;
-  campaignMode: "specific" | "random" | "all";
-  thumbnailUrl: string | null;
-  editorName: string | null;
+  resource_name: string;
+  download_url: string;
+  ad_enabled: boolean;
+  campaign_id: string | null;
+  campaign_mode: "specific" | "random" | "all";
+  thumbnail_url: string | null;
+  editor_name: string | null;
   description: string | null;
   password: string | null;
-  sftpgoPath: string | null;
-  totalViews: number;
-  totalCompletes: number;
-  totalDownloads: number;
-  isActive: boolean;
-  expiresAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
+  sftpgo_path: string | null;
+  total_views: number;
+  total_completes: number;
+  total_downloads: number;
+  is_active: boolean;
+  expires_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface AdDownloadLinkWithCampaigns extends AdDownloadLinkRow {
@@ -172,36 +172,36 @@ export async function getAdDownloadLink(
   slug: string
 ): Promise<AdDownloadLinkWithCampaigns | null> {
   const link = await queryOne<AdDownloadLinkRow>(
-    `SELECT * FROM ad_download_links WHERE slug = ? AND isActive = 1`,
+    `SELECT * FROM ad_download_links WHERE slug = ? AND is_active = 1`,
     [slug]
   );
 
   if (!link) return null;
 
   // Check expiry
-  if (link.expiresAt && new Date(link.expiresAt) < new Date()) return null;
+  if (link.expires_at && new Date(link.expires_at) < new Date()) return null;
 
   let campaign: AdCampaignRow | null = null;
   let allCampaigns: AdCampaignRow[] | undefined;
 
-  if (link.adEnabled) {
-    if (link.campaignMode === "specific" && link.campaignId) {
+  if (link.ad_enabled) {
+    if (link.campaign_mode === "specific" && link.campaign_id) {
       // Specific campaign
       campaign =
         (await queryOne<AdCampaignRow>(
-          `SELECT * FROM ad_campaigns WHERE id = ? AND isActive = 1`,
-          [link.campaignId]
+          `SELECT * FROM ad_campaigns WHERE id = ? AND is_active = 1`,
+          [link.campaign_id]
         )) ?? null;
-    } else if (link.campaignMode === "random") {
+    } else if (link.campaign_mode === "random") {
       // Random: pick one active campaign
       const campaigns = await query<AdCampaignRow>(
-        `SELECT * FROM ad_campaigns WHERE isActive = 1 ORDER BY RAND() LIMIT 1`
+        `SELECT * FROM ad_campaigns WHERE is_active = 1 ORDER BY RAND() LIMIT 1`
       );
       campaign = campaigns[0] ?? null;
-    } else if (link.campaignMode === "all") {
+    } else if (link.campaign_mode === "all") {
       // All: return all active campaigns
       allCampaigns = await query<AdCampaignRow>(
-        `SELECT * FROM ad_campaigns WHERE isActive = 1 ORDER BY createdAt DESC`
+        `SELECT * FROM ad_campaigns WHERE is_active = 1 ORDER BY created_at DESC`
       );
       campaign = allCampaigns[0] ?? null;
     }
@@ -224,7 +224,7 @@ export async function trackAdEvent(
   const referer = request.headers.get("referer")?.slice(0, 500) ?? null;
 
   await execute(
-    `INSERT INTO ad_analytics_events (id, link_id, eventType, ipHash, userAgent, referer, createdAt)
+    `INSERT INTO ad_analytics_events (id, link_id, event_type, ip_hash, user_agent, referer, created_at)
      VALUES (DEFAULT, ?, ?, ?, ?, ?, NOW())`,
     [linkId, eventType, ipHashed, userAgent, referer]
   );
@@ -232,11 +232,11 @@ export async function trackAdEvent(
   // Update denormalized counters
   const counterField =
     eventType === "view"
-      ? "totalViews"
+      ? "total_views"
       : eventType === "ad_complete"
-        ? "totalCompletes"
+        ? "total_completes"
         : eventType === "download"
-          ? "totalDownloads"
+          ? "total_downloads"
           : null;
 
   if (counterField) {

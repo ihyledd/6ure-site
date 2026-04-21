@@ -10,24 +10,24 @@ export default async function PromotionsOverviewPage() {
   const session = await auth();
   if (!session?.user?.id || session.user.role !== "ADMIN") redirect("/");
 
-  const campaigns = await query<{ id: string; name: string; isActive: boolean }>(
-    `SELECT id, name, isActive FROM ad_campaigns ORDER BY createdAt DESC`
+  const campaigns = await query<{ id: string; name: string; is_active: boolean }>(
+    `SELECT id, name, is_active FROM ad_campaigns ORDER BY created_at DESC`
   );
 
   const links = await query<{
-    id: string; slug: string; resourceName: string; adEnabled: boolean;
-    totalViews: number; totalCompletes: number; totalDownloads: number;
+    id: string; slug: string; resource_name: string; ad_enabled: boolean;
+    total_views: number; total_completes: number; total_downloads: number;
   }>(
-    `SELECT id, slug, resourceName, adEnabled, totalViews, totalCompletes, totalDownloads
-     FROM ad_download_links ORDER BY createdAt DESC LIMIT 10`
+    `SELECT id, slug, resource_name, ad_enabled, total_views, total_completes, total_downloads
+     FROM ad_download_links ORDER BY created_at DESC LIMIT 10`
   );
 
   const stats = {
     totalCampaigns: campaigns.length,
-    activeCampaigns: campaigns.filter((c) => c.isActive).length,
+    activeCampaigns: campaigns.filter((c) => c.is_active).length,
     totalLinks: links.length,
-    totalViews: links.reduce((s, l) => s + (l.totalViews ?? 0), 0),
-    totalDownloads: links.reduce((s, l) => s + (l.totalDownloads ?? 0), 0),
+    totalViews: links.reduce((s, l) => s + (l.total_views ?? 0), 0),
+    totalDownloads: links.reduce((s, l) => s + (l.total_downloads ?? 0), 0),
   };
 
   return (
@@ -92,21 +92,21 @@ export default async function PromotionsOverviewPage() {
                   <tr key={link.id}>
                     <td>
                       <Link href={`/dashboard/promotions/links/${link.id}/edit`} className="promo-link-name">
-                        {link.resourceName}
+                        {link.resource_name}
                       </Link>
                     </td>
                     <td><code className="promo-slug">/download/{link.slug}</code></td>
                     <td>
-                      <span className={`promo-badge ${link.adEnabled ? "promo-badge-active" : "promo-badge-off"}`}>
-                        {link.adEnabled ? "ON" : "OFF"}
+                      <span className={`promo-badge ${link.ad_enabled ? "promo-badge-active" : "promo-badge-off"}`}>
+                        {link.ad_enabled ? "ON" : "OFF"}
                       </span>
                     </td>
-                    <td>{link.totalViews}</td>
-                    <td>{link.totalCompletes}</td>
-                    <td>{link.totalDownloads}</td>
+                    <td>{link.total_views}</td>
+                    <td>{link.total_completes}</td>
+                    <td>{link.total_downloads}</td>
                     <td>
-                      {link.totalViews > 0
-                        ? `${Math.round((link.totalDownloads / link.totalViews) * 100)}%`
+                      {link.total_views > 0
+                        ? `${Math.round((link.total_downloads / link.total_views) * 100)}%`
                         : "—"}
                     </td>
                   </tr>

@@ -11,14 +11,31 @@ import { requireAdmin } from "@/lib/require-admin";
 
 type Params = { params: Promise<{ id: string }> };
 
+// Map body camelCase keys → actual snake_case column names
+const FIELD_MAP: Record<string, string> = {
+  slug: "slug",
+  resourceName: "resource_name",
+  downloadUrl: "download_url",
+  adEnabled: "ad_enabled",
+  campaignId: "campaign_id",
+  campaignMode: "campaign_mode",
+  thumbnailUrl: "thumbnail_url",
+  editorName: "editor_name",
+  description: "description",
+  password: "password",
+  sftpgoPath: "sftpgo_path",
+  isActive: "is_active",
+  expiresAt: "expires_at",
+};
+
 export async function GET(_request: NextRequest, { params }: Params) {
   await requireAdmin();
   const { id } = await params;
 
   const link = await queryOne(
-    `SELECT l.*, c.name as campaignName
+    `SELECT l.*, c.name as campaign_name
      FROM ad_download_links l
-     LEFT JOIN ad_campaigns c ON l.campaignId = c.id
+     LEFT JOIN ad_campaigns c ON l.campaign_id = c.id
      WHERE l.id = ?`,
     [id]
   );
@@ -35,20 +52,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
 
-  const allowedFields = [
-    "slug", "resourceName", "downloadUrl", "adEnabled", "campaignId",
-    "campaignMode", "thumbnailUrl", "editorName", "description", "password",
-    "sftpgoPath", "isActive", "expiresAt",
-  ];
-
   const sets: string[] = [];
   const values: unknown[] = [];
 
-  for (const field of allowedFields) {
-    if (field in body) {
-      let val = body[field];
+  for (const [bodyKey, colName] of Object.entries(FIELD_MAP)) {
+    if (bodyKey in body) {
+      let val = body[bodyKey];
       if (typeof val === "boolean") val = val ? 1 : 0;
-      sets.push(`${field} = ?`);
+      sets.push(`${colName} = ?`);
       values.push(val);
     }
   }
@@ -57,7 +68,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
-  sets.push("updatedAt = NOW()");
+  sets.push("updated_at = NOW()");
   values.push(id);
 
   await execute(

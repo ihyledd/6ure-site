@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 interface Campaign {
   id: string;
   name: string;
-  isActive: boolean;
+  is_active: boolean;
 }
 
 export default function NewLinkPage() {
@@ -31,7 +31,7 @@ export default function NewLinkPage() {
   useEffect(() => {
     fetch("/api/promotions/campaigns")
       .then((r) => r.json())
-      .then((data) => setCampaigns(data.filter((c: Campaign) => c.isActive)));
+      .then((data) => setCampaigns(data.filter((c: Campaign) => c.is_active)));
   }, []);
 
   function set(field: string, value: unknown) {

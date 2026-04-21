@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
                   <tbody>
                     {data.topLinks.map((l) => (
                       <tr key={l.linkId}>
-                        <td className="promo-link-name">{l.resourceName}</td>
+                        <td className="promo-link-name">{l.resource_name}</td>
                         <td>{l.views}</td>
                         <td>{l.completes}</td>
                         <td>{l.downloads}</td>

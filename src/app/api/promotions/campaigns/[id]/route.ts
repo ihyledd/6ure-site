@@ -11,6 +11,22 @@ import { requireAdmin } from "@/lib/require-admin";
 
 type Params = { params: Promise<{ id: string }> };
 
+// Map body camelCase keys → actual snake_case column names
+const FIELD_MAP: Record<string, string> = {
+  name: "name",
+  isActive: "is_active",
+  sponsorEnabled: "sponsor_enabled",
+  sponsorName: "sponsor_name",
+  sponsorTagline: "sponsor_tagline",
+  sponsorLogoUrl: "sponsor_logo_url",
+  sponsorCtaText: "sponsor_cta_text",
+  sponsorCtaUrl: "sponsor_cta_url",
+  videoUrl: "video_url",
+  videoDurationSecs: "video_duration_secs",
+  headlineTemplate: "headline_template",
+  subheadline: "subheadline",
+};
+
 export async function GET(_request: NextRequest, { params }: Params) {
   await requireAdmin();
   const { id } = await params;
@@ -32,20 +48,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await request.json();
 
-  const allowedFields = [
-    "name", "isActive", "sponsorEnabled", "sponsorName", "sponsorTagline",
-    "sponsorLogoUrl", "sponsorCtaText", "sponsorCtaUrl", "videoUrl",
-    "videoDurationSecs", "headlineTemplate", "subheadline",
-  ];
-
   const sets: string[] = [];
   const values: unknown[] = [];
 
-  for (const field of allowedFields) {
-    if (field in body) {
-      let val = body[field];
+  for (const [bodyKey, colName] of Object.entries(FIELD_MAP)) {
+    if (bodyKey in body) {
+      let val = body[bodyKey];
       if (typeof val === "boolean") val = val ? 1 : 0;
-      sets.push(`${field} = ?`);
+      sets.push(`${colName} = ?`);
       values.push(val);
     }
   }
@@ -54,7 +64,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
-  sets.push("updatedAt = NOW()");
+  sets.push("updated_at = NOW()");
   values.push(id);
 
   await execute(
@@ -69,9 +79,9 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   await requireAdmin();
   const { id } = await params;
 
-  // Unlink download links (set campaignId to NULL)
+  // Unlink download links (set campaign_id to NULL)
   await execute(
-    `UPDATE ad_download_links SET campaignId = NULL WHERE campaignId = ?`,
+    `UPDATE ad_download_links SET campaign_id = NULL WHERE campaign_id = ?`,
     [id]
   );
 

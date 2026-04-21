@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 
-interface Campaign { id: string; name: string; isActive: boolean; }
+interface Campaign { id: string; name: string; is_active: boolean; }
 
 export default function EditLinkPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,21 +24,21 @@ export default function EditLinkPage({ params }: { params: Promise<{ id: string 
       fetch("/api/promotions/campaigns").then((r) => r.json()),
     ]).then(([link, camps]) => {
       setForm({
-        resourceName: link.resourceName ?? "",
+        resourceName: link.resource_name ?? "",
         slug: link.slug ?? "",
-        downloadUrl: link.downloadUrl ?? "",
-        adEnabled: Boolean(link.adEnabled),
-        campaignId: link.campaignId ?? "",
-        campaignMode: link.campaignMode ?? "specific",
-        thumbnailUrl: link.thumbnailUrl ?? "",
-        editorName: link.editorName ?? "",
+        downloadUrl: link.download_url ?? "",
+        adEnabled: Boolean(link.ad_enabled),
+        campaignId: link.campaign_id ?? "",
+        campaignMode: link.campaign_mode ?? "specific",
+        thumbnailUrl: link.thumbnail_url ?? "",
+        editorName: link.editor_name ?? "",
         description: link.description ?? "",
         password: link.password ?? "",
-        sftpgoPath: link.sftpgoPath ?? "",
-        expiresAt: link.expiresAt ? new Date(link.expiresAt).toISOString().slice(0, 16) : "",
-        isActive: Boolean(link.isActive),
+        sftpgoPath: link.sftpgo_path ?? "",
+        expiresAt: link.expires_at ? new Date(link.expires_at).toISOString().slice(0, 16) : "",
+        isActive: Boolean(link.is_active),
       });
-      setCampaigns(camps.filter((c: Campaign) => c.isActive));
+      setCampaigns(camps.filter((c: Campaign) => c.is_active));
       setLoading(false);
     });
   }, [id]);

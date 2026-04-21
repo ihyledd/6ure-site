@@ -12,7 +12,7 @@ export function DownloadUnlocked({ link, token }: Props) {
   const [downloading, setDownloading] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(
     // If no token needed (ad disabled), use direct URL
-    !link.adEnabled ? link.downloadUrl : null
+    !link.ad_enabled ? link.download_url : null
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -65,13 +65,13 @@ export function DownloadUnlocked({ link, token }: Props) {
 
           <h1 className="adgate-unlocked-title">Download Ready</h1>
 
-          {link.thumbnailUrl && (
-            <img src={link.thumbnailUrl} alt={link.resourceName} className="adgate-unlocked-thumb" />
+          {link.thumbnail_url && (
+            <img src={link.thumbnail_url} alt={link.resource_name} className="adgate-unlocked-thumb" />
           )}
 
           <div className="adgate-unlocked-meta">
-            <h2 className="adgate-unlocked-name">{link.resourceName}</h2>
-            {link.editorName && <p className="adgate-unlocked-editor">by {link.editorName}</p>}
+            <h2 className="adgate-unlocked-name">{link.resource_name}</h2>
+            {link.editor_name && <p className="adgate-unlocked-editor">by {link.editor_name}</p>}
             {link.description && <p className="adgate-unlocked-desc">{link.description}</p>}
           </div>
 
@@ -92,12 +92,12 @@ export function DownloadUnlocked({ link, token }: Props) {
                   <polyline points="7 10 12 15 17 10"/>
                   <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Download {link.resourceName}
+                Download {link.resource_name}
               </>
             )}
           </button>
 
-          {downloadUrl && downloadUrl !== link.downloadUrl && (
+          {downloadUrl && downloadUrl !== link.download_url && (
             <a href={downloadUrl} className="adgate-download-fallback" target="_blank" rel="noopener">
               Link not working? Click here
             </a>

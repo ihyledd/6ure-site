@@ -6,26 +6,26 @@ import { DownloadUnlocked } from "./DownloadUnlocked";
 export interface CampaignData {
   id: string;
   name: string;
-  sponsorEnabled: boolean;
-  sponsorName: string | null;
-  sponsorTagline: string | null;
-  sponsorLogoUrl: string | null;
-  sponsorCtaText: string | null;
-  sponsorCtaUrl: string | null;
-  videoUrl: string;
-  videoDurationSecs: number;
-  headlineTemplate: string | null;
+  sponsor_enabled: boolean;
+  sponsor_name: string | null;
+  sponsor_tagline: string | null;
+  sponsor_logo_url: string | null;
+  sponsor_cta_text: string | null;
+  sponsor_cta_url: string | null;
+  video_url: string;
+  video_duration_secs: number;
+  headline_template: string | null;
   subheadline: string | null;
 }
 
 export interface DownloadLinkData {
   id: string;
   slug: string;
-  resourceName: string;
-  downloadUrl: string;
-  adEnabled: boolean;
-  thumbnailUrl: string | null;
-  editorName: string | null;
+  resource_name: string;
+  download_url: string;
+  ad_enabled: boolean;
+  thumbnail_url: string | null;
+  editor_name: string | null;
   description: string | null;
   password: string | null;
   campaign: CampaignData | null;
@@ -47,7 +47,7 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordUnlocked, setPasswordUnlocked] = useState(!link.password);
 
-  const requiredDuration = campaign.videoDurationSecs;
+  const requiredDuration = campaign.video_duration_secs;
   const progress = Math.min((watchedSeconds / requiredDuration) * 100, 100);
   const remaining = Math.max(requiredDuration - watchedSeconds, 0);
   const isComplete = watchedSeconds >= requiredDuration;
@@ -146,8 +146,8 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
 
   async function handleSponsorClick() {
     fetch(`/api/download/${link.slug}/sponsor-click`, { method: "POST" }).catch(() => {});
-    if (campaign.sponsorCtaUrl) {
-      window.open(campaign.sponsorCtaUrl, "_blank", "noopener");
+    if (campaign.sponsor_cta_url) {
+      window.open(campaign.sponsor_cta_url, "_blank", "noopener");
     }
   }
 
@@ -161,10 +161,10 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
   }
 
   // Resolve templates
-  const headline = (campaign.headlineTemplate ?? "Watch to Unlock {resourceName}")
-    .replace("{resourceName}", link.resourceName);
+  const headline = (campaign.headline_template ?? "Watch to Unlock {resourceName}")
+    .replace("{resourceName}", link.resource_name);
   const subheadline = (campaign.subheadline ?? "")
-    .replace("{sponsorName}", campaign.sponsorName ?? "");
+    .replace("{sponsorName}", campaign.sponsor_name ?? "");
 
   // If completed, show unlocked view
   if (state === "completed" && downloadToken) {
@@ -218,22 +218,22 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
         </div>
 
         {/* Sponsor card */}
-        {campaign.sponsorEnabled && campaign.sponsorName && (
+        {campaign.sponsor_enabled && campaign.sponsor_name && (
           <div className="adgate-sponsor-card">
             <div className="adgate-sponsor-content">
-              {campaign.sponsorLogoUrl && (
-                <img src={campaign.sponsorLogoUrl} alt={campaign.sponsorName} className="adgate-sponsor-logo" />
+              {campaign.sponsor_logo_url && (
+                <img src={campaign.sponsor_logo_url} alt={campaign.sponsor_name} className="adgate-sponsor-logo" />
               )}
               <div className="adgate-sponsor-text">
-                <h3 className="adgate-sponsor-name">{campaign.sponsorName}</h3>
-                {campaign.sponsorTagline && (
-                  <p className="adgate-sponsor-tagline">{campaign.sponsorTagline}</p>
+                <h3 className="adgate-sponsor-name">{campaign.sponsor_name}</h3>
+                {campaign.sponsor_tagline && (
+                  <p className="adgate-sponsor-tagline">{campaign.sponsor_tagline}</p>
                 )}
               </div>
             </div>
-            {campaign.sponsorCtaText && campaign.sponsorCtaUrl && (
+            {campaign.sponsor_cta_text && campaign.sponsor_cta_url && (
               <button onClick={handleSponsorClick} className="adgate-sponsor-cta">
-                {campaign.sponsorCtaText}
+                {campaign.sponsor_cta_text}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
               </button>
             )}
@@ -245,7 +245,7 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
           <div className="adgate-video-wrapper">
             <video
               ref={videoRef}
-              src={campaign.videoUrl}
+              src={campaign.video_url}
               className="adgate-video"
               playsInline
               onPause={handlePause}
@@ -321,8 +321,8 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
             </svg>
           </div>
           <div className="adgate-lock-info">
-            <h3 className="adgate-lock-title">{link.resourceName}</h3>
-            {link.editorName && <p className="adgate-lock-editor">by {link.editorName}</p>}
+            <h3 className="adgate-lock-title">{link.resource_name}</h3>
+            {link.editor_name && <p className="adgate-lock-editor">by {link.editor_name}</p>}
             {link.description && <p className="adgate-lock-desc">{link.description}</p>}
           </div>
           <div className="adgate-lock-badge">

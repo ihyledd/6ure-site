@@ -31,16 +31,16 @@ export default function EditCampaignPage({ params }: { params: Promise<{ id: str
       .then((data) => {
         setForm({
           name: data.name ?? "",
-          isActive: Boolean(data.isActive),
-          sponsorEnabled: Boolean(data.sponsorEnabled),
-          sponsorName: data.sponsorName ?? "",
-          sponsorTagline: data.sponsorTagline ?? "",
-          sponsorLogoUrl: data.sponsorLogoUrl ?? "",
-          sponsorCtaText: data.sponsorCtaText ?? "",
-          sponsorCtaUrl: data.sponsorCtaUrl ?? "",
-          videoUrl: data.videoUrl ?? "",
-          videoDurationSecs: data.videoDurationSecs ?? 30,
-          headlineTemplate: data.headlineTemplate ?? "",
+          isActive: Boolean(data.is_active),
+          sponsorEnabled: Boolean(data.sponsor_enabled),
+          sponsorName: data.sponsor_name ?? "",
+          sponsorTagline: data.sponsor_tagline ?? "",
+          sponsorLogoUrl: data.sponsor_logo_url ?? "",
+          sponsorCtaText: data.sponsor_cta_text ?? "",
+          sponsorCtaUrl: data.sponsor_cta_url ?? "",
+          videoUrl: data.video_url ?? "",
+          videoDurationSecs: data.video_duration_secs ?? 30,
+          headlineTemplate: data.headline_template ?? "",
           subheadline: data.subheadline ?? "",
         });
         setLoading(false);

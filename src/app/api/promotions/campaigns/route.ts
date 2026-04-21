@@ -12,7 +12,7 @@ export async function GET() {
   await requireAdmin();
 
   const campaigns = await query(
-    `SELECT * FROM ad_campaigns ORDER BY createdAt DESC`
+    `SELECT * FROM ad_campaigns ORDER BY created_at DESC`
   );
 
   return NextResponse.json(campaigns);
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   const id = crypto.randomUUID().replace(/-/g, "").slice(0, 25);
 
   await execute(
-    `INSERT INTO ad_campaigns (id, name, isActive, sponsorEnabled, sponsorName, sponsorTagline, sponsorLogoUrl, sponsorCtaText, sponsorCtaUrl, videoUrl, videoDurationSecs, headlineTemplate, subheadline, createdAt, updatedAt)
+    `INSERT INTO ad_campaigns (id, name, is_active, sponsor_enabled, sponsor_name, sponsor_tagline, sponsor_logo_url, sponsor_cta_text, sponsor_cta_url, video_url, video_duration_secs, headline_template, subheadline, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
     [
       id,

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const linkId = searchParams.get("linkId");
   const campaignId = searchParams.get("campaignId");
 
-  const dateFilter = `AND e.createdAt >= DATE_SUB(NOW(), INTERVAL ? DAY)`;
+  const dateFilter = `AND e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)`;
   const baseParams: unknown[] = [days];
 
   let linkFilter = "";
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   let campaignFilter = "";
   if (campaignId) {
-    campaignFilter = `AND l.campaignId = ?`;
+    campaignFilter = `AND l.campaign_id = ?`;
     baseParams.push(campaignId);
   }
 
@@ -41,12 +41,12 @@ export async function GET(request: NextRequest) {
     uniqueVisitors: number;
   }>(
     `SELECT
-       SUM(CASE WHEN e.eventType = 'view' THEN 1 ELSE 0 END) as totalViews,
-       SUM(CASE WHEN e.eventType = 'ad_start' THEN 1 ELSE 0 END) as totalAdStarts,
-       SUM(CASE WHEN e.eventType = 'ad_complete' THEN 1 ELSE 0 END) as totalCompletes,
-       SUM(CASE WHEN e.eventType = 'sponsor_click' THEN 1 ELSE 0 END) as totalSponsorClicks,
-       SUM(CASE WHEN e.eventType = 'download' THEN 1 ELSE 0 END) as totalDownloads,
-       COUNT(DISTINCT e.ipHash) as uniqueVisitors
+       SUM(CASE WHEN e.event_type = 'view' THEN 1 ELSE 0 END) as totalViews,
+       SUM(CASE WHEN e.event_type = 'ad_start' THEN 1 ELSE 0 END) as totalAdStarts,
+       SUM(CASE WHEN e.event_type = 'ad_complete' THEN 1 ELSE 0 END) as totalCompletes,
+       SUM(CASE WHEN e.event_type = 'sponsor_click' THEN 1 ELSE 0 END) as totalSponsorClicks,
+       SUM(CASE WHEN e.event_type = 'download' THEN 1 ELSE 0 END) as totalDownloads,
+       COUNT(DISTINCT e.ip_hash) as uniqueVisitors
      FROM ad_analytics_events e
      LEFT JOIN ad_download_links l ON e.link_id = l.id
      WHERE 1=1 ${dateFilter} ${linkFilter} ${campaignFilter}`,
@@ -61,14 +61,14 @@ export async function GET(request: NextRequest) {
     downloads: number;
   }>(
     `SELECT
-       DATE(e.createdAt) as date,
-       SUM(CASE WHEN e.eventType = 'view' THEN 1 ELSE 0 END) as views,
-       SUM(CASE WHEN e.eventType = 'ad_complete' THEN 1 ELSE 0 END) as completes,
-       SUM(CASE WHEN e.eventType = 'download' THEN 1 ELSE 0 END) as downloads
+       DATE(e.created_at) as date,
+       SUM(CASE WHEN e.event_type = 'view' THEN 1 ELSE 0 END) as views,
+       SUM(CASE WHEN e.event_type = 'ad_complete' THEN 1 ELSE 0 END) as completes,
+       SUM(CASE WHEN e.event_type = 'download' THEN 1 ELSE 0 END) as downloads
      FROM ad_analytics_events e
      LEFT JOIN ad_download_links l ON e.link_id = l.id
      WHERE 1=1 ${dateFilter} ${linkFilter} ${campaignFilter}
-     GROUP BY DATE(e.createdAt)
+     GROUP BY DATE(e.created_at)
      ORDER BY date ASC`,
     baseParams
   );
@@ -77,20 +77,20 @@ export async function GET(request: NextRequest) {
   const topLinks = await query<{
     linkId: string;
     slug: string;
-    resourceName: string;
+    resource_name: string;
     views: number;
     completes: number;
     downloads: number;
   }>(
     `SELECT
-       l.id as linkId, l.slug, l.resourceName,
-       SUM(CASE WHEN e.eventType = 'view' THEN 1 ELSE 0 END) as views,
-       SUM(CASE WHEN e.eventType = 'ad_complete' THEN 1 ELSE 0 END) as completes,
-       SUM(CASE WHEN e.eventType = 'download' THEN 1 ELSE 0 END) as downloads
+       l.id as linkId, l.slug, l.resource_name,
+       SUM(CASE WHEN e.event_type = 'view' THEN 1 ELSE 0 END) as views,
+       SUM(CASE WHEN e.event_type = 'ad_complete' THEN 1 ELSE 0 END) as completes,
+       SUM(CASE WHEN e.event_type = 'download' THEN 1 ELSE 0 END) as downloads
      FROM ad_analytics_events e
      JOIN ad_download_links l ON e.link_id = l.id
      WHERE 1=1 ${dateFilter} ${linkFilter} ${campaignFilter}
-     GROUP BY l.id, l.slug, l.resourceName
+     GROUP BY l.id, l.slug, l.resource_name
      ORDER BY views DESC
      LIMIT 20`,
     baseParams
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
        COUNT(*) as count
      FROM ad_analytics_events e
      LEFT JOIN ad_download_links l ON e.link_id = l.id
-     WHERE e.eventType = 'view' ${dateFilter} ${linkFilter} ${campaignFilter}
+     WHERE e.event_type = 'view' ${dateFilter} ${linkFilter} ${campaignFilter}
      GROUP BY e.referer
      ORDER BY count DESC
      LIMIT 20`,
