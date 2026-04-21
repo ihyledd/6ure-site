@@ -73,7 +73,7 @@ export function SubscriptionsAdmin() {
   const [refundAmount, setRefundAmount] = useState("");
   const [processing, setProcessing] = useState(false);
   const [newPromo, setNewPromo] = useState({ code: "", discountPercent: "10", maxUses: "", planCategory: "" });
-  const refreshRef = useRef<ReturnType<typeof setInterval>>();
+  const refreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     try { const r = await fetch(`/api/admin/analytics?range=${chartRange}`); if (r.ok) setAnalytics(await r.json()); } catch {}

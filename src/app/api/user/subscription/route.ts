@@ -17,7 +17,7 @@ export async function GET() {
     `SELECT id, plan_category, plan_interval, status, amount, currency, email, current_period_start, current_period_end, created_at, cancelled_at, cancel_reason FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC`,
     [session.user.id]
   );
-  const activeIds = subscriptions.filter((s: { status: string }) => s.status === "ACTIVE").map((s: { id: string }) => s.id);
+  const activeIds = subscriptions.filter((s: any) => s.status === "ACTIVE").map((s: any) => s.id);
   let payments: unknown[] = [];
   if (activeIds.length > 0) {
     const ph = activeIds.map(() => "?").join(",");
