@@ -43,8 +43,9 @@ sync_discord_from_requests
 # Remove obsolete route so Next.js does not see ambiguous /api/comments/[requestId] vs [commentId]
 rm -rf "src/app/api/comments/[requestId]" 2>/dev/null || true
 
-echo "==> Ensuring public/uploads/creator-avatars exists (server-created avatars persist across deploys)..."
+echo "==> Ensuring public/uploads directories exist (server-created assets persist across deploys)..."
 mkdir -p "public/uploads/creator-avatars"
+mkdir -p "public/uploads/ad-videos"
 chmod -R 755 "public/uploads" 2>/dev/null || true
 
 # Only clear .next cache if --clean flag passed (incremental builds are much faster)
