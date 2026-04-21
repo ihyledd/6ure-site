@@ -41,7 +41,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const nowSecs = Math.floor(Date.now() / 1000);
   const elapsed = nowSecs - startedAt;
-  const required = link.campaign.videoDurationSecs;
+  const required = link.campaign.video_duration_secs;
 
   // Allow 2-second tolerance for network latency
   if (elapsed < required - 2) {
