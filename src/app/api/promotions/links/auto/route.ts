@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Create new link
-  const id = `lnk_${Date.now()}_${randomBytes(4).toString("hex")}`;
+  const id = randomBytes(12).toString("hex").slice(0, 25);
   const slug = generateSlug(resourceName);
 
   await execute(
