@@ -106,9 +106,10 @@ export function middleware(request: NextRequest) {
 
   /* ── Rate-limit all /api/* routes ──────────────────────────────────────── */
   if (pathname.startsWith("/api/")) {
-    // Skip rate limiting for webhook endpoints (PayPal posts from their servers)
-    if (pathname === "/api/paypal/webhook") {
-      // fall through — no rate limit for webhooks
+    // Skip rate limiting for endpoints that fire on every page load
+    const RATE_LIMIT_SKIP = ["/api/paypal/webhook", "/api/auth/session", "/api/auth/me"];
+    if (RATE_LIMIT_SKIP.includes(pathname)) {
+      // fall through — no rate limit
     } else {
       const ip =
         request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
