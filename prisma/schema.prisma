@@ -634,3 +634,92 @@ model PromoCode {
   @@map("promo_codes")
 }
 
+// ─── Ad-Gated Download System ─────────────────────────────────────────────────
+
+enum CampaignMode {
+  specific
+  random
+  all
+}
+
+model AdCampaign {
+  id               String   @id @default(cuid())
+  name             String   @db.VarChar(255)
+  isActive         Boolean  @default(true) @map("is_active")
+
+  // Sponsor card (toggleable)
+  sponsorEnabled   Boolean  @default(false) @map("sponsor_enabled")
+  sponsorName      String?  @map("sponsor_name") @db.VarChar(255)
+  sponsorTagline   String?  @map("sponsor_tagline") @db.VarChar(500)
+  sponsorLogoUrl   String?  @map("sponsor_logo_url") @db.VarChar(500)
+  sponsorCtaText   String?  @map("sponsor_cta_text") @db.VarChar(100)
+  sponsorCtaUrl    String?  @map("sponsor_cta_url") @db.VarChar(500)
+
+  // Video ad
+  videoUrl         String   @map("video_url") @db.VarChar(500)
+  videoDurationSecs Int     @default(30) @map("video_duration_secs")
+
+  // Page customization
+  headlineTemplate String?  @map("headline_template") @db.VarChar(500)
+  subheadline      String?  @db.VarChar(500)
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  links            AdDownloadLink[]
+
+  @@map("ad_campaigns")
+}
+
+model AdDownloadLink {
+  id              String       @id @default(cuid())
+  slug            String       @unique @db.VarChar(200)
+  resourceName    String       @map("resource_name") @db.VarChar(255)
+  downloadUrl     String       @map("download_url") @db.VarChar(1000)
+  sftpgoPath      String?      @map("sftpgo_path") @db.VarChar(500)
+  adEnabled       Boolean      @default(true) @map("ad_enabled")
+  isActive        Boolean      @default(true) @map("is_active")
+
+  // Campaign assignment
+  campaignId      String?      @map("campaign_id")
+  campaignMode    CampaignMode @default(specific) @map("campaign_mode")
+
+  // Optional metadata
+  thumbnailUrl    String?      @map("thumbnail_url") @db.VarChar(500)
+  editorName      String?      @map("editor_name") @db.VarChar(255)
+  description     String?      @db.Text
+  password        String?      @db.VarChar(255)
+  expiresAt       DateTime?    @map("expires_at")
+
+  // Counters (denormalized for fast reads)
+  totalViews      Int          @default(0) @map("total_views")
+  totalCompletes  Int          @default(0) @map("total_completes")
+  totalDownloads  Int          @default(0) @map("total_downloads")
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  campaign        AdCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  analyticsEvents AdAnalyticsEvent[]
+
+  @@index([campaignId])
+  @@index([slug])
+  @@map("ad_download_links")
+}
+
+model AdAnalyticsEvent {
+  id           String   @id @default(cuid())
+  linkId       String   @map("link_id")
+  eventType    String   @map("event_type") @db.VarChar(50) // view | ad_start | ad_complete | sponsor_click | download
+  ipHash       String?  @map("ip_hash") @db.VarChar(64)
+  userAgent    String?  @map("user_agent") @db.VarChar(500)
+  referer      String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  link         AdDownloadLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("ad_analytics_events")
+}

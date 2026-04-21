@@ -1,0 +1,202 @@
+/* ===== Promotions Dashboard ===== */
+.dash-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.dash-title { font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0; letter-spacing: -0.02em; }
+.dash-subtitle { color: var(--text-secondary); font-size: 14px; margin: 4px 0 0; }
+
+.promo-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.promo-stats-grid-6 { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.promo-stat-card { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; transition: border-color 0.2s; }
+.promo-stat-card:hover { border-color: var(--border-hover); }
+.promo-stat-card-wide { background: var(--glass-bg); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 28px; }
+.promo-stat-value { display: block; font-size: 28px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+.promo-stat-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+.promo-actions-row { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+.promo-action-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--glass-bg); color: var(--text-secondary); transition: all 0.2s; text-decoration: none; font-family: inherit; }
+.promo-action-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.promo-action-primary { background: linear-gradient(135deg, var(--discord-blurple) 0%, var(--discord-blurple-hover) 100%); color: #fff !important; border-color: transparent; box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3); }
+.promo-action-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.promo-section { margin-bottom: 32px; }
+.promo-section-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0 0 16px; }
+
+.promo-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); background: var(--glass-bg); backdrop-filter: blur(12px); }
+.promo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.promo-table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.1); }
+.promo-table td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-secondary); }
+.promo-table tr:last-child td { border-bottom: none; }
+.promo-table tr:hover td { background: rgba(255,255,255,0.02); }
+.promo-row-inactive td { opacity: 0.5; }
+
+.promo-link-name { color: var(--text-primary); font-weight: 600; text-decoration: none; }
+.promo-link-name:hover { color: var(--discord-blurple); }
+.promo-slug { font-size: 12px; color: var(--text-tertiary); background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; }
+
+.promo-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.promo-badge-active { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.promo-badge-off { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+.promo-badge-mode { background: rgba(var(--accent-rgb),0.12); color: var(--discord-blurple); border: 1px solid rgba(var(--accent-rgb),0.25); }
+
+.promo-toggle { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; font-family: inherit; text-transform: uppercase; letter-spacing: 0.04em; }
+.promo-toggle-on { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
+.promo-toggle-off { background: rgba(255,255,255,0.06); color: var(--text-tertiary); border-color: var(--border); }
+.promo-toggle:hover { filter: brightness(1.15); }
+
+.promo-actions-cell { display: flex; gap: 8px; }
+.promo-action-sm { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); transition: all 0.15s; text-decoration: none; font-family: inherit; }
+.promo-action-sm:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.promo-action-danger { color: #ef4444 !important; border-color: rgba(239,68,68,0.2) !important; }
+.promo-action-danger:hover { background: rgba(239,68,68,0.1) !important; }
+
+.promo-copy-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; color: var(--text-tertiary); }
+.promo-copy-btn:hover { color: var(--discord-blurple); }
+.promo-copy-btn svg { opacity: 0; transition: opacity 0.2s; }
+.promo-copy-btn:hover svg { opacity: 1; }
+
+.promo-loading { text-align: center; color: var(--text-tertiary); padding: 48px 0; font-size: 14px; }
+.promo-empty { text-align: center; padding: 64px 24px; color: var(--text-tertiary); }
+.promo-empty p { margin: 0 0 16px; font-size: 15px; }
+
+/* Form styles */
+.promo-form { max-width: 700px; }
+.promo-form-section { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.promo-form-section-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0 0 16px; }
+.promo-form-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.promo-form-section-header .promo-form-section-title { margin-bottom: 0; }
+.promo-field { margin-bottom: 16px; }
+.promo-field:last-child { margin-bottom: 0; }
+.promo-field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.promo-field input, .promo-field textarea, .promo-field select { width: 100%; box-sizing: border-box; }
+.promo-field textarea { resize: vertical; min-height: 80px; }
+.promo-field-hint { font-size: 12px; color: var(--text-tertiary); margin: 6px 0 0; }
+.promo-field-toggle { display: flex; align-items: center; justify-content: space-between; }
+.promo-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.promo-field-row:last-child { margin-bottom: 0; }
+
+.promo-slug-preview { display: flex; align-items: center; gap: 0; }
+.promo-slug-prefix { font-size: 14px; color: var(--text-tertiary); padding: 12px 0 12px 16px; background: var(--glass-tertiary-bg); border: var(--glass-border); border-right: none; border-radius: 8px 0 0 8px; white-space: nowrap; }
+.promo-slug-preview input { border-radius: 0 8px 8px 0 !important; }
+
+.promo-upload-zone { border: 2px dashed var(--border); border-radius: 14px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+.promo-upload-zone:hover { border-color: var(--discord-blurple); background: rgba(var(--accent-rgb),0.04); }
+.promo-upload-text { color: var(--text-tertiary); font-size: 14px; }
+.promo-video-preview { max-width: 100%; max-height: 200px; border-radius: 10px; }
+
+.promo-form-actions { display: flex; gap: 12px; justify-content: flex-end; padding-top: 8px; }
+
+/* Date range */
+.promo-date-range { display: flex; gap: 4px; }
+.promo-date-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); transition: all 0.15s; font-family: inherit; }
+.promo-date-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.promo-date-btn-active { background: var(--discord-blurple); color: #fff; border-color: transparent; }
+
+/* Chart */
+.promo-chart { display: flex; align-items: flex-end; gap: 4px; height: 140px; padding: 16px; background: var(--glass-bg); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; }
+.promo-chart-bar-group { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 28px; flex: 1; }
+.promo-chart-bars { display: flex; gap: 2px; align-items: flex-end; height: 100px; }
+.promo-chart-bar { width: 6px; border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.3s; }
+.promo-chart-bar-views { background: var(--discord-blurple); }
+.promo-chart-bar-completes { background: #10b981; }
+.promo-chart-bar-downloads { background: #f59e0b; }
+.promo-chart-label { font-size: 9px; color: var(--text-tertiary); white-space: nowrap; }
+.promo-chart-legend { display: flex; gap: 16px; justify-content: center; margin-top: 12px; font-size: 12px; color: var(--text-tertiary); }
+.promo-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.promo-legend-views { background: var(--discord-blurple); }
+.promo-legend-completes { background: #10b981; }
+.promo-legend-downloads { background: #f59e0b; }
+
+/* ===== Public Ad Gate Page ===== */
+.adgate { min-height: 100vh; display: flex; flex-direction: column; align-items: center; background: #06060a; color: #e4e4e7; position: relative; overflow: hidden; font-family: var(--font-geist), -apple-system, sans-serif; }
+.adgate-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(88,101,242,0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 100%, rgba(139,92,246,0.08) 0%, transparent 50%), radial-gradient(ellipse 40% 30% at 10% 80%, rgba(59,130,246,0.06) 0%, transparent 50%); pointer-events: none; }
+.adgate-container { position: relative; z-index: 1; width: 100%; max-width: 600px; padding: 32px 20px 48px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+.adgate-logo-bar { display: flex; align-items: center; gap: 12px; }
+.adgate-logo { height: 40px; width: auto; filter: drop-shadow(0 0 20px rgba(88,101,242,0.4)); }
+
+.adgate-headline-section { text-align: center; }
+.adgate-headline { font-size: 24px; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.03em; background: linear-gradient(135deg, #fff 30%, rgba(88,101,242,0.8)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.adgate-subheadline { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(88,101,242,0.7); margin: 8px 0 0; }
+
+/* Sponsor card */
+.adgate-sponsor-card { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; backdrop-filter: blur(8px); transition: border-color 0.2s; }
+.adgate-sponsor-card:hover { border-color: rgba(255,255,255,0.12); }
+.adgate-sponsor-content { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.adgate-sponsor-logo { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+.adgate-sponsor-name { font-size: 14px; font-weight: 700; color: #fff; margin: 0; }
+.adgate-sponsor-tagline { font-size: 12px; color: rgba(255,255,255,0.5); margin: 2px 0 0; }
+.adgate-sponsor-cta { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(88,101,242,0.4); background: rgba(88,101,242,0.15); color: #818cf8; transition: all 0.2s; white-space: nowrap; font-family: inherit; text-transform: uppercase; letter-spacing: 0.04em; }
+.adgate-sponsor-cta:hover { background: rgba(88,101,242,0.25); color: #a5b4fc; border-color: rgba(88,101,242,0.6); }
+
+/* Video */
+.adgate-video-section { width: 100%; }
+.adgate-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.adgate-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.adgate-video-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); cursor: pointer; transition: background 0.2s; }
+.adgate-video-overlay:hover { background: rgba(0,0,0,0.5); }
+.adgate-video-overlay-paused { background: rgba(0,0,0,0.7); cursor: pointer; }
+.adgate-play-btn { width: 72px; height: 72px; border-radius: 50%; background: rgba(88,101,242,0.9); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(88,101,242,0.5); transition: transform 0.2s, box-shadow 0.2s; }
+.adgate-video-overlay:hover .adgate-play-btn { transform: scale(1.08); box-shadow: 0 0 60px rgba(88,101,242,0.6); }
+.adgate-play-label { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.adgate-pause-message { text-align: center; color: rgba(255,255,255,0.7); }
+.adgate-pause-message p { font-size: 14px; margin: 8px 0 0; }
+
+/* Progress */
+.adgate-progress-section { margin-top: 12px; }
+.adgate-progress-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.adgate-progress-fill { height: 100%; background: linear-gradient(90deg, #5865f2, #818cf8); border-radius: 3px; transition: width 0.8s ease; box-shadow: 0 0 12px rgba(88,101,242,0.5); }
+.adgate-progress-info { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.adgate-progress-timer { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); }
+.adgate-progress-pct { font-size: 13px; font-weight: 700; color: rgba(88,101,242,0.8); }
+.adgate-complete-text { display: inline-flex; align-items: center; gap: 6px; color: #10b981; }
+
+/* Locked download */
+.adgate-download-locked { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px; display: flex; align-items: center; gap: 16px; opacity: 0.5; filter: blur(0.5px); transition: all 0.5s; }
+.adgate-download-unlocking { opacity: 1; filter: none; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+.adgate-lock-icon { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+.adgate-lock-info { flex: 1; min-width: 0; }
+.adgate-lock-title { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+.adgate-lock-editor { font-size: 12px; color: rgba(255,255,255,0.4); margin: 2px 0 0; }
+.adgate-lock-desc { font-size: 12px; color: rgba(255,255,255,0.35); margin: 4px 0 0; }
+.adgate-lock-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255,255,255,0.3); white-space: nowrap; }
+
+/* Unlocked page */
+.adgate-unlocked-card { width: 100%; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 40px 32px; backdrop-filter: blur(12px); animation: adgateUnlockFade 0.6s ease-out; }
+@keyframes adgateUnlockFade { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+.adgate-unlocked-icon { color: #10b981; margin-bottom: 16px; filter: drop-shadow(0 0 24px rgba(16,185,129,0.4)); }
+.adgate-unlocked-title { font-size: 28px; font-weight: 800; color: #fff; margin: 0 0 20px; letter-spacing: -0.03em; }
+.adgate-unlocked-thumb { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; }
+.adgate-unlocked-meta { margin-bottom: 24px; }
+.adgate-unlocked-name { font-size: 18px; font-weight: 700; color: #fff; margin: 0; }
+.adgate-unlocked-editor { font-size: 13px; color: rgba(255,255,255,0.5); margin: 4px 0 0; }
+.adgate-unlocked-desc { font-size: 13px; color: rgba(255,255,255,0.4); margin: 8px 0 0; line-height: 1.5; }
+
+.adgate-download-btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; border: none; background: linear-gradient(135deg, #5865f2 0%, #818cf8 100%); color: #fff; box-shadow: 0 8px 32px rgba(88,101,242,0.4); transition: all 0.2s; font-family: inherit; }
+.adgate-download-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(88,101,242,0.5); filter: brightness(1.1); }
+.adgate-download-btn:disabled { opacity: 0.7; cursor: wait; }
+.adgate-download-spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: adgateSpin 0.6s linear infinite; }
+@keyframes adgateSpin { to { transform: rotate(360deg); } }
+.adgate-download-fallback { display: block; margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: underline; }
+
+/* Password gate */
+.adgate-password-card { width: 100%; text-align: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 40px 32px; }
+.adgate-password-title { font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 20px; }
+.adgate-password-form { display: flex; gap: 12px; justify-content: center; }
+.adgate-password-input { padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: #fff; font-size: 15px; width: 240px; font-family: inherit; }
+.adgate-password-input:focus { outline: none; border-color: #5865f2; }
+.adgate-password-btn { padding: 12px 24px; border-radius: 10px; background: #5865f2; color: #fff; font-weight: 700; border: none; cursor: pointer; font-family: inherit; }
+
+.adgate-help-text { font-size: 12px; color: rgba(255,255,255,0.25); text-align: center; }
+.adgate-error { font-size: 13px; color: #ef4444; text-align: center; margin-top: 8px; }
+.adgate-footer { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.2); margin-top: 16px; }
+.adgate-footer a { color: rgba(255,255,255,0.3); text-decoration: none; }
+.adgate-footer a:hover { color: rgba(255,255,255,0.5); }
+
+@media (max-width: 640px) {
+  .adgate-container { padding: 20px 16px 40px; }
+  .adgate-headline { font-size: 20px; }
+  .adgate-sponsor-card { flex-direction: column; align-items: flex-start; }
+  .adgate-unlocked-card { padding: 28px 20px; }
+  .adgate-download-btn { width: 100%; justify-content: center; }
+  .promo-field-row { grid-template-columns: 1fr; }
+  .promo-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}

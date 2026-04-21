@@ -11,6 +11,11 @@ export function middleware(request: NextRequest) {
   });
   // Reduce stale page serving after deploy (Server Action mismatch)
   response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+  // Allow video playback on ad-gated download pages
+  response.headers.set(
+    "Content-Security-Policy",
+    "media-src 'self' blob:; default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;"
+  );
   return response;
 }
 

@@ -64,6 +64,15 @@ const NAV: NavGroup[] = [
       { href: "/dashboard/subscriptions", label: "Subscriptions", icon: <SvgIcon d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3z" /> },
     ],
   },
+  {
+    label: "Promotions",
+    items: [
+      { href: "/dashboard/promotions", label: "Overview", icon: <SvgIcon d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /> },
+      { href: "/dashboard/promotions/campaigns", label: "Ad Campaigns", icon: <SvgIcon d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /> },
+      { href: "/dashboard/promotions/links", label: "Download Links", icon: <SvgIcon d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
+      { href: "/dashboard/promotions/analytics", label: "Ad Analytics", icon: <SvgIcon d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /> },
+    ],
+  },
 ];
 
 function isActive(pathname: string, href: string) {

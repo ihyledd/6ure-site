@@ -6,6 +6,7 @@
 @import "../styles/ui-core/footer.css";
 @import "../styles/theme-settings-modal.css";
 @import "../styles/requests-page.css";
+@import "../styles/promotions.css";
 
 [data-theme="light"] {
   --bg-primary: #f5f5f7;
