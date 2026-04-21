@@ -69,7 +69,7 @@ async function getSftpgoToken(): Promise<string> {
   cachedToken = data.access_token;
   tokenExpiry = now + 4 * 60; // Cache for 4 minutes (same as sftpgo.sk)
 
-  return cachedToken;
+  return cachedToken as string;
 }
 
 // ---------------------------------------------------------------------------
