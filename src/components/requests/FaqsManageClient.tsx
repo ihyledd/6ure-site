@@ -5,6 +5,23 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { BiIcon } from "./BiIcon";
 
+async function apiErrorMessage(r: Response): Promise<string> {
+  const ct = r.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    try {
+      const j = (await r.json()) as { error?: string; detail?: string };
+      const parts: string[] = [];
+      if (typeof j.error === "string" && j.error) parts.push(j.error);
+      if (typeof j.detail === "string" && j.detail) parts.push(j.detail);
+      if (parts.length) return parts.join(" — ");
+    } catch {
+      /* fall through */
+    }
+  }
+  return `Request failed (${r.status})`;
+}
+
+
 type Faq = {
   id: number;
   question: string;
@@ -31,11 +48,16 @@ export function FaqsManageClient() {
 
   const fetchFaqs = async () => {
     try {
-      const r = await fetch("/api/faqs");
-      if (!r.ok) return;
+      const r = await fetch("/api/faqs", { credentials: "include" });
+      if (!r.ok) {
+        console.warn("[FAQs] GET /api/faqs failed:", r.status, await apiErrorMessage(r));
+        setFaqs([]);
+        return;
+      }
       const data = await r.json();
       setFaqs(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (e) {
+      console.warn("[FAQs] GET /api/faqs:", e);
       setFaqs([]);
     } finally {
       setLoading(false);
@@ -54,21 +76,21 @@ export function FaqsManageClient() {
         const r = await fetch(`/api/faqs/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(formData),
         });
         if (!r.ok) {
-          const err = await r.json();
-          throw new Error(err.error || "Failed to update");
+          throw new Error(await apiErrorMessage(r));
         }
       } else {
         const r = await fetch("/api/faqs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(formData),
         });
         if (!r.ok) {
-          const err = await r.json();
-          throw new Error(err.error || "Failed to create");
+          throw new Error(await apiErrorMessage(r));
         }
       }
       setShowForm(false);
@@ -76,6 +98,7 @@ export function FaqsManageClient() {
       setFormData({ question: "", answer: "", order_index: 0, category: "general" });
       fetchFaqs();
     } catch (err) {
+      setSubmitting(false);
       alert(err instanceof Error ? err.message : "Failed to save FAQ.");
     } finally {
       setSubmitting(false);
@@ -96,10 +119,9 @@ export function FaqsManageClient() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this FAQ?")) return;
     try {
-      const r = await fetch(`/api/faqs/${id}`, { method: "DELETE" });
+      const r = await fetch(`/api/faqs/${id}`, { method: "DELETE", credentials: "include" });
       if (!r.ok) {
-        const err = await r.json();
-        throw new Error(err.error || "Failed to delete");
+        throw new Error(await apiErrorMessage(r));
       }
       fetchFaqs();
     } catch (err) {

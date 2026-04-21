@@ -11,6 +11,7 @@ import {
 import { ensureRequestsUserExists } from "@/lib/ensure-requests-user";
 import { getMergedUserSettings } from "@/lib/dal/request-settings";
 import { comment as botComment, commentReply } from "@/lib/requests-bot-api";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function GET(
   _request: NextRequest,
@@ -41,6 +42,11 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ requestId: string }> }
 ) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

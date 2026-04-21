@@ -16,6 +16,7 @@ import { validateRequestUrls } from "@/lib/requests-validate-urls";
 import { canonicalProductUrl } from "@/lib/canonical-product-url";
 import { checkUserInGuild } from "@/lib/check-in-guild";
 import { syncRoles, notifyNewRequest, getBaseUrl } from "@/lib/requests-bot-api";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -74,6 +75,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 30 per minute per IP
+    const ip = getClientIp(request);
+    const { success, reset } = apiLimiter.check(ip);
+    if (!success) return tooManyRequestsResponse(reset);
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(

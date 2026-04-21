@@ -11,6 +11,21 @@ function toDateOnly(value: Date | string | null): string | null {
   return `${y}-${m}-${day}`;
 }
 
+export type SubscriptionDateSource = "manual" | "paypal";
+
+/** When source is PayPal, use active LP subscription period end; otherwise stored manual date. If PayPal selected but no active sub, keep manual column. */
+export function computeEffectiveSubscriptionEnd(
+  source: SubscriptionDateSource,
+  manualEnds: string | null,
+  lpPeriodEnd: Date | string | null
+): string | null {
+  if (source === "paypal" && lpPeriodEnd != null) {
+    const d = toDateOnly(lpPeriodEnd);
+    if (d) return d;
+  }
+  return manualEnds;
+}
+
 export type ProtectedUserRow = {
   id: number;
   userId: string;
@@ -19,6 +34,10 @@ export type ProtectedUserRow = {
   reason: string | null;
   createdAt: Date | string;
   subscriptionEndsAt?: string | null;
+  /** Stored DB date (manual field); same as subscriptionEndsAt when source is manual. */
+  subscriptionEndsAtManual?: string | null;
+  subscriptionDateSource?: SubscriptionDateSource;
+  migratedLpSubscriber?: boolean;
   socialLink?: string | null;
   creatorAvatar?: string | null;
   creatorPlatform?: string | null;
@@ -33,25 +52,43 @@ export async function getProtectedUsers(): Promise<ProtectedUserRow[]> {
     reason: string | null;
     created_at: Date | string;
     subscription_ends_at: Date | string | null;
+    subscription_date_source: string | null;
     social_link: string | null;
     creator_avatar: string | null;
     creator_platform: string | null;
+    lp_period_end: Date | string | null;
+    lp_migrated: number | boolean;
   }>(
-    "SELECT id, user_id, display_name, creator_name, reason, created_at, subscription_ends_at, social_link, creator_avatar, creator_platform FROM protected_users ORDER BY created_at DESC",
+    `SELECT p.id, p.user_id, p.display_name, p.creator_name, p.reason, p.created_at, p.subscription_ends_at,
+            COALESCE(p.subscription_date_source, 'manual') AS subscription_date_source,
+            p.social_link, p.creator_avatar, p.creator_platform,
+            (SELECT s.current_period_end FROM subscriptions s
+             WHERE s.user_id = p.user_id AND s.plan_category = 'LEAK_PROTECTION' AND s.status = 'ACTIVE'
+             ORDER BY s.created_at DESC LIMIT 1) AS lp_period_end,
+            EXISTS (SELECT 1 FROM migration_discounts m WHERE m.user_id = p.user_id AND m.plan_category = 'LEAK_PROTECTION') AS lp_migrated
+     FROM protected_users p ORDER BY p.created_at DESC`,
     []
   );
-  return rows.map((r) => ({
-    id: r.id,
-    userId: r.user_id,
-    displayName: r.display_name,
-    creatorName: r.creator_name,
-    reason: r.reason,
-    createdAt: r.created_at,
-    subscriptionEndsAt: toDateOnly(r.subscription_ends_at),
-    socialLink: r.social_link,
-    creatorAvatar: r.creator_avatar,
-    creatorPlatform: r.creator_platform,
-  }));
+  return rows.map((r) => {
+    const source: SubscriptionDateSource = r.subscription_date_source === "paypal" ? "paypal" : "manual";
+    const manual = toDateOnly(r.subscription_ends_at);
+    const effective = computeEffectiveSubscriptionEnd(source, manual, r.lp_period_end);
+    return {
+      id: r.id,
+      userId: r.user_id,
+      displayName: r.display_name,
+      creatorName: r.creator_name,
+      reason: r.reason,
+      createdAt: r.created_at,
+      subscriptionEndsAt: effective,
+      subscriptionEndsAtManual: manual,
+      subscriptionDateSource: source,
+      migratedLpSubscriber: Boolean(r.lp_migrated),
+      socialLink: r.social_link,
+      creatorAvatar: r.creator_avatar,
+      creatorPlatform: r.creator_platform,
+    };
+  });
 }
 
 export type ProtectedUserPublicRow = {
@@ -60,7 +97,11 @@ export type ProtectedUserPublicRow = {
   avatar: string | null;
   avatar_decoration: string | null;
   displayName: string | null;
+  /** Display date (PayPal period when synced, else manual). */
   subscriptionEndsAt: string | null;
+  subscriptionEndsAtManual: string | null;
+  subscriptionDateSource: SubscriptionDateSource;
+  migratedLpSubscriber: boolean;
   socialLink: string | null;
   creatorName: string | null;
   creatorAvatar: string | null;
@@ -78,6 +119,7 @@ export async function getProtectedUsersForPublic(): Promise<ProtectedUserPublicR
   const rows = await query<{
     user_id: string;
     subscription_ends_at: Date | string | null;
+    subscription_date_source: string | null;
     social_link: string | null;
     display_name: string | null;
     avatar_url: string | null;
@@ -95,12 +137,18 @@ export async function getProtectedUsersForPublic(): Promise<ProtectedUserPublicR
     u_username: string | null;
     u_avatar: string | null;
     u_avatar_decoration: string | null;
+    lp_period_end: Date | string | null;
+    lp_migrated: number | boolean;
   }>(
-    `SELECT p.user_id, p.subscription_ends_at, p.social_link, p.display_name, p.avatar_url,
+    `SELECT p.user_id, p.subscription_ends_at, COALESCE(p.subscription_date_source, 'manual') AS subscription_date_source, p.social_link, p.display_name, p.avatar_url,
             p.creator_name, p.creator_avatar, p.creator_platform,
             p.follower_count, p.video_count, p.likes_count, p.verified,
             p.creator_bio, p.creator_bio_link,
-            u.global_name as u_global_name, u.display_name as u_display_name, u.username as u_username, u.avatar as u_avatar, u.avatar_decoration as u_avatar_decoration
+            u.global_name as u_global_name, u.display_name as u_display_name, u.username as u_username, u.avatar as u_avatar, u.avatar_decoration as u_avatar_decoration,
+            (SELECT s.current_period_end FROM subscriptions s
+             WHERE s.user_id = p.user_id AND s.plan_category = 'LEAK_PROTECTION' AND s.status = 'ACTIVE'
+             ORDER BY s.created_at DESC LIMIT 1) AS lp_period_end,
+            EXISTS (SELECT 1 FROM migration_discounts m WHERE m.user_id = p.user_id AND m.plan_category = 'LEAK_PROTECTION') AS lp_migrated
      FROM protected_users p
      LEFT JOIN users u ON p.user_id = u.id
      ORDER BY COALESCE(p.follower_count, 0) DESC, p.created_at DESC`,
@@ -112,13 +160,19 @@ export async function getProtectedUsersForPublic(): Promise<ProtectedUserPublicR
     const avatar = r.u_avatar
       ? `https://cdn.discordapp.com/avatars/${r.user_id}/${r.u_avatar}.${String(r.u_avatar).startsWith("a_") ? "gif" : "png"}?size=128`
       : r.avatar_url;
+    const source: SubscriptionDateSource = r.subscription_date_source === "paypal" ? "paypal" : "manual";
+    const manual = toDateOnly(r.subscription_ends_at);
+    const effective = computeEffectiveSubscriptionEnd(source, manual, r.lp_period_end);
     return {
       userId: r.user_id,
       username,
       avatar: avatar || null,
       avatar_decoration: r.u_avatar_decoration ?? null,
       displayName: r.display_name,
-      subscriptionEndsAt: toDateOnly(r.subscription_ends_at),
+      subscriptionEndsAt: effective,
+      subscriptionEndsAtManual: manual,
+      subscriptionDateSource: source,
+      migratedLpSubscriber: Boolean(r.lp_migrated),
       socialLink: r.social_link,
       creatorName: r.creator_name,
       creatorAvatar: r.creator_avatar,
@@ -136,6 +190,7 @@ export async function getProtectedUsersForPublic(): Promise<ProtectedUserPublicR
 export async function addProtectedUser(params: {
   userId: string;
   subscriptionEndsAt?: string | null;
+  subscriptionDateSource?: SubscriptionDateSource;
   socialLink?: string | null;
   createdBy?: string | null;
   displayName?: string | null;
@@ -156,14 +211,17 @@ export async function addProtectedUser(params: {
   const ver = params.verified != null ? (params.verified ? 1 : 0) : null;
   const bio = params.creatorBio && typeof params.creatorBio === "string" ? params.creatorBio.trim().slice(0, 2000) || null : null;
   const bioLink = params.creatorBioLink && typeof params.creatorBioLink === "string" ? params.creatorBioLink.trim().slice(0, 500) || null : null;
+  const dateSource: SubscriptionDateSource =
+    params.subscriptionDateSource === "paypal" ? "paypal" : "manual";
 
   await execute(
-    `INSERT INTO protected_users (user_id, subscription_ends_at, social_link, created_by, display_name, avatar_url, creator_name, creator_avatar, creator_platform, follower_count, video_count, likes_count, verified, creator_bio, creator_bio_link)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE subscription_ends_at = VALUES(subscription_ends_at), social_link = VALUES(social_link), created_by = VALUES(created_by), display_name = COALESCE(VALUES(display_name), display_name), avatar_url = COALESCE(VALUES(avatar_url), avatar_url), creator_name = VALUES(creator_name), creator_avatar = VALUES(creator_avatar), creator_platform = VALUES(creator_platform), follower_count = VALUES(follower_count), video_count = VALUES(video_count), likes_count = VALUES(likes_count), verified = VALUES(verified), creator_bio = VALUES(creator_bio), creator_bio_link = VALUES(creator_bio_link)`,
+    `INSERT INTO protected_users (user_id, subscription_ends_at, subscription_date_source, social_link, created_by, display_name, avatar_url, creator_name, creator_avatar, creator_platform, follower_count, video_count, likes_count, verified, creator_bio, creator_bio_link)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE subscription_ends_at = VALUES(subscription_ends_at), subscription_date_source = VALUES(subscription_date_source), social_link = VALUES(social_link), created_by = VALUES(created_by), display_name = COALESCE(VALUES(display_name), display_name), avatar_url = COALESCE(VALUES(avatar_url), avatar_url), creator_name = VALUES(creator_name), creator_avatar = VALUES(creator_avatar), creator_platform = VALUES(creator_platform), follower_count = VALUES(follower_count), video_count = VALUES(video_count), likes_count = VALUES(likes_count), verified = VALUES(verified), creator_bio = VALUES(creator_bio), creator_bio_link = VALUES(creator_bio_link)`,
     [
       params.userId,
       params.subscriptionEndsAt || null,
+      dateSource,
       params.socialLink || null,
       params.createdBy || null,
       params.displayName || null,
@@ -185,6 +243,7 @@ export async function updateProtectedUser(
   userId: string,
   updates: {
     subscriptionEndsAt?: string | null;
+    subscriptionDateSource?: SubscriptionDateSource;
     socialLink?: string | null;
     displayName?: string | null;
     avatarUrl?: string | null;
@@ -205,6 +264,10 @@ export async function updateProtectedUser(
   if (updates.subscriptionEndsAt !== undefined) {
     parts.push("subscription_ends_at = ?");
     values.push(updates.subscriptionEndsAt && String(updates.subscriptionEndsAt).trim() ? String(updates.subscriptionEndsAt).trim().slice(0, 10) : null);
+  }
+  if (updates.subscriptionDateSource !== undefined) {
+    parts.push("subscription_date_source = ?");
+    values.push(updates.subscriptionDateSource === "paypal" ? "paypal" : "manual");
   }
   if (updates.socialLink !== undefined) {
     parts.push("social_link = ?");

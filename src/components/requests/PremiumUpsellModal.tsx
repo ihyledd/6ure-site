@@ -29,7 +29,7 @@ export function PremiumUpsellModal({
   const bullet3 = getPopup("popup_upsell_bullet3", merged);
   const btnSkip = getPopup("popup_upsell_btn_skip", merged);
   const btnUpgrade = getPopup("popup_upsell_btn_upgrade", merged);
-  const url = upgradeUrl ?? (typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_MEMBERSHIP_URL || "/requests/membership") : "/requests/membership");
+  const url = upgradeUrl ?? (typeof window !== "undefined" ? (process.env.NEXT_PUBLIC_MEMBERSHIP_URL || "/membership") : "/membership");
 
   const handleUpgrade = () => {
     onUpgrade?.();

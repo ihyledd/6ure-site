@@ -51,21 +51,30 @@ export function RequestsPageClient({
   discordLoginUrl,
   initialQuickLinksPosition,
   initialShowStaffBadge,
+  initialRequests,
+  initialPagination,
 }: {
   initialStats: Stats;
   discordLoginUrl: string;
   initialQuickLinksPosition?: "sidebar" | "footer" | "hidden";
   initialShowStaffBadge?: boolean;
+  initialRequests?: RequestItem[];
+  initialPagination?: { page: number; limit: number; total: number; totalPages: number };
 }) {
   const { data: session } = useSession();
   const [stats, setStats] = useState<Stats>(initialStats);
-  const [requests, setRequests] = useState<RequestItem[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    limit: 21,
-    total: 0,
-    totalPages: 0,
-  });
+  const hasServerData = Array.isArray(initialRequests) && initialRequests.length > 0;
+  const [requests, setRequests] = useState<RequestItem[]>(initialRequests ?? []);
+  const [pagination, setPagination] = useState<Pagination>(
+    initialPagination ?? {
+      page: 1,
+      limit: 21,
+      total: 0,
+      totalPages: 0,
+    }
+  );
+  // Always start loading=true for SSR hydration safety.
+  // If we have server data, a useEffect below will immediately flip this.
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("recent");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -85,6 +94,16 @@ export function RequestsPageClient({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [fetchError, setFetchError] = useState(false);
   const [popups, setPopups] = useState<Record<string, string>>(DEFAULT_POPUPS);
+  // Track if this is the very first render with server data (skip initial fetch)
+  const [isInitialServerRender, setIsInitialServerRender] = useState(hasServerData);
+
+  // Immediately reveal pre-loaded server data after hydration (no fetch needed)
+  useEffect(() => {
+    if (hasServerData) {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let frame: number;
@@ -160,6 +179,12 @@ export function RequestsPageClient({
   }, [session?.user?.id]);
 
   useEffect(() => {
+    // Skip the initial fetch if we already have server-rendered data
+    if (isInitialServerRender) {
+      setIsInitialServerRender(false);
+      return;
+    }
+
     let cancelled = false;
     async function load() {
       setLoading(true);

@@ -35,12 +35,18 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await req.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
     const question = typeof body.question === "string" ? body.question.trim() : "";
-    const answer = typeof body.answer === "string" ? body.answer : "";
+    const answer = typeof body.answer === "string" ? body.answer.trim() : "";
     if (!question || !answer) {
       return NextResponse.json(
-        { error: "Question and answer are required" },
+        { error: "Question and answer are required (non-empty after trimming)" },
         { status: 400 }
       );
     }
@@ -51,16 +57,30 @@ export async function POST(req: Request) {
       typeof body.order_index === "number" ? body.order_index : 0;
 
     const id = await createFaq({ question, answer, category, order_index });
-    const list = await getFaqsList();
-    const created = list.find((f) => f.id === id);
+
+    let created:
+      | Awaited<ReturnType<typeof getFaqsList>>[number]
+      | null = null;
+    try {
+      const list = await getFaqsList();
+      created = list.find((f) => f.id === id) ?? null;
+    } catch (listErr) {
+      console.error("[API] POST /api/faqs: getFaqsList after insert failed (insert may have succeeded):", listErr);
+    }
+
     return NextResponse.json(
       created ?? { id, question, answer, order_index, category },
       { status: 201 }
     );
   } catch (error) {
-    console.error("[API] POST /api/faqs:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[API] POST /api/faqs:", msg, error);
+    const isDev = process.env.NODE_ENV !== "production";
     return NextResponse.json(
-      { error: "Failed to create FAQ" },
+      {
+        error: "Failed to create FAQ",
+        ...(isDev ? { detail: msg } : {}),
+      },
       { status: 500 }
     );
   }

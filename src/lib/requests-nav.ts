@@ -15,7 +15,7 @@ export const REQUESTS_SUB_LINKS: RequestsSubLink[] = [
   { href: "/requests/discord-access", label: "Discord access", slug: "discord-access" },
   { href: "/requests/faq", label: "FAQ", slug: "faq" },
   { href: "/requests/protected", label: "Protected", slug: "protected" },
-  { href: "/requests/membership", label: "Membership", slug: "membership" },
+  { href: "/membership", label: "Membership", slug: "membership" },
 ];
 
 /** Slugs shown in burger menu by default. */

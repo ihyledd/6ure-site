@@ -17,7 +17,13 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--discord-blurple), transparent);
+  background: linear-gradient(90deg, transparent, var(--discord-blurple), var(--discord-blurple-hover), var(--discord-blurple), transparent);
+  background-size: 200% 100%;
+  animation: footerShimmer 6s ease-in-out infinite;
+}
+@keyframes footerShimmer {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -200% 0; }
 }
 
 .ure-footer-content {

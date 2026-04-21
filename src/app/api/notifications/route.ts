@@ -1,8 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getNotifications } from "@/lib/requests-api";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

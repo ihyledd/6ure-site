@@ -26,6 +26,25 @@ export async function PATCH(
     const body = await req.json();
     const updates: Parameters<typeof updateProtectedUser>[1] = {};
 
+    if (body.subscription_date_source !== undefined) {
+      if (body.subscription_date_source === "paypal") {
+        const { hasMigrationDiscount } = await import("@/lib/dal/subscriptions");
+        const migrated = await hasMigrationDiscount(uid, "LEAK_PROTECTION");
+        if (!migrated) {
+          return NextResponse.json(
+            {
+              error:
+                "PayPal date sync is only for users who completed Leak Protection migration (Patreon → PayPal).",
+            },
+            { status: 400 }
+          );
+        }
+        updates.subscriptionDateSource = "paypal";
+      } else if (body.subscription_date_source === "manual") {
+        updates.subscriptionDateSource = "manual";
+      }
+    }
+
     if (body.subscription_ends_at !== undefined) {
       updates.subscriptionEndsAt =
         body.subscription_ends_at && typeof body.subscription_ends_at === "string"
@@ -72,7 +91,7 @@ export async function PATCH(
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
-        { error: "Provide subscription_ends_at and/or social_link to update" },
+        { error: "Provide subscription_ends_at, subscription_date_source, and/or social_link to update" },
         { status: 400 }
       );
     }

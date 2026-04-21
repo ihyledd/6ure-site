@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getMergedUserSettings, setUserSetting } from "@/lib/dal/request-settings";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const ALLOWED_KEYS = [
   "theme",
@@ -12,7 +13,12 @@ const ALLOWED_KEYS = [
   "dateFormat",
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
@@ -34,6 +40,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(request);
+  const { success: ok, reset: resetTs } = apiLimiter.check(ip);
+  if (!ok) return tooManyRequestsResponse(resetTs);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

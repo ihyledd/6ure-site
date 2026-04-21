@@ -10,7 +10,11 @@ type ProtectedUser = {
   userId: string;
   displayName: string | null;
   creatorName: string | null;
+  /** Effective display date (PayPal period when synced). */
   subscriptionEndsAt?: string | null;
+  subscriptionEndsAtManual?: string | null;
+  subscriptionDateSource?: "manual" | "paypal";
+  migratedLpSubscriber?: boolean;
   socialLink?: string | null;
   creatorAvatar?: string | null;
   creatorPlatform?: string | null;
@@ -52,6 +56,7 @@ export function ProtectionManageClient() {
   const [submitting, setSubmitting] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editUserForm, setEditUserForm] = useState({ subscription_ends_at: "", social_link: "" });
+  const [editDateSource, setEditDateSource] = useState<"manual" | "paypal">("manual");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [groupSearch, setGroupSearch] = useState("");
   const [groupEnabledToggling, setGroupEnabledToggling] = useState<string | null>(null);
@@ -260,6 +265,7 @@ export function ProtectionManageClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subscription_ends_at: editUserForm.subscription_ends_at.trim() || null,
+          subscription_date_source: editDateSource,
           social_link: editUserForm.social_link.trim() || null,
         }),
       });
@@ -269,6 +275,7 @@ export function ProtectionManageClient() {
       }
       setEditingUserId(null);
       setEditUserForm({ subscription_ends_at: "", social_link: "" });
+      setEditDateSource("manual");
       fetchUsers();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to update.");
@@ -434,9 +441,10 @@ export function ProtectionManageClient() {
   const openEditUser = (u: ProtectedUser) => {
     setEditingUserId(u.userId);
     setEditUserForm({
-      subscription_ends_at: u.subscriptionEndsAt || "",
+      subscription_ends_at: (u.subscriptionEndsAtManual ?? u.subscriptionEndsAt) || "",
       social_link: u.socialLink || "",
     });
+    setEditDateSource(u.subscriptionDateSource === "paypal" ? "paypal" : "manual");
   };
 
   const displayName = (u: ProtectedUser) =>
@@ -532,7 +540,15 @@ export function ProtectionManageClient() {
                   <div className="protection-manage-user-info">
                     <span className="protection-manage-user-name">{displayName(u)}</span>
                     <span className="protection-manage-user-meta">
-                      {u.subscriptionEndsAt || "—"}
+                      <span>
+                        {u.subscriptionEndsAt || "—"}
+                        {u.subscriptionDateSource === "paypal" && (
+                          <span className="protection-manage-date-paypal-badge" title="Date synced from active PayPal Leak Protection subscription">
+                            {" "}
+                            PayPal
+                          </span>
+                        )}
+                      </span>
                       {(u.creatorPlatform === "tiktok" || u.creatorPlatform === "youtube") && u.creatorName && (
                         <span className="protection-manage-user-creator">
                           {u.creatorPlatform}: {u.creatorName}
@@ -866,8 +882,38 @@ export function ProtectionManageClient() {
               <p className="protection-manage-edit-user-label">{displayName(u)}</p>
               <p className="protection-manage-edit-user-id">User ID: {u.userId}</p>
               <form onSubmit={handleUpdateUser}>
+                {u.migratedLpSubscriber && (
+                  <div className="dashboard-form-group">
+                    <label>Subscription date (Leak Protection)</label>
+                    <div className="protection-manage-date-source-row" role="group" aria-label="Date source">
+                      <label className="protection-manage-radio">
+                        <input
+                          type="radio"
+                          name="editDateSource"
+                          checked={editDateSource === "manual"}
+                          onChange={() => setEditDateSource("manual")}
+                        />
+                        Manual date
+                      </label>
+                      <label className="protection-manage-radio">
+                        <input
+                          type="radio"
+                          name="editDateSource"
+                          checked={editDateSource === "paypal"}
+                          onChange={() => setEditDateSource("paypal")}
+                        />
+                        Sync from PayPal (active LP subscription period)
+                      </label>
+                    </div>
+                    <p className="dashboard-card-desc" style={{ marginTop: 8, fontSize: 13 }}>
+                      {editDateSource === "paypal"
+                        ? "Uses renewal date from the user’s active Leak Protection PayPal subscription. If the sub ends, the stored manual date below is shown again."
+                        : "Enter the date shown on the public Protected page."}
+                    </p>
+                  </div>
+                )}
                 <div className="dashboard-form-group">
-                  <label>Subscription ends (date)</label>
+                  <label>{editDateSource === "paypal" && u.migratedLpSubscriber ? "Stored manual date (fallback when no active PayPal sub)" : "Subscription ends (date)"}</label>
                   <div className="protection-manage-date-row">
                     <input
                       type="date"

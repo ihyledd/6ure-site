@@ -47,6 +47,23 @@ export async function POST(req: Request) {
       body.subscription_ends_at && typeof body.subscription_ends_at === "string"
         ? body.subscription_ends_at.trim().slice(0, 10) || null
         : null;
+    let subscriptionDateSource: "manual" | "paypal" | undefined;
+    if (body.subscription_date_source === "paypal") {
+      const { hasMigrationDiscount } = await import("@/lib/dal/subscriptions");
+      const migrated = await hasMigrationDiscount(userId, "LEAK_PROTECTION");
+      if (!migrated) {
+        return NextResponse.json(
+          {
+            error:
+              "PayPal date sync is only for users who completed Leak Protection migration (Patreon → PayPal).",
+          },
+          { status: 400 }
+        );
+      }
+      subscriptionDateSource = "paypal";
+    } else if (body.subscription_date_source === "manual") {
+      subscriptionDateSource = "manual";
+    }
     const socialLink =
       body.social_link && typeof body.social_link === "string"
         ? body.social_link.trim() || null
@@ -106,6 +123,7 @@ export async function POST(req: Request) {
     await addProtectedUser({
       userId,
       subscriptionEndsAt,
+      subscriptionDateSource,
       socialLink,
       createdBy: session.user.id,
       displayName,

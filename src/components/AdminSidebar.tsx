@@ -55,20 +55,22 @@ const NAV: NavGroup[] = [
       { href: "/dashboard/requests/announcements", label: "Announcements", icon: <SvgIcon d="M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6M5.436 13.683A4.001 4.001 0 0 1 7 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 0 1-1.564-.317z" /> },
       { href: "/dashboard/requests/promo-popup", label: "Promo popup", icon: <SvgIcon d="M4 6h16M4 12h16M4 18h7" /> },
       { href: "/dashboard/requests/protection", label: "Protection", icon: <SvgIcon d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z" /> },
-      { href: "/dashboard/requests/settings", label: "Requests settings", icon: <SvgIcon d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" extra={<circle cx="12" cy="12" r="3" />} /> },
+      { href: "/dashboard/requests/settings", label: "Requests settings", icon: <SvgIcon d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.065 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" extra={<circle cx="12" cy="12" r="3" />} /> },
     ],
   },
   {
-    label: "Payments",
+    label: "Sales",
     items: [
-      { href: "/dashboard/subscriptions", label: "Subscriptions", icon: <SvgIcon d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3z" /> },
+      { href: "/dashboard/subscriptions", label: "Subscriptions", icon: <SvgIcon d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
+      { href: "/dashboard/subscriptions/analytics", label: "Analytics", icon: <SvgIcon d="M3 3v18h18" extra={<path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />} /> },
+      { href: "/dashboard/subscriptions/promo-codes", label: "Promo Codes", icon: <SvgIcon d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" extra={<line x1="7" y1="7" x2="7.01" y2="7" />} /> },
     ],
   },
   {
     label: "Promotions",
     items: [
-      { href: "/dashboard/promotions", label: "Overview", icon: <SvgIcon d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /> },
-      { href: "/dashboard/promotions/campaigns", label: "Ad Campaigns", icon: <SvgIcon d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /> },
+      { href: "/dashboard/promotions", label: "Overview", icon: <SvgIcon d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" extra={<path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />} /> },
+      { href: "/dashboard/promotions/campaigns", label: "Campaigns", icon: <SvgIcon d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /> },
       { href: "/dashboard/promotions/links", label: "Download Links", icon: <SvgIcon d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
       { href: "/dashboard/promotions/analytics", label: "Ad Analytics", icon: <SvgIcon d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /> },
     ],

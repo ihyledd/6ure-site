@@ -1,108 +1,103 @@
 /**
- * POST /api/paypal/subscribe
- * Creates a PayPal subscription or one-time order (lifetime).
+ * POST /api/paypal/subscribe — Create a recurring PayPal subscription.
+ * Dynamically creates a PayPal product + billing plan + subscription per checkout.
+ * Applies one-time migration discount for eligible users.
  */
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-options";
-import { createSubscription, createOrder, PLAN_CONFIG, getEffectivePrice } from "@/lib/paypal";
-import { queryOne, execute } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { createDynamicSubscription, getApprovalUrl } from "@/lib/paypal";
+import { getActiveSubscription, getMigrationEligibility, validatePromoCode, incrementPromoUsage, recordPromoUsage } from "@/lib/dal/subscriptions";
+import { getPlanPrice } from "@/lib/pricing";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
-const SITE_URL = process.env.NEXTAUTH_URL ?? "https://6ureleaks.com";
+const BASE_URL = process.env.FRONTEND_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://6ureleaks.com";
 
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+export async function POST(request: NextRequest) {
+  // Rate limit: 3 per 5 minutes per IP
+  const ip = getClientIp(request);
+  const { success, reset } = sensitiveLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
+  const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    return NextResponse.json({ error: "Login required" }, { status: 401 });
   }
-
-  const { planCategory, planInterval, promoCode } = await request.json();
-
-  if (!["PREMIUM", "LEAK_PROTECTION"].includes(planCategory)) {
-    return NextResponse.json({ error: "Invalid plan category" }, { status: 400 });
-  }
-  if (!["MONTHLY", "YEARLY", "LIFETIME"].includes(planInterval)) {
-    return NextResponse.json({ error: "Invalid plan interval" }, { status: 400 });
-  }
-
-  const config = PLAN_CONFIG[planCategory as keyof typeof PLAN_CONFIG]?.[planInterval as "MONTHLY" | "YEARLY" | "LIFETIME"];
-  if (!config) return NextResponse.json({ error: "Plan not found" }, { status: 400 });
-
-  // Check existing active sub
-  const existing = await queryOne<{ id: string }>(
-    `SELECT id FROM subscriptions WHERE user_id = ? AND plan_category = ? AND status = 'ACTIVE'`,
-    [session.user.id, planCategory]
-  );
-  if (existing) {
-    return NextResponse.json({ error: "You already have an active subscription for this plan" }, { status: 409 });
-  }
-
-  // Validate promo code
-  let promoPercent = 0;
-  let promoId: string | null = null;
-  if (promoCode) {
-    const promo = await queryOne<{
-      id: string; discount_percent: number; max_uses: number | null;
-      used_count: number; valid_from: Date | null; valid_until: Date | null;
-      plan_category: string | null; active: boolean;
-    }>(
-      `SELECT id, discount_percent, max_uses, used_count, valid_from, valid_until, plan_category, active FROM promo_codes WHERE code = ? AND active = 1`,
-      [promoCode.toUpperCase()]
-    );
-    if (!promo) return NextResponse.json({ error: "Invalid promo code" }, { status: 400 });
-    if (promo.max_uses && promo.used_count >= promo.max_uses)
-      return NextResponse.json({ error: "Promo code fully redeemed" }, { status: 400 });
-    if (promo.valid_from && new Date() < new Date(promo.valid_from))
-      return NextResponse.json({ error: "Promo code not yet active" }, { status: 400 });
-    if (promo.valid_until && new Date() > new Date(promo.valid_until))
-      return NextResponse.json({ error: "Promo code expired" }, { status: 400 });
-    if (promo.plan_category && promo.plan_category !== planCategory)
-      return NextResponse.json({ error: "Promo code not valid for this plan" }, { status: 400 });
-    promoPercent = promo.discount_percent;
-    promoId = promo.id;
-  }
-
-  const { final: effectivePrice } = getEffectivePrice(
-    planCategory as "PREMIUM" | "LEAK_PROTECTION",
-    planInterval as "MONTHLY" | "YEARLY" | "LIFETIME",
-    promoPercent
-  );
-
-  const userId = session.user.id;
-  const planLabel = planCategory === "PREMIUM" ? "Premium" : "Leak Protection";
-  const subId = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   try {
-    if (planInterval === "LIFETIME") {
-      const { orderId, approvalUrl } = await createOrder(
-        effectivePrice, `${planLabel} Lifetime`,
-        `${SITE_URL}/api/paypal/success?type=lifetime&category=${planCategory}`,
-        `${SITE_URL}/membership?cancelled=true`, userId
-      );
-      await execute(
-        `INSERT INTO subscriptions (id, user_id, paypal_order_id, plan_category, plan_interval, status, amount, currency, promo_code_id, discount_applied, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'PENDING', ?, 'USD', ?, ?, NOW(), NOW())`,
-        [subId, userId, orderId, planCategory, planInterval, effectivePrice, promoId, promoPercent > 0 ? (config.discountedPrice ?? config.price) - effectivePrice : null]
-      );
-      return NextResponse.json({ approvalUrl, orderId });
-    } else {
-      const paypalPlanId = config.paypalPlanId;
-      if (!paypalPlanId) return NextResponse.json({ error: "PayPal plan not configured" }, { status: 500 });
+    const body = await request.json();
+    const { planCategory, planInterval, promoCode } = body as {
+      planCategory: "PREMIUM" | "LEAK_PROTECTION";
+      planInterval: "MONTHLY" | "YEARLY";
+      promoCode?: string;
+    };
 
-      const { subscriptionId, approvalUrl } = await createSubscription(
-        paypalPlanId,
-        `${SITE_URL}/api/paypal/success?type=subscription&category=${planCategory}&interval=${planInterval}`,
-        `${SITE_URL}/membership?cancelled=true`, userId
-      );
-      await execute(
-        `INSERT INTO subscriptions (id, user_id, paypal_subscription_id, plan_category, plan_interval, status, amount, currency, promo_code_id, discount_applied, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'PENDING', ?, 'USD', ?, ?, NOW(), NOW())`,
-        [subId, userId, subscriptionId, planCategory, planInterval, effectivePrice, promoId, promoPercent > 0 ? (config.discountedPrice ?? config.price) - effectivePrice : null]
-      );
-      return NextResponse.json({ approvalUrl, subscriptionId });
+    if (!["PREMIUM", "LEAK_PROTECTION"].includes(planCategory)) {
+      return NextResponse.json({ error: "Invalid plan category" }, { status: 400 });
     }
-  } catch (err) {
-    console.error("[PayPal Subscribe]", err);
+    if (!["MONTHLY", "YEARLY"].includes(planInterval)) {
+      return NextResponse.json({ error: "Invalid plan interval" }, { status: 400 });
+    }
+
+    const existing = await getActiveSubscription(session.user.id, planCategory);
+    if (existing) {
+      return NextResponse.json({ error: "You already have an active subscription for this plan" }, { status: 409 });
+    }
+
+    const customId = `${session.user.id}:${planCategory}:${planInterval}`;
+    const username = (session.user as { username?: string }).username || undefined;
+
+    let overridePrice: string | undefined;
+    let appliedDiscount = 0;
+    let appliedPromoId: string | undefined;
+    const originalPrice = getPlanPrice(planCategory, planInterval);
+
+    // Prefer an explicit promo code when valid for this plan; otherwise Patreon migration discount.
+    if (promoCode) {
+      const promo = await validatePromoCode(promoCode, planCategory, session.user.id, planInterval);
+      if (promo.valid && promo.discount) {
+        appliedDiscount = promo.discount;
+        appliedPromoId = promo.promoId;
+      }
+    }
+    if (!appliedDiscount) {
+      const migration = await getMigrationEligibility(session.user.id, planCategory);
+      if (migration.eligible) {
+        appliedDiscount = migration.discountPercent;
+      }
+    }
+
+    if (appliedDiscount > 0) {
+      const discounted = originalPrice * (1 - appliedDiscount / 100);
+      overridePrice = Math.max(0.01, discounted).toFixed(2);
+    }
+
+    const paypalSub = await createDynamicSubscription({
+      planCategory,
+      planInterval,
+      customId,
+      returnUrl: `${BASE_URL}/api/paypal/callback?type=subscription`,
+      cancelUrl: `${BASE_URL}/membership?status=cancelled`,
+      username,
+      overridePrice,
+    });
+
+    const approvalUrl = getApprovalUrl(paypalSub.links);
+    if (!approvalUrl) {
+      return NextResponse.json({ error: "Failed to get PayPal approval URL" }, { status: 500 });
+    }
+
+    if (appliedPromoId) {
+      await incrementPromoUsage(appliedPromoId);
+      await recordPromoUsage(appliedPromoId, session.user.id);
+    }
+
+    return NextResponse.json({
+      approvalUrl,
+      paypalSubscriptionId: paypalSub.id,
+      discountApplied: appliedDiscount > 0 ? appliedDiscount : undefined,
+    });
+  } catch (error) {
+    console.error("[API] POST /api/paypal/subscribe:", error);
     return NextResponse.json({ error: "Failed to create subscription" }, { status: 500 });
   }
 }

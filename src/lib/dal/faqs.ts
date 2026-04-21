@@ -53,7 +53,9 @@ export async function createFaq(params: {
     "INSERT INTO faqs (question, answer, category, order_index) VALUES (?, ?, ?, ?)",
     [params.question, params.answer, category, orderIndex]
   );
-  return result.insertId ?? 0;
+  const raw = result.insertId;
+  if (typeof raw === "bigint") return Number(raw);
+  return Number(raw ?? 0);
 }
 
 export async function updateFaq(

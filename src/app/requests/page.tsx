@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { getRequestStats } from "@/lib/requests-api";
+import { getRequestStats, getRequestsList, getUpvotedRequestIdsForUser } from "@/lib/requests-api";
 import { getRequestsDisplaySettings } from "@/lib/site-settings";
 import { RequestsPageClient } from "@/components/requests/RequestsPageClient";
-import { getDiscordOAuthUrl } from "@/lib/discord-oauth-state";
-import { getDiscordLoginUrl } from "@/lib/auth-urls";
+import { getDiscordLoginHref } from "@/lib/discord-login-href";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Requests",
@@ -22,25 +22,46 @@ function normalizeQuickLinksPosition(pos: string | undefined | null): QuickLinks
 }
 
 export default async function RequestsPage() {
-  let stats = { total: 0, pending: 0, completed: 0, users: 0 };
-  try {
-    stats = await getRequestStats();
-  } catch {
-    // use defaults
-  }
+  // Fetch stats, display settings, first page of requests, AND session in parallel
+  const [statsResult, displayResult, requestsResult, session] = await Promise.allSettled([
+    getRequestStats(),
+    getRequestsDisplaySettings(),
+    getRequestsList({ page: 1, limit: 21, sortBy: "recent", order: "desc" }),
+    auth(),
+  ]);
+
+  const stats = statsResult.status === "fulfilled" ? statsResult.value : { total: 0, pending: 0, completed: 0, users: 0 };
 
   let initialQuickLinksPosition: QuickLinksPosition = "sidebar";
   let initialShowStaffBadge = false;
-  try {
-    const display = await getRequestsDisplaySettings();
-    initialQuickLinksPosition = normalizeQuickLinksPosition(display?.quick_links_position);
-    initialShowStaffBadge = (display?.staff_badge_visible ?? "false") === "true";
-  } catch {
-    // use defaults
+  if (displayResult.status === "fulfilled" && displayResult.value) {
+    initialQuickLinksPosition = normalizeQuickLinksPosition(displayResult.value.quick_links_position);
+    initialShowStaffBadge = (displayResult.value.staff_badge_visible ?? "false") === "true";
+  }
+
+  let initialRequests: unknown[] = [];
+  let initialPagination = { page: 1, limit: 21, total: 0, totalPages: 0 };
+  if (requestsResult.status === "fulfilled") {
+    initialRequests = requestsResult.value.requests;
+    initialPagination = requestsResult.value.pagination;
+
+    // Mark upvoted requests if user is logged in
+    const userSession = session.status === "fulfilled" ? session.value : null;
+    if (userSession?.user?.id && initialRequests.length > 0) {
+      try {
+        const ids = initialRequests.map((r: any) => r.id);
+        const upvotedIds = await getUpvotedRequestIdsForUser(userSession.user.id, ids);
+        for (const r of initialRequests as any[]) {
+          r.hasUpvoted = upvotedIds.has(r.id);
+        }
+      } catch {
+        // Upvote status is non-critical
+      }
+    }
   }
 
   const callbackUrl = `${BASE.replace(/\/$/, "")}/requests`;
-  const discordLoginUrl = getDiscordOAuthUrl(callbackUrl) || getDiscordLoginUrl("/requests");
+  const discordLoginUrl = getDiscordLoginHref(callbackUrl);
 
   return (
     <div className="requests-page-wrapper">
@@ -49,6 +70,8 @@ export default async function RequestsPage() {
         discordLoginUrl={discordLoginUrl}
         initialQuickLinksPosition={initialQuickLinksPosition}
         initialShowStaffBadge={initialShowStaffBadge}
+        initialRequests={initialRequests as any}
+        initialPagination={initialPagination}
       />
     </div>
   );

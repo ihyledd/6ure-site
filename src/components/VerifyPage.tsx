@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,6 +51,36 @@ const STEPS = [
   { num: 3, title: "Authorize", desc: "Approve 6ure™ Verification authorization. Once done, You'll be redirected here automatically." },
 ];
 
+/** Discord snowflake: 17–20 digits. OAuth often uses `state` for CSRF — only treat as user id when numeric. */
+const SNOWFLAKE_RE = /^\d{17,20}$/;
+
+function resolveUserIdFromSearchParams(searchParams: URLSearchParams): string | null {
+  const explicit =
+    searchParams.get("user_id") ||
+    searchParams.get("id") ||
+    searchParams.get("discord_user_id") ||
+    searchParams.get("uid");
+  if (explicit && SNOWFLAKE_RE.test(explicit.trim())) {
+    return explicit.trim();
+  }
+  const state = searchParams.get("state");
+  if (state && SNOWFLAKE_RE.test(state.trim())) {
+    return state.trim();
+  }
+  return null;
+}
+
+function errorMessageFromVerifyResponse(data: unknown, status: number): string {
+  if (data && typeof data === "object") {
+    const o = data as Record<string, unknown>;
+    if (typeof o.error === "string" && o.error) return o.error;
+    if (typeof o.message === "string" && o.message) return o.message;
+  }
+  if (status === 503) return "Verification service is not configured on the server.";
+  if (status === 400) return "Invalid request.";
+  return "Failed to load Discord user.";
+}
+
 function LandingView() {
   return (
     <div className="v2-verify">
@@ -91,6 +121,74 @@ function LandingView() {
   );
 }
 
+/** Discord redirects here with ?code= after OAuth; exchange server-side for user id. */
+function VerifyFromOAuthCode({ code }: { code: string }) {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/verify/exchange", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
+        const data: unknown = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          setError(errorMessageFromVerifyResponse(data, res.status));
+          return;
+        }
+        const o = data as { userId?: string };
+        if (typeof o.userId === "string" && SNOWFLAKE_RE.test(o.userId)) {
+          setUserId(o.userId);
+        } else {
+          setError("Invalid response from verification service.");
+        }
+      } catch {
+        if (!cancelled) setError("Could not complete verification. Try again.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [code]);
+
+  if (error) {
+    return (
+      <div className="v2-verify">
+        <div className="v2-verify-card v2-error">
+          <div className="v2-error-icon" aria-hidden>!</div>
+          <h1 className="v2-error-title">Verification Failed</h1>
+          <p className="v2-error-message">{error}</p>
+          <p className="v2-support">
+            Need help? <a href="mailto:contact@6ureleaks.com">contact@6ureleaks.com</a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userId) {
+    return (
+      <div className="v2-verify">
+        <div className="v2-verify-card v2-loading">
+          <div className="v2-loading-spinner" aria-hidden />
+          <h2 className="v2-loading-title">Completing sign-in…</h2>
+          <p className="v2-loading-sub">Exchanging authorization with Discord.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <VerificationView userId={userId} />;
+}
+
 function VerificationView({ userId }: { userId: string }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [guild, setGuild] = useState<GuildData | null>(null);
@@ -99,22 +197,27 @@ function VerificationView({ userId }: { userId: string }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch(`/api/verify/user?id=${userId}`);
-      if (!res.ok) throw new Error("Failed to fetch user.");
-      const data: UserData = await res.json();
-      if (!data.id || (!data.username && !data.global_name)) {
+      const res = await fetch(`/api/verify/user?id=${encodeURIComponent(userId)}`);
+      const data: unknown = await res.json();
+      if (!res.ok) {
+        throw new Error(errorMessageFromVerifyResponse(data, res.status));
+      }
+      const userPayload = data as UserData;
+      if (!userPayload.id || typeof userPayload.username !== "string") {
         throw new Error("Invalid user data.");
       }
-      setUser(data);
+      setUser(userPayload);
       setBurst(true);
 
       try {
-        const gRes = await fetch(`/api/verify/guild-member?user_id=${userId}`);
+        const gRes = await fetch(`/api/verify/guild-member?user_id=${encodeURIComponent(userId)}`);
         if (gRes.ok) {
           const gData: GuildData = await gRes.json();
           setGuild(gData);
         }
-      } catch {}
+      } catch {
+        /* optional join badge */
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     }
@@ -201,14 +304,21 @@ function VerificationView({ userId }: { userId: string }) {
 
 export function VerifyPage() {
   const searchParams = useSearchParams();
-  const userId = searchParams.get("state");
+  const userId = resolveUserIdFromSearchParams(searchParams);
+  const code = searchParams.get("code")?.trim();
 
   return (
     <div className="verify-page-wrap">
       <Link href="/" className="verify-back-link" aria-label="Back to home">
         ← Back to home
       </Link>
-      {userId ? <VerificationView userId={userId} /> : <LandingView />}
+      {userId ? (
+        <VerificationView userId={userId} />
+      ) : code ? (
+        <VerifyFromOAuthCode code={code} />
+      ) : (
+        <LandingView />
+      )}
     </div>
   );
 }

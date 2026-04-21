@@ -12,12 +12,18 @@ import {
 } from "@/lib/scraper";
 import { validateRequestUrls } from "@/lib/requests-validate-urls";
 import { canonicalProductUrl } from "@/lib/canonical-product-url";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const HLX_API_KEY_MESSAGE =
   "SCRAPE_API_KEY is not set. All api.hlx.li requests require X-API-Key. Please set SCRAPE_API_KEY on the server.";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 3 per 5 minutes per IP (calls external scraping APIs)
+    const ip = getClientIp(request);
+    const { success, reset } = sensitiveLimiter.check(ip);
+    if (!success) return tooManyRequestsResponse(reset);
+
     const body = await request.json();
     const productUrl = (body.product_url ?? body.productUrl ?? "").trim();
     const creatorUrl = (body.creator_url ?? body.creatorUrl ?? "").trim();

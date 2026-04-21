@@ -7,6 +7,7 @@ import {
   getPageViewCountAfterIncrement,
 } from "@/lib/dal/pages";
 import { getCookiePrefsFromRequest } from "@/lib/cookie-prefs-server";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const VIEW_COOKIE = "wiki_viewed";
 const MAX_AGE = 60 * 60 * 24; // 1 day
@@ -15,6 +16,11 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(_req);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const { slug } = await params;
   const page = await getPageIdViewCountBySlug(slug);
   if (!page) return NextResponse.json({ error: "Not found" }, { status: 404 });

@@ -7,7 +7,8 @@ import { BiIcon } from "./BiIcon";
 const LINKS = [
   { href: "/requests/faq", icon: "question-circle", label: "FAQ" },
   { href: "/requests/your-requests", icon: "person-lines-fill", label: "Your requests" },
-  { href: "/requests/membership", icon: "gem", label: "Membership" },
+  { href: "/membership", icon: "gem", label: "Membership" },
+  { href: "/requests/account", icon: "person-circle", label: "Account" },
   { href: "/requests/protected", icon: "shield-lock", label: "Protected" },
 ] as const;
 

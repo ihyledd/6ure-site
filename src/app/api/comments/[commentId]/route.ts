@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { deleteCommentById, getCommentById } from "@/lib/requests-api";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(_request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

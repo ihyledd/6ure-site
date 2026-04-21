@@ -18,6 +18,7 @@ import {
   buildRequestTitle,
 } from "@/lib/requests-utils";
 import type { RequestData } from "@/lib/db-types";
+import { getDiscordLoginUrl } from "@/lib/auth-urls";
 
 function getPriceColor(priceStr: string | null): { color: string; bg: string; border: string } {
   if (!priceStr) return { color: "#10b981", bg: "rgba(16, 185, 129, 0.1)", border: "rgba(16, 185, 129, 0.25)" };
@@ -30,6 +31,8 @@ function getPriceColor(priceStr: string | null): { color: string; bg: string; bo
 
 type Props = {
   initialRequest: RequestData;
+  /** Same OAuth URL as header login; fallback if omitted. */
+  discordLoginUrl?: string;
 };
 
 function getStatusConfig(status: string) {
@@ -104,7 +107,7 @@ function AnimatedStat({ icon, value, label }: { icon: string; value: number; lab
   );
 }
 
-export function RequestDetailClient({ initialRequest }: Props) {
+export function RequestDetailClient({ initialRequest, discordLoginUrl }: Props) {
   const [request, setRequest] = useState<RequestData & { hasUpvoted?: boolean }>(initialRequest);
   const [upvoting, setUpvoting] = useState(false);
   const [showStaffBadge, setShowStaffBadge] = useState(false);
@@ -112,19 +115,12 @@ export function RequestDetailClient({ initialRequest }: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [loginHref, setLoginHref] = useState(
-    `/api/auth/signin/discord?callbackUrl=${encodeURIComponent("/requests")}`
-  );
+  const loginHref =
+    discordLoginUrl ?? getDiscordLoginUrl(`/requests/request/${initialRequest.id}`);
 
   const [showUpvoters, setShowUpvoters] = useState(false);
   const [upvotersLoading, setUpvotersLoading] = useState(false);
   const [upvoters, setUpvoters] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLoginHref(`/api/auth/signin/discord?callbackUrl=${encodeURIComponent(window.location.href)}`);
-    }
-  }, []);
 
   useEffect(() => {
     fetch("/api/site-settings/requests-display")

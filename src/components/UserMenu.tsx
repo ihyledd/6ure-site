@@ -88,13 +88,12 @@ function QuestionIcon() {
   );
 }
 
-function PeopleIcon() {
+/** Same single-user outline as the former header Account link (desktop + mobile user menu). */
+function AccountMenuIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16}>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={16} height={16} aria-hidden>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
@@ -117,7 +116,7 @@ type RequestsSubLink = { href: string; label: string; highlight?: boolean };
 
 function iconForRequestsLink(href: string) {
   if (href.includes("/requests/faq")) return <QuestionIcon />;
-  if (href.includes("/requests/membership")) return <CrownIcon />;
+  if (href.includes("/membership")) return <CrownIcon />;
   if (href.includes("/requests/your-requests")) return <ListIcon />;
   if (href.includes("/requests/protected")) return <ShieldIcon />;
   return <RequestChatIcon />;
@@ -263,6 +262,13 @@ export function UserMenu({
             >
               <GearIcon /> Settings
             </button>
+            <Link
+              href="/requests/account"
+              className="ure-dropdown-item"
+              onClick={() => setOpen(false)}
+            >
+              <AccountMenuIcon /> Account
+            </Link>
             {requestsSubLinks.length > 0 &&
               requestsSubLinks.map((item) => (
                 <Link

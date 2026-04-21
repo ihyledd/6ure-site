@@ -1,27 +1,42 @@
 /**
- * POST /api/paypal/apply-promo — Validate a promo code
+ * POST /api/paypal/apply-promo — Validate a promo code and return discount.
  */
-import { NextResponse } from "next/server";
-import { queryOne } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { validatePromoCode } from "@/lib/dal/subscriptions";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
-export async function POST(request: Request) {
-  const { code, planCategory } = await request.json();
-  if (!code) return NextResponse.json({ valid: false, error: "Code is required" });
+export async function POST(request: NextRequest) {
+  // Rate limit: 3 per 5 minutes per IP
+  const ip = getClientIp(request);
+  const { success, reset } = sensitiveLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
 
-  const promo = await queryOne<{
-    id: string; code: string; discount_percent: number; max_uses: number | null;
-    used_count: number; valid_from: Date | null; valid_until: Date | null;
-    plan_category: string | null; active: boolean;
-  }>(
-    `SELECT id, code, discount_percent, max_uses, used_count, valid_from, valid_until, plan_category, active FROM promo_codes WHERE code = ? AND active = 1`,
-    [code.toUpperCase()]
-  );
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Login required" }, { status: 401 });
+  }
 
-  if (!promo) return NextResponse.json({ valid: false, error: "Invalid promo code" });
-  if (promo.max_uses && promo.used_count >= promo.max_uses) return NextResponse.json({ valid: false, error: "Code fully redeemed" });
-  if (promo.valid_from && new Date() < new Date(promo.valid_from)) return NextResponse.json({ valid: false, error: "Code not yet active" });
-  if (promo.valid_until && new Date() > new Date(promo.valid_until)) return NextResponse.json({ valid: false, error: "Code expired" });
-  if (promo.plan_category && promo.plan_category !== planCategory) return NextResponse.json({ valid: false, error: "Code not valid for this plan" });
+  try {
+    const body = await request.json();
+    const { code, planCategory, planInterval } = body as {
+      code: string;
+      planCategory?: string;
+      planInterval?: "MONTHLY" | "YEARLY" | "LIFETIME";
+    };
 
-  return NextResponse.json({ valid: true, discountPercent: promo.discount_percent, code: promo.code });
+    if (!code || typeof code !== "string") {
+      return NextResponse.json({ error: "Promo code is required" }, { status: 400 });
+    }
+
+    const result = await validatePromoCode(code, planCategory, session.user.id, planInterval);
+    if (!result.valid) {
+      return NextResponse.json({ valid: false, error: result.error });
+    }
+
+    return NextResponse.json({ valid: true, discount: result.discount });
+  } catch (error) {
+    console.error("[API] POST /api/paypal/apply-promo:", error);
+    return NextResponse.json({ error: "Failed to validate promo code" }, { status: 500 });
+  }
 }

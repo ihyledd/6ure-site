@@ -97,7 +97,11 @@ function boostLevel(premiumSince: string | null): number {
 export async function syncRequestsUser(
   profile: DiscordProfile,
   guildMember: Awaited<ReturnType<typeof fetchGuildMember>>
-): Promise<{ isStaff: boolean }> {
+): Promise<{
+  isStaff: boolean;
+  hasPremiumRole: boolean;
+  hasLeakProtectionRole: boolean;
+}> {
   const discordId = profile.id;
   const roles = guildMember?.roles ?? [];
   const hasPremiumRole = roles.includes(PREMIUM_ROLE_ID);
@@ -227,7 +231,7 @@ export async function syncRequestsUser(
     );
   }
 
-  return { isStaff };
+  return { isStaff, hasPremiumRole, hasLeakProtectionRole };
 }
 
 /** Get guild member for a Discord user (by id). Used in signIn to sync RequestsUser. */

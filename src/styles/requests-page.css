@@ -27,6 +27,8 @@
 }
 
 .requests-hero-logo {
+  display: flex;
+  justify-content: center;
   margin-bottom: 30px;
   animation: requests-float 3s ease-in-out infinite;
   position: relative;
@@ -314,6 +316,7 @@
   position: relative;
   flex: 1;
   min-width: 200px;
+  margin-bottom: 24px;
 }
 
 .requests-search-icon {

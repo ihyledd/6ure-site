@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import { MysqlAdapter } from "@/lib/auth-mysql-adapter";
-import { queryOne } from "@/lib/db";
+import { queryOne, query } from "@/lib/db";
 import {
   syncRequestsUser,
   fetchGuildMemberForSync,
@@ -120,6 +120,23 @@ export const authOptions: NextAuthOptions = {
           [discordId]
         )) ?? null;
       }
+
+      // Check for active PayPal subscriptions (dual system: Patreon OR PayPal)
+      let hasPaypalPremium = false;
+      let hasPaypalLP = false;
+      try {
+        const paypalSubs = await query<{ plan_category: string }>(
+          "SELECT plan_category FROM subscriptions WHERE user_id = ? AND status = 'ACTIVE'",
+          [discordId]
+        );
+        for (const sub of paypalSubs) {
+          if (sub.plan_category === "PREMIUM") hasPaypalPremium = true;
+          if (sub.plan_category === "LEAK_PROTECTION") hasPaypalLP = true;
+        }
+      } catch {
+        // subscriptions table might not exist yet, ignore
+      }
+
       const isStaff =
         (requestsUser && isStaffFromRoles(requestsUser.roles)) ||
         (WIKI_DEVELOPER_DISCORD_ID && discordId === WIKI_DEVELOPER_DISCORD_ID);
@@ -137,8 +154,8 @@ export const authOptions: NextAuthOptions = {
           image: requestsUser?.guild_avatar ?? session.user.image,
           role: isStaff ? ("ADMIN" as const) : ("USER" as const),
           username: requestsUser?.username ?? null,
-          patreon_premium: requestsUser?.patreon_premium ?? false,
-          leak_protection: Boolean(requestsUser?.leak_protection ?? false),
+          patreon_premium: (requestsUser?.patreon_premium ?? false) || hasPaypalPremium,
+          leak_protection: Boolean(requestsUser?.leak_protection ?? false) || hasPaypalLP,
           boost_level: requestsUser?.boost_level ?? 0,
           avatar_decoration: requestsUser?.avatar_decoration ?? null,
         },

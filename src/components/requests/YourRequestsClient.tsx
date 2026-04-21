@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Pagination } from "./Pagination";
 import { RequestCard } from "./RequestCard";
 import { BiIcon } from "./BiIcon";
+import { getDiscordLoginUrl } from "@/lib/auth-urls";
 
 type RequestItem = {
   id: number;
@@ -33,7 +34,12 @@ type RequestItem = {
   patreon_premium?: boolean;
 };
 
-export function YourRequestsClient() {
+type YourRequestsClientProps = {
+  /** Same OAuth URL as header login; fallback if omitted. */
+  discordLoginUrl?: string;
+};
+
+export function YourRequestsClient({ discordLoginUrl }: YourRequestsClientProps) {
   const { data: session, status: sessionStatus } = useSession();
   const [requests, setRequests] = useState<RequestItem[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 18, total: 0, totalPages: 0 });
@@ -88,8 +94,7 @@ export function YourRequestsClient() {
   }
 
   if (!session?.user) {
-    const callbackUrl = typeof window !== "undefined" ? `${window.location.origin}/requests/your-requests` : "/requests/your-requests";
-    const loginUrl = `/api/auth/signin/discord?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    const loginUrl = discordLoginUrl ?? getDiscordLoginUrl("/requests/your-requests");
     return (
       <>
         <Link href="/requests" className="requests-back-link">← Back to requests</Link>

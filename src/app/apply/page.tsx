@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { ApplyPageClient } from "./ApplyPageClient";
-import { getDiscordOAuthUrl } from "@/lib/discord-oauth-state";
-import { getDiscordLoginUrl } from "@/lib/auth-urls";
+import { getDiscordLoginHref } from "@/lib/discord-login-href";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +18,7 @@ export default async function ApplyPage({ searchParams }: Props) {
   const session = await auth();
   const discordLoginUrl =
     formId != null
-      ? getDiscordOAuthUrl(`${BASE.replace(/\/$/, "")}/apply?form=${formId}`) ||
-        getDiscordLoginUrl(`/apply?form=${formId}`)
+      ? getDiscordLoginHref(`${BASE.replace(/\/$/, "")}/apply?form=${formId}`)
       : undefined;
   return (
     <ApplyPageClient

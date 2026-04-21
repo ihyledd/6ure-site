@@ -8,14 +8,25 @@
   left: 0;
   right: 0;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: var(--glass-border);
   box-shadow: var(--glass-shadow);
   z-index: 1000;
   padding: max(16px, env(safe-area-inset-top)) 0 16px;
   padding-left: max(20px, env(safe-area-inset-left));
   padding-right: max(20px, env(safe-area-inset-right));
+}
+/* Subtle gradient accent line under header */
+.ure-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(var(--accent-rgb), 0.15) 30%, rgba(var(--accent-rgb), 0.25) 50%, rgba(var(--accent-rgb), 0.15) 70%, transparent 95%);
+  pointer-events: none;
 }
 
 .ure-header-content {
@@ -540,8 +551,17 @@
     display: none;
   }
 
-  .ure-header-nav {
+  /* Hide primary nav links on small screens; keep Discord + user menu / login (same avatar trigger as desktop). */
+  .ure-header-links {
     display: none !important;
+  }
+
+  .ure-header-nav {
+    display: flex !important;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
   }
 
   .ure-mobile-toggle {

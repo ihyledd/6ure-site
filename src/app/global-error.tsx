@@ -9,7 +9,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   useEffect(() => {
     console.error("[global-error]", error);
   }, [error]);
@@ -24,7 +24,7 @@ export default function GlobalError({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </head>
@@ -44,36 +44,80 @@ export default function GlobalError({
             "radial-gradient(ellipse 120% 80% at 20% 20%, rgba(88, 101, 242, 0.12) 0%, transparent 50%), radial-gradient(ellipse 80% 60% at 80% 80%, rgba(88, 101, 242, 0.06) 0%, transparent 50%)",
         }}
       >
+        {/* Floating orb */}
         <div
           style={{
-            maxWidth: 420,
+            position: "fixed",
+            top: "-10%",
+            left: "10%",
+            width: 450,
+            height: 450,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(88, 101, 242, 0.15) 0%, transparent 70%)",
+            filter: "blur(80px)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "fixed",
+            bottom: "-5%",
+            right: "5%",
+            width: 350,
+            height: 350,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(114, 137, 218, 0.12) 0%, transparent 70%)",
+            filter: "blur(80px)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            maxWidth: 440,
             width: "100%",
             textAlign: "center",
-            background: "rgba(26, 26, 29, 0.4)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
+            background: "rgba(26, 26, 29, 0.45)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: 20,
-            padding: "48px 32px",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset",
+            borderRadius: 24,
+            padding: "56px 36px 48px",
+            boxShadow: "0 12px 48px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03) inset",
           }}
         >
+          {/* Logo */}
+          <div style={{ marginBottom: 24 }}>
+            <img
+              src="https://images.6ureleaks.com/logos/Untitled10.png"
+              alt="6ure"
+              width={64}
+              height={64}
+              style={{
+                objectFit: "contain",
+                filter:
+                  "drop-shadow(0 0 20px rgba(88, 101, 242, 0.3)) drop-shadow(0 4px 12px rgba(88, 101, 242, 0.4))",
+              }}
+            />
+          </div>
           <div
             style={{
-              fontSize: "4rem",
-              fontWeight: 800,
+              fontSize: "3.5rem",
+              fontWeight: 900,
               lineHeight: 1,
-              color: "#f0b232",
               letterSpacing: "-0.04em",
-              marginBottom: 16,
-              textShadow: "0 0 40px rgba(240, 178, 50, 0.25)",
+              marginBottom: 8,
+              background: "linear-gradient(135deg, #fff 10%, #f0b232 60%, #ffd700 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
             }}
           >
             Oops
           </div>
           <h1
             style={{
-              fontSize: "1.35rem",
+              fontSize: "1.25rem",
               fontWeight: 700,
               marginBottom: 12,
               letterSpacing: "-0.02em",
@@ -84,12 +128,12 @@ export default function GlobalError({
           <p
             style={{
               color: "#b9bbbe",
-              fontSize: "0.95rem",
-              lineHeight: 1.5,
+              fontSize: "0.9rem",
+              lineHeight: 1.6,
               marginBottom: 28,
             }}
           >
-            We may be updating or something went wrong on our end. Please try again in a moment.
+            We may be updating or something unexpected happened. Please try again in a moment.
           </p>
           <div style={{ marginBottom: 24 }}>
             <button
@@ -98,10 +142,11 @@ export default function GlobalError({
               style={{
                 background: "none",
                 border: "none",
-                color: "#8b8d90",
-                fontSize: "0.85rem",
+                color: "#72767d",
+                fontSize: "0.82rem",
                 cursor: "pointer",
                 textDecoration: "underline",
+                fontFamily: "inherit",
               }}
             >
               {showDetails ? "Hide" : "Show"} technical details
@@ -109,15 +154,17 @@ export default function GlobalError({
             {showDetails && (
               <pre
                 style={{
-                  marginTop: 8,
-                  padding: 12,
-                  background: "rgba(0,0,0,0.3)",
-                  borderRadius: 8,
-                  fontSize: "0.8rem",
+                  marginTop: 10,
+                  padding: 14,
+                  background: "rgba(0,0,0,0.35)",
+                  borderRadius: 10,
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  fontSize: "0.78rem",
                   color: "#b9bbbe",
                   textAlign: "left",
                   overflow: "auto",
                   maxHeight: 200,
+                  fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
                 }}
               >
                 {error.message}
@@ -131,13 +178,16 @@ export default function GlobalError({
               onClick={() => reset()}
               style={{
                 padding: "14px 28px",
-                background: "#5865f2",
+                background: "linear-gradient(135deg, #5865f2 0%, #7289da 100%)",
                 color: "#fff",
                 border: "none",
                 borderRadius: 12,
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 fontWeight: 600,
                 cursor: "pointer",
+                fontFamily: "inherit",
+                boxShadow: "0 4px 16px rgba(88, 101, 242, 0.3)",
+                transition: "all 0.2s ease",
               }}
             >
               Try again
@@ -145,14 +195,19 @@ export default function GlobalError({
             <a
               href="/"
               style={{
-                display: "inline-block",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
                 padding: "14px 28px",
-                background: "#5865f2",
+                background: "rgba(255, 255, 255, 0.06)",
                 color: "#fff",
+                border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: 12,
-                fontSize: "1rem",
+                fontSize: "0.95rem",
                 fontWeight: 600,
                 textDecoration: "none",
+                fontFamily: "inherit",
+                transition: "all 0.2s ease",
               }}
             >
               Back to 6ure

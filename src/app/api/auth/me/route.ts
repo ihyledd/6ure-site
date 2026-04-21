@@ -1,9 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 /** Returns the same JSON shape as the legacy Requests API /auth/me for compatibility. */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ authenticated: false });

@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRequestById, updateRequest } from "@/lib/requests-api";
 import { scrapeProduct, enrichCreator, getDisplayImageUrl } from "@/lib/scraper";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limit: 3 per 5 minutes per IP
+  const ip = getClientIp(_request);
+  const { success, reset } = sensitiveLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

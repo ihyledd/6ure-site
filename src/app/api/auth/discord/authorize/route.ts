@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const DISCORD_AUTHORIZE = "https://discord.com/oauth2/authorize";
 const STATE_COOKIE = "discord_oauth_state";
@@ -24,6 +25,10 @@ const cookieOpts = {
 };
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 5 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = authLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
   const clientId = process.env.DISCORD_CLIENT_ID;
   const redirectUri = process.env.DISCORD_REDIRECT_URI;
 

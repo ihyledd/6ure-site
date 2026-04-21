@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDiscordOAuthUrl } from "@/lib/discord-oauth-state";
+import { authLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://6ureleaks.com";
 
@@ -15,6 +16,11 @@ function isAllowedCallbackUrl(callbackUrl: string): boolean {
 }
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 5 per minute per IP
+  const ip = getClientIp(request);
+  const { success, reset } = authLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
   if (!callbackUrl || typeof callbackUrl !== "string") {
     return NextResponse.json({ error: "callbackUrl required" }, { status: 400 });

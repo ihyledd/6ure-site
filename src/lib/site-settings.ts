@@ -374,3 +374,39 @@ export async function updateThemeSettings(
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Subscription role settings
+// ---------------------------------------------------------------------------
+
+export async function getSubscriptionRoleId(planCategory: string): Promise<string> {
+  const key = planCategory === "PREMIUM" ? "subscription_premium_role_id" : "subscription_lp_role_id";
+  const dbVal = await getSiteSetting(key).catch(() => null);
+  if (dbVal) return dbVal;
+  return planCategory === "PREMIUM"
+    ? (process.env.DISCORD_PREMIUM_ROLE_ID ?? "")
+    : (process.env.DISCORD_LEAK_PROTECTION_ROLE_ID ?? "");
+}
+
+export async function getSubscriptionRoleSettings(): Promise<{
+  premiumRoleId: string;
+  lpRoleId: string;
+}> {
+  const [premiumRoleId, lpRoleId] = await Promise.all([
+    getSubscriptionRoleId("PREMIUM"),
+    getSubscriptionRoleId("LEAK_PROTECTION"),
+  ]);
+  return { premiumRoleId, lpRoleId };
+}
+
+export async function setSubscriptionRoleSettings(data: {
+  premiumRoleId?: string;
+  lpRoleId?: string;
+}): Promise<void> {
+  if (data.premiumRoleId !== undefined) {
+    await setSiteSetting("subscription_premium_role_id", data.premiumRoleId);
+  }
+  if (data.lpRoleId !== undefined) {
+    await setSiteSetting("subscription_lp_role_id", data.lpRoleId);
+  }
+}

@@ -27,6 +27,8 @@ export async function Footer() {
             <Link href="/wiki">Wiki</Link>
             <Link href="/password">Password</Link>
             <Link href="/verify">Verify</Link>
+            <Link href="/membership">Membership</Link>
+            <Link href="/requests/account">Account</Link>
           </div>
           <div className="ure-footer-column">
             <h4>Community</h4>

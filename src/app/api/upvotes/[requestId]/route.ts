@@ -8,11 +8,17 @@ import {
 } from "@/lib/requests-api";
 import { upvote } from "@/lib/requests-bot-api";
 import { ensureRequestsUserExists } from "@/lib/ensure-requests-user";
+import { apiLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ requestId: string }> }
 ) {
+  // Rate limit: 30 per minute per IP
+  const ip = getClientIp(_request);
+  const { success, reset } = apiLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(

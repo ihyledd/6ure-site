@@ -6,6 +6,7 @@
 @import "../styles/ui-core/footer.css";
 @import "../styles/theme-settings-modal.css";
 @import "../styles/requests-page.css";
+@import "../styles/requests-premium.css";
 @import "../styles/promotions.css";
 
 [data-theme="light"] {
@@ -686,6 +687,11 @@ html, body { overflow-x: clip; }
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+/* Monospace — JetBrains Mono for code blocks, kbd, pre */
+code, pre, kbd, samp, .hljs {
+  font-family: var(--font-geist-mono), 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 /* Buttons */
@@ -3247,40 +3253,97 @@ body:has(#ure-mobile-nav-toggle:checked) .wiki-main-wrap {
 
 /* ===== 404 ===== */
 .wiki-404 {
-  min-height: 60vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+/* Floating ambient orbs */
+.wiki-404-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  opacity: 0.5;
+  animation: orb404Float 8s ease-in-out infinite alternate;
+}
+.wiki-404-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.25) 0%, transparent 70%);
+  top: -100px;
+  left: -80px;
+}
+.wiki-404-orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(114, 137, 218, 0.2) 0%, transparent 70%);
+  bottom: -80px;
+  right: -60px;
+  animation-delay: -4s;
+}
+@keyframes orb404Float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -20px) scale(1.1); }
 }
 .wiki-404-card {
+  position: relative;
   max-width: 480px;
   width: 100%;
-  background: rgba(26, 26, 29, 0.4);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: rgba(26, 26, 29, 0.45);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 48px 36px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  border-radius: 24px;
+  padding: 56px 40px 48px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  animation: fadeIn 0.6s ease-out;
 }
 [data-theme="light"] .wiki-404-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
+[data-theme="light"] .wiki-404-orb { opacity: 0.25; }
 .wiki-404-content { text-align: center; }
+.wiki-404-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.wiki-404-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(var(--accent-rgb), 0.3))
+          drop-shadow(0 4px 12px rgba(var(--accent-rgb), 0.4));
+  animation: heroLogoFloat 4s ease-in-out infinite;
+}
 .wiki-404-title {
-  font-size: 72px;
-  font-weight: 800;
-  color: var(--text-tertiary);
+  font-size: 80px;
+  font-weight: 900;
   line-height: 1;
+  margin-bottom: 4px;
+  letter-spacing: -4px;
+  background: linear-gradient(135deg, var(--text-primary) 10%, var(--discord-blurple) 60%, var(--discord-blurple-hover) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.wiki-404-subtitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 .wiki-404-text {
-  font-size: 18px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
+  font-size: 15px;
+  color: var(--text-tertiary);
+  margin-bottom: 28px;
+  line-height: 1.5;
 }
 .wiki-404-actions {
   display: flex;
@@ -3292,22 +3355,36 @@ body:has(#ure-mobile-nav-toggle:checked) .wiki-main-wrap {
 .wiki-404-home {
   display: inline-flex;
   align-items: center;
-  padding: 10px 20px;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
   background: var(--glass-tertiary-bg);
   border: var(--glass-border);
   color: var(--text-primary);
   font-weight: 600;
+  font-size: 14px;
   text-decoration: none;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
 .wiki-404-home:hover {
   background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.12);
+  border-color: rgba(var(--accent-rgb), 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
+.wiki-404-home svg {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.wiki-404-home:hover svg { opacity: 1; }
 [data-theme="light"] .wiki-404-home:hover {
   background: rgba(0,0,0,0.06);
-  border-color: rgba(0,0,0,0.1);
+  border-color: rgba(var(--accent-rgb), 0.2);
+}
+@media (max-width: 480px) {
+  .wiki-404-card { padding: 40px 24px 36px; }
+  .wiki-404-title { font-size: 60px; letter-spacing: -3px; }
+  .wiki-404-subtitle { font-size: 17px; }
 }
 
 /* ===== Related articles ===== */
@@ -3639,22 +3716,23 @@ body:has(#ure-mobile-nav-toggle:checked) .wiki-main-wrap {
 }
 
 .about-hero-title {
-  font-size: 56px;
-  font-weight: 800;
-  line-height: 1.1;
+  font-size: 60px;
+  font-weight: 900;
+  line-height: 1.05;
   margin-bottom: 16px;
-  letter-spacing: -2px;
-  background: linear-gradient(135deg, #fff 30%, var(--discord-blurple-hover));
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #ffffff 10%, #c4c9f7 35%, var(--discord-blurple) 65%, var(--discord-blurple-hover) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .about-hero-sub {
-  font-size: 18px;
+  font-size: 17px;
   color: var(--text-secondary);
-  max-width: 560px;
-  margin: 0 auto 28px;
+  max-width: 540px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
 }
 
 .about-hero-btns {

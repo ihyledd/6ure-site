@@ -5,8 +5,7 @@ import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { HeaderNav } from "@/components/HeaderNav";
 import { getSiteSetting, getRequestsDisplaySettings } from "@/lib/site-settings";
-import { getDiscordOAuthUrl } from "@/lib/discord-oauth-state";
-import { getDiscordLoginUrl } from "@/lib/auth-urls";
+import { getDiscordLoginHref } from "@/lib/discord-login-href";
 
 const LOGO_SRC = "https://images.6ureleaks.com/logos/Untitled10.png";
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://6ureleaks.com";
@@ -31,7 +30,7 @@ export async function Header() {
 
   const pathname = headersList.get("x-pathname") ?? "/";
   const callbackUrl = pathname.startsWith("/") ? `${BASE.replace(/\/$/, "")}${pathname}` : BASE;
-  const discordLoginUrl = getDiscordOAuthUrl(callbackUrl) || getDiscordLoginUrl(callbackUrl);
+  const discordLoginUrl = getDiscordLoginHref(callbackUrl);
 
   return (
     <header className="ure-header">

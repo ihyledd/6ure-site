@@ -8,11 +8,17 @@ import {
   createSignedCookie,
   verifySignedCookie,
 } from "@/lib/wiki-unlock-cookie";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
 ) {
+  // Rate limit: 3 per 5 minutes per IP (prevents password brute-forcing)
+  const ip = getClientIp(req);
+  const { success, reset } = sensitiveLimiter.check(ip);
+  if (!success) return tooManyRequestsResponse(reset);
+
   const { slug } = await params;
   const { password } = await req.json();
 

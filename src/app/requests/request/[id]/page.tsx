@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getDiscordLoginHref } from "@/lib/discord-login-href";
 import { getRequestById } from "@/lib/requests-api";
 import { RequestDetailClient } from "@/components/requests/RequestDetailClient";
 import { buildRequestTitle, buildRequestDescription } from "@/lib/requests-utils";
@@ -26,5 +27,6 @@ export default async function RequestDetailPage({ params }: Props) {
   const req = await getRequestById(id);
   if (!req) notFound();
 
-  return <RequestDetailClient initialRequest={req} />;
+  const discordLoginUrl = getDiscordLoginHref(`/requests/request/${id}`);
+  return <RequestDetailClient initialRequest={req} discordLoginUrl={discordLoginUrl} />;
 }

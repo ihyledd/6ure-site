@@ -13,9 +13,15 @@ import {
   getFormFieldsByIds,
 } from "@/lib/dal/forms";
 import { sendApplicationToDiscord } from "@/lib/send-discord-webhook";
+import { sensitiveLimiter, getClientIp, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    // Rate limit: 3 per 5 minutes per IP
+    const ip = getClientIp(req);
+    const { success, reset } = sensitiveLimiter.check(ip);
+    if (!success) return tooManyRequestsResponse(reset);
+
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "You must be logged in to apply." }, { status: 401 });

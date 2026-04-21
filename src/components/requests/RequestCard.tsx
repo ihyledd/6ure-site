@@ -319,7 +319,7 @@ export function RequestCard({
                   </>
                 )}
               </div>
-              <span className="request-date">{formatDate(request.created_at)}</span>
+              <span className="request-date" suppressHydrationWarning>{formatDate(request.created_at)}</span>
             </div>
 
             {/* Links row */}
