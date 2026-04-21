@@ -85,13 +85,9 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
     return () => clearInterval(interval);
   }, [state, isTabVisible, isComplete, requiredDuration]);
 
-  // Auto-complete when timer hits target
-  useEffect(() => {
-    if (isComplete && !downloadToken) {
-      completeAd();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isComplete]);
+  // We no longer auto-complete when the timer hits target.
+  // The user must click the "Continue" button instead.
+  // (Removed useEffect that called completeAd automatically)
 
   const startVideo = useCallback(() => {
     const video = videoRef.current;
@@ -296,13 +292,15 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
             </div>
             <div className="adgate-progress-info">
               <span className="adgate-progress-timer">
-                {isComplete ? (
+                {state === "completed" ? (
                   <span className="adgate-complete-text">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     Unlocking download...
                   </span>
                 ) : state === "idle" ? (
                   `Watch for ${requiredDuration}s to unlock`
+                ) : isComplete ? (
+                  "Duration reached"
                 ) : (
                   `${remaining}s remaining`
                 )}
@@ -310,10 +308,22 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
               <span className="adgate-progress-pct">{Math.round(progress)}%</span>
             </div>
           </div>
+
+          {/* Action Button */}
+          <div className="adgate-action-section" style={{ marginTop: '24px' }}>
+            <button
+              onClick={completeAd}
+              disabled={!isComplete || state === "completed"}
+              className="btn-primary"
+              style={{ width: '100%', padding: '16px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: (!isComplete || state === "completed") ? 0.6 : 1 }}
+            >
+              {state === "completed" ? "Unlocking..." : isComplete ? "Continue" : `Watch for ${remaining} more seconds`}
+            </button>
+          </div>
         </div>
 
         {/* Locked download preview */}
-        <div className={`adgate-download-locked ${isComplete ? "adgate-download-unlocking" : ""}`}>
+        <div className={`adgate-download-locked ${state === "completed" ? "adgate-download-unlocking" : ""}`}>
           <div className="adgate-lock-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -326,7 +336,7 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
             {link.description && <p className="adgate-lock-desc">{link.description}</p>}
           </div>
           <div className="adgate-lock-badge">
-            {isComplete ? "Unlocking..." : "Watch to unlock"}
+            {state === "completed" ? "Unlocking..." : isComplete ? "Ready to unlock" : "Watch to unlock"}
           </div>
         </div>
 
