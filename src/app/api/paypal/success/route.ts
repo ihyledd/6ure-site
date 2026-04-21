@@ -40,11 +40,7 @@ export async function GET(request: Request) {
         );
         await execute(`UPDATE promo_codes pc JOIN subscriptions s ON s.promo_code_id = pc.id SET pc.used_count = pc.used_count + 1 WHERE s.id = ? AND s.promo_code_id IS NOT NULL`, [sub.id]);
         if (payerEmail) {
-          await sendPaymentConfirmation(payerEmail, {
-            planCategory: sub.plan_category, planInterval: "LIFETIME", amount: sub.amount,
-            transactionId: captureId ?? token,
-            date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-          });
+          await sendPaymentConfirmation(payerEmail, sub.plan_category, sub.amount, "LIFETIME");
         }
       }
       return NextResponse.redirect(`${SITE_URL}/membership?success=true&category=${category}&interval=LIFETIME`);
