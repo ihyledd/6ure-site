@@ -12,7 +12,7 @@ interface AnalyticsData {
     uniqueVisitors: number;
   };
   daily: { date: string; views: number; completes: number; downloads: number }[];
-  topLinks: { linkId: string; slug: string; resourceName: string; views: number; completes: number; downloads: number }[];
+  topLinks: { linkId: string; slug: string; resource_name: string; views: number; completes: number; downloads: number }[];
   referrers: { referer: string; count: number }[];
 }
 
