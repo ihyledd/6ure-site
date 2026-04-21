@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { captureOrder, getSubscriptionDetails } from "@/lib/paypal";
+import { captureOrder, getSubscription } from "@/lib/paypal";
 import { queryOne, execute } from "@/lib/db";
 import { sendPaymentConfirmation } from "@/lib/send-subscription-email";
 
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     }
 
     if (type === "subscription" && subscriptionId) {
-      const details = await getSubscriptionDetails(subscriptionId);
+      const details = await getSubscription(subscriptionId);
       const payerEmail = details?.subscriber?.email_address ?? null;
       const payerName = details?.subscriber?.name ? `${details.subscriber.name.given_name ?? ""} ${details.subscriber.name.surname ?? ""}`.trim() : null;
       if (details.status === "ACTIVE" || details.status === "APPROVED") {
