@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { resourceName, downloadUrl, editorName } = body;
+  const { resourceName, downloadUrl, editorName, password } = body;
 
   if (!resourceName || !downloadUrl) {
     return NextResponse.json(
@@ -62,10 +62,13 @@ export async function POST(request: NextRequest) {
   const id = randomBytes(12).toString("hex").slice(0, 25);
   const slug = generateSlug(resourceName);
 
+  // password can be: a string (set), null/undefined (no password required)
+  const passwordValue = password && typeof password === "string" && password.trim() !== "" ? password.trim() : null;
+
   await execute(
-    `INSERT INTO ad_download_links (id, slug, resource_name, download_url, editor_name, ad_enabled, is_active, campaign_mode, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, 1, 1, 'random', NOW(), NOW())`,
-    [id, slug, resourceName, downloadUrl, editorName ?? null]
+    `INSERT INTO ad_download_links (id, slug, resource_name, download_url, editor_name, password, ad_enabled, is_active, campaign_mode, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, 1, 1, 'random', NOW(), NOW())`,
+    [id, slug, resourceName, downloadUrl, editorName ?? null, passwordValue]
   );
 
   return NextResponse.json(

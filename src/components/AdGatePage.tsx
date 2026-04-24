@@ -126,7 +126,11 @@ export function AdGatePage({ link }: { link: DownloadLinkData }) {
       const res = await fetch(`/api/download/${link.slug}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startedAt: startedAtRef.current }),
+        body: JSON.stringify({
+          startedAt: startedAtRef.current,
+          watchedSeconds,
+          campaignId: campaign.id,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.token) {

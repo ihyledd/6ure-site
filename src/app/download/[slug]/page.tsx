@@ -74,7 +74,8 @@ export default async function DownloadPage({ params }: Props) {
     })),
   };
 
-  // If ad is disabled or no campaign, show direct download
+  // If ad is disabled, no campaign available, or password not set with no campaigns → show direct download
+  // When ad_enabled but all campaigns are inactive, allow free downloads
   if (!link.ad_enabled || !link.campaign) {
     return <DownloadUnlocked link={serialized} />;
   }
