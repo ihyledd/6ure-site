@@ -32,11 +32,13 @@ export default async function DownloadPage({ params }: Props) {
   if (!link) notFound();
 
   // Serialize for client component (snake_case keys match MySQL columns)
+  // SECURITY: Never expose download_url to client when ad is enabled —
+  // the actual URL is only revealed server-side via /api/download/[slug]/download after token validation
   const serialized = {
     id: link.id,
     slug: link.slug,
     resource_name: link.resource_name,
-    download_url: link.download_url,
+    download_url: link.ad_enabled && link.campaign ? "" : link.download_url,
     ad_enabled: link.ad_enabled,
     thumbnail_url: link.thumbnail_url,
     editor_name: link.editor_name,
