@@ -1,0 +1,204 @@
+/*
+ * Wiki mobile drawer - rendered in document.body via portal.
+ * All selectors are scoped; no dependency on .ure-header or globals.
+ */
+
+@media (min-width: 769px) {
+  .wiki-mobile-drawer-root {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .wiki-mobile-drawer-root {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+  }
+
+  .wiki-mobile-drawer-root * {
+    box-sizing: border-box;
+  }
+
+  .wiki-mobile-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .wiki-mobile-drawer-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(320px, 88vw);
+    max-width: 320px;
+    z-index: 2;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-top: max(16px, env(safe-area-inset-top, 0));
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: 0;
+    padding-right: 0;
+    background: var(--bg-secondary);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: wiki-drawer-slide-in 0.25s ease;
+  }
+
+  @keyframes wiki-drawer-slide-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  .wiki-mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 24px;
+    margin: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .wiki-mobile-drawer-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .wiki-mobile-drawer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .wiki-mobile-drawer-title {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--discord-blurple) 0%, var(--discord-blurple-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .wiki-mobile-drawer-subtitle {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .wiki-mobile-drawer-search {
+    padding: 0 12px 16px;
+  }
+
+  .wiki-mobile-drawer-search input,
+  .wiki-mobile-drawer-search .wiki-header-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .wiki-mobile-drawer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 12px;
+    flex-shrink: 0;
+  }
+
+  .wiki-mobile-drawer-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    padding: 12px 16px 4px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .wiki-mobile-drawer-link--sub {
+    padding-left: 32px;
+    font-size: 14px;
+  }
+
+  .wiki-mobile-drawer-link--highlight {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 152, 0, 0.08) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    color: var(--text-primary);
+  }
+
+  .wiki-mobile-drawer-link--highlight:hover {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.18) 0%, rgba(255, 152, 0, 0.12) 100%);
+    border-color: rgba(255, 193, 7, 0.5);
+  }
+
+  .wiki-mobile-drawer-item {
+    display: block;
+  }
+
+  .wiki-mobile-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    min-height: 48px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    background: transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .wiki-mobile-drawer-link:hover {
+    background: var(--glass-tertiary-bg);
+    color: var(--text-primary);
+  }
+
+  .wiki-mobile-drawer-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--text-tertiary);
+  }
+
+  .wiki-mobile-drawer-link:hover svg {
+    color: var(--text-primary);
+  }
+
+  .wiki-mobile-drawer-item .ure-header-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    min-height: 48px;
+    width: 100%;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+
+  .wiki-mobile-drawer-item .ure-header-link:hover {
+    background: var(--glass-tertiary-bg);
+    color: var(--text-primary);
+  }
+}

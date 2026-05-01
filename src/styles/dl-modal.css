@@ -1,0 +1,229 @@
+/* Download Manager Modal Styles */
+.dl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dl-modal {
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dl-modal-content {
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.dl-modal-icon-big {
+  font-size: 48px;
+  margin-bottom: 24px;
+  display: block;
+  animation: pulseIcon 2s infinite ease-in-out alternate;
+}
+
+@keyframes pulseIcon {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1.05); opacity: 1; }
+}
+
+.dl-modal-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.dl-modal-subtitle {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin: 0 0 32px;
+}
+
+.dl-modal-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0 0 32px;
+}
+
+.dl-modal-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(88, 101, 242, 0.2);
+  border-top-color: var(--discord-blurple);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 24px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Badges */
+.dl-modal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.dl-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dl-modal-badge i {
+  font-size: 15px;
+}
+
+.dl-modal-badge.timer {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  border-color: rgba(234, 179, 8, 0.2);
+}
+
+.dl-modal-badge.encrypted {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.dl-modal-badge.decrypted {
+  color: #64748b;
+  background: rgba(100, 116, 139, 0.1);
+  border-color: rgba(100, 116, 139, 0.2);
+}
+
+.dl-modal-badge.single-use {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+.dl-modal-password-hint {
+  background: rgba(88, 101, 242, 0.1);
+  border: 1px solid rgba(88, 101, 242, 0.2);
+  color: #cbd5e1;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.dl-modal-password-hint i {
+  color: var(--discord-blurple);
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dl-modal-password-hint strong {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Actions */
+.dl-modal-actions {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+.dl-modal-btn-secondary,
+.dl-modal-btn-primary,
+.dl-modal-btn-download {
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dl-modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dl-modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dl-modal-btn-primary {
+  background: #fff;
+  color: #000;
+  border: none;
+}
+
+.dl-modal-btn-primary:hover {
+  background: #f1f5f9;
+}
+
+.dl-modal-btn-download {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  flex: 1;
+}
+
+.dl-modal-btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}

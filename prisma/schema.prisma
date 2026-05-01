@@ -1,0 +1,726 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  LEAKER
+}
+
+// Auth.js / NextAuth (Prisma Adapter) models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  pages Page[] @relation("UserPages")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Wiki models
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  content     String   @db.LongText
+  published   Boolean  @default(true)
+  searchable  Boolean  @default(true)
+  featured    Boolean  @default(false)
+  hidden      Boolean  @default(false)
+  password    String?
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById String?
+  createdBy   User?   @relation("UserPages", fields: [createdById], references: [id], onDelete: SetNull)
+
+  categories PageCategory[]
+
+  @@index([title])
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String?
+  hidden      Boolean @default(false)
+
+  pages PageCategory[]
+}
+
+model PageCategory {
+  pageId     String
+  categoryId String
+
+  page     Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([pageId, categoryId])
+  @@index([categoryId])
+}
+
+// Manual "what's new" entries for the recent updates card (optional)
+model ManualUpdate {
+  id        String   @id @default(cuid())
+  title     String
+  body      String?
+  createdAt DateTime @default(now())
+}
+
+// Site-wide settings (editable in admin); maps to existing site_settings (key PK, value, updated_at)
+model SiteSetting {
+  key       String    @id @db.VarChar(128)
+  value     String    @db.Text
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  @@map("site_settings")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+// GDPR data export requests (developer-confirmed workflow)
+enum DataExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model DataExportRequest {
+  id          String           @id @default(cuid())
+  userId      String           // Discord user ID
+  username    String?
+  status      DataExportStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  completedAt DateTime?
+  downloadUrl String?          // Optional: signed URL when ready
+}
+
+// Application form builder (Google Forms / Tally style)
+enum ApplicationLimitType {
+  NONE
+  PER_FORM
+  GLOBAL
+}
+
+enum ApplicationFieldType {
+  SHORT_TEXT
+  PARAGRAPH
+  NUMBER
+  AGE
+  EMAIL
+  PHONE
+  URL
+  DATE
+  TIME
+  TIME_RANGES
+  MULTIPLE_CHOICE
+  CHECKBOXES
+  MULTI_SELECT
+  DROPDOWN
+  LINEAR_SCALE
+  RATING
+  YES_NO
+  FILE_UPLOAD
+  TIMEZONE
+  PRONOUNS
+  SECTION_HEADER
+}
+
+model ApplicationForm {
+  id                  String   @id @default(cuid())
+  title               String
+  description         String?
+  confirmationMessage String?   @default("Thank you for your application. We will review it and get back to you soon.")
+  isActive            Boolean   @default(false)
+  minAge              Int?     // e.g. 16
+  limitType           ApplicationLimitType @default(PER_FORM)
+  limitWindowDays     Int       @default(30)
+  limitPerForm        Int       @default(1)
+  maxResponses       Int?      // optional cap; null = unlimited
+  theme               Json?     // { primaryColor?, font? }
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  sections   ApplicationFormSection[]
+  fields     ApplicationFormField[]
+  submissions ApplicationSubmission[]
+}
+
+model ApplicationFormSection {
+  id          String   @id @default(cuid())
+  formId      String
+  order       Int      @default(0)
+  title       String?
+  description String?
+  conditionalLogic Json? // { fieldId, operator, value }
+  createdAt   DateTime @default(now())
+
+  form   ApplicationForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  fields ApplicationFormField[]
+
+  @@index([formId])
+}
+
+model ApplicationFormField {
+  id              String   @id @default(cuid())
+  formId          String
+  sectionId       String?
+  order           Int      @default(0)
+  type            ApplicationFieldType
+  label           String
+  description     String?  // help text
+  required        Boolean  @default(false)
+  placeholder     String?
+  options         Json?    // [{value, label, hasOther?: bool}] for choice types
+  validation      Json?    // { minLength?, maxLength?, min?, max?, pattern?, customError? }
+  autoFill        String?  // "username" | "user_id" | "timezone" | null
+  shuffleOptions  Boolean  @default(false)
+  conditionalLogic Json?   // { fieldId, operator, value }
+  // For file upload: maxSize (bytes), allowedTypes (e.g. ["pdf","png"])
+  fileConfig      Json?
+  // For linear scale: min, max (e.g. 1-5)
+  scaleConfig     Json?
+  createdAt       DateTime @default(now())
+
+  form    ApplicationForm        @relation(fields: [formId], references: [id], onDelete: Cascade)
+  section ApplicationFormSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+
+  @@index([formId])
+  @@index([sectionId])
+}
+
+model ApplicationSubmission {
+  id          String   @id @default(cuid())
+  formId      String
+  userId      String   // Discord user ID
+  username    String?
+  status      String   @default("pending") // pending | accepted | rejected
+  answers     Json     // Record<string, string | string[]>
+  fileUrls    Json?    // Record<fieldId, url> for file uploads
+  createdAt   DateTime @default(now())
+  respondedAt DateTime?
+
+  form ApplicationForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId])
+  @@index([userId])
+  @@index([status])
+}
+
+model ApplicationLimitReset {
+  id        String   @id @default(cuid())
+  userId    String   // Discord user ID
+  formId    String
+  resetAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([userId, formId])
+  @@index([formId])
+}
+
+// ---------------------------------------------------------------------------
+// Requests platform (integrated from standalone requests app)
+// ---------------------------------------------------------------------------
+
+// Discord user cache; id = Discord snowflake. Synced on login.
+model RequestsUser {
+  id              String    @id  @db.VarChar(20) // Discord user ID
+  username        String    @db.VarChar(255)
+  discriminator   String?   @db.VarChar(4)
+  discordHandle   String?   @map("discord_handle") @db.VarChar(255) // legacy column, keep for existing data
+  globalName      String?   @map("global_name") @db.VarChar(255)
+  displayName     String?   @map("display_name") @db.VarChar(255)
+  avatar          String?   @db.VarChar(255)
+  banner          String?   @db.VarChar(255)
+  accentColor     Int?      @map("accent_color")
+  publicFlags     Int?      @default(0) @map("public_flags")
+  premiumType     Int?      @default(0) @map("premium_type")
+  roles          Json?      // Discord guild role IDs
+  patreonPremium Boolean   @default(false) @map("patreon_premium")
+  guildNickname   String?   @map("guild_nickname") @db.VarChar(255)
+  guildAvatar     String?   @map("guild_avatar") @db.VarChar(255)
+  guildTag        String?   @map("guild_tag") @db.VarChar(10)
+  guildBadge      String?   @map("guild_badge") @db.VarChar(255)
+  boostLevel      Int       @default(0) @map("boost_level")
+  premiumSince    DateTime? @map("premium_since")
+  isStaff         Boolean   @default(false) @map("is_staff")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  requests          Request[]
+  upvotes           Upvote[]
+  comments          Comment[]
+  commentBans           CommentBan[]  @relation("UserBanned")
+  commentBansIssued     CommentBan[]  @relation("BannedBy")
+  notifications        Notification[]
+  requestViews          RequestView[]
+  protectedUsers        ProtectedUser[]
+  userSettings          RequestUserSetting[]
+  protectedUsersCreated ProtectedUser[] @relation("ProtectedUserCreatedBy")
+  subscriptions         Subscription[]
+
+  @@map("users")
+}
+
+enum RequestStatus {
+  pending
+  completed
+  rejected
+  cancelled
+}
+
+model Request {
+  id                   Int          @id @default(autoincrement())
+  userId               String?      @map("user_id") @db.VarChar(20)
+  creatorUrl           String       @map("creator_url") @db.Text
+  productUrl           String       @map("product_url") @db.Text
+  title                String?      @db.VarChar(500)
+  description          String?      @db.Text
+  imageUrl             String?      @map("image_url") @db.VarChar(500)
+  price                String?      @db.VarChar(100)
+  priceNumeric         Decimal?      @map("price_numeric") @db.Decimal(10, 2)
+  status               RequestStatus @default(pending)
+  threadId             String?      @map("thread_id") @db.VarChar(20)
+  messageId           String?      @map("message_id") @db.VarChar(20)
+  leakMessageId       String?      @map("leak_message_id") @db.VarChar(20)
+  leakMessageUrl      String?      @map("leak_message_url") @db.VarChar(500)
+  publicMessageId     String?      @map("public_message_id") @db.VarChar(20)
+  upvotes              Int          @default(0)
+  views                Int          @default(0)
+  commentsLocked       Boolean      @default(false) @map("comments_locked")
+  creatorName         String?      @map("creator_name") @db.VarChar(255)
+  creatorAvatar       String?      @map("creator_avatar") @db.VarChar(500)
+  creatorPlatform     String?      @map("creator_platform") @db.VarChar(20)
+  anonymous           Boolean      @default(false)
+  cancelRequestedAt   DateTime?    @map("cancel_requested_at")
+  cancelReason        String?      @map("cancel_reason")
+  cancelApprovedBy    String?      @map("cancel_approved_by")
+  cancelApprovedAt    DateTime?    @map("cancel_approved_at")
+  cancelRejectedAt    DateTime?    @map("cancel_rejected_at")
+  cancelRejectionReason String?    @map("cancel_rejection_reason")
+  rejectionReason     String?      @map("rejection_reason")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+
+  user        RequestsUser?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  upvotesList Upvote[]
+  comments    Comment[]
+  notifications Notification[]
+  requestViews RequestView[]
+
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("requests")
+}
+
+model Upvote {
+  id        Int      @id @default(autoincrement())
+  requestId Int      @map("request_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, userId])
+  @@index([requestId])
+  @@index([userId])
+  @@map("upvotes")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  requestId Int      @map("request_id")
+  userId    String   @map("user_id")
+  parentId  Int?     @map("parent_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  request  Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user     RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[]     @relation("CommentReplies")
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+model CommentBan {
+  id         Int       @id @default(autoincrement())
+  userId     String    @map("user_id")
+  reason     String?
+  bannedBy   String    @map("banned_by")
+  bannedUntil DateTime? @map("banned_until")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user        RequestsUser @relation("UserBanned", fields: [userId], references: [id], onDelete: Cascade)
+  bannedByUser RequestsUser @relation("BannedBy", fields: [bannedBy], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("comment_bans")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  requestId Int?     @map("request_id")
+  userId    String   @map("user_id") @db.VarChar(20)
+  type      String   @default("leak") @db.VarChar(50)
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request Request?      @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  user    RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+model RequestView {
+  id        Int      @id @default(autoincrement())
+  requestId Int      @map("request_id")
+  userId    String   @map("user_id") @db.VarChar(20)
+  sessionId String   @map("session_id") @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  request Request       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, userId, sessionId])
+  @@index([requestId])
+  @@index([userId])
+  @@map("request_views")
+}
+
+model Faq {
+  id         Int      @id @default(autoincrement())
+  question   String   @db.Text
+  answer     String   @db.Text
+  orderIndex Int      @default(0) @map("order_index")
+  category   String?  @default("general") @db.VarChar(64)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([orderIndex])
+  @@map("faqs")
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  message   String   @db.Text
+  active    Boolean  @default(true)
+  centered  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active])
+  @@map("announcements")
+}
+
+model ProtectedUser {
+  id               Int       @id @default(autoincrement())
+  userId           String    @unique @map("user_id") @db.VarChar(20)
+  reason           String?   @db.Text
+  createdBy        String?   @map("created_by") @db.VarChar(20)
+  subscriptionEndsAt DateTime? @map("subscription_ends_at")
+  socialLink       String?   @map("social_link") @db.VarChar(500)
+  displayName      String?   @map("display_name") @db.VarChar(255)
+  avatarUrl        String?   @map("avatar_url") @db.VarChar(500)
+  creatorName      String?   @map("creator_name") @db.VarChar(255)
+  creatorAvatar    String?   @map("creator_avatar") @db.VarChar(500)
+  creatorPlatform  String?   @map("creator_platform") @db.VarChar(20)
+  followerCount    BigInt?   @default(0) @map("follower_count")
+  videoCount       Int?      @map("video_count")
+  likesCount       BigInt?   @map("likes_count")
+  verified         Boolean?  @map("verified")
+  creatorBio       String?   @map("creator_bio") @db.Text
+  creatorBioLink   String?   @map("creator_bio_link") @db.VarChar(500)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  user      RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdByUser RequestsUser? @relation("ProtectedUserCreatedBy", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("protected_users")
+}
+
+enum ProtectedLinkType {
+  link
+  keyword
+}
+
+model ProtectedLink {
+  id        Int             @id @default(autoincrement())
+  groupName String          @default("default") @map("group_name") @db.VarChar(100)
+  link      String          @db.Text
+  type      ProtectedLinkType @default(link)
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  @@index([groupName])
+  @@index([type])
+  @@map("protected_links")
+}
+
+model RequestDefaultSetting {
+  key       String   @id @db.VarChar(64)
+  value     String?  @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("default_settings")
+}
+
+model RequestUserSetting {
+  userId    String   @map("user_id") @db.VarChar(20)
+  key       String   @db.VarChar(64)
+  value     String?  @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user RequestsUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, key])
+  @@map("user_settings")
+}
+
+// Legacy migration tracking table from old requests app; preserve so db push does not drop it
+model Migration {
+  name String @id @db.VarChar(100)
+  @@map("_migrations")
+}
+
+// ─── PayPal Subscription System ───────────────────────────────────────────────
+
+model Subscription {
+  id                    String    @id @db.VarChar(64)
+  userId                String    @map("user_id") @db.VarChar(20)
+  paypalSubscriptionId  String?   @map("paypal_subscription_id") @db.VarChar(64)
+  paypalOrderId         String?   @map("paypal_order_id") @db.VarChar(64)
+  planCategory          String    @map("plan_category") @db.VarChar(20)  // PREMIUM | LEAK_PROTECTION
+  planInterval          String    @map("plan_interval") @db.VarChar(20)  // MONTHLY | YEARLY | LIFETIME
+  status                String    @default("PENDING") @db.VarChar(20)    // PENDING | ACTIVE | CANCELLED | SUSPENDED | EXPIRED
+  amount                Decimal   @db.Decimal(10, 2)
+  currency              String    @default("USD") @db.VarChar(3)
+  email                 String?   @db.VarChar(255)
+  payerName             String?   @map("payer_name") @db.VarChar(255)
+  currentPeriodStart    DateTime? @map("current_period_start")
+  currentPeriodEnd      DateTime? @map("current_period_end")
+  cancelledAt           DateTime? @map("cancelled_at")
+  cancelReason          String?   @map("cancel_reason") @db.Text
+  promoCodeId           String?   @map("promo_code_id") @db.VarChar(64)
+  discountApplied       Decimal?  @map("discount_applied") @db.Decimal(10, 2)
+  instructionsSentAt    DateTime? @map("instructions_sent_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user      RequestsUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoCode PromoCode?    @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  payments  Payment[]
+
+  @@index([userId])
+  @@index([paypalSubscriptionId])
+  @@index([paypalOrderId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id                  String    @id @db.VarChar(64)
+  subscriptionId      String    @map("subscription_id") @db.VarChar(64)
+  paypalTransactionId String?   @map("paypal_transaction_id") @db.VarChar(64)
+  paypalSaleId        String?   @map("paypal_sale_id") @db.VarChar(64)
+  amount              Decimal   @db.Decimal(10, 2)
+  currency            String    @default("USD") @db.VarChar(3)
+  status              String    @default("PENDING") @db.VarChar(20)  // PENDING | COMPLETED | REFUNDED | PARTIALLY_REFUNDED
+  payerEmail          String?   @map("payer_email") @db.VarChar(255)
+  payerName           String?   @map("payer_name") @db.VarChar(255)
+  refundAmount        Decimal?  @map("refund_amount") @db.Decimal(10, 2)
+  refundReason        String?   @map("refund_reason") @db.Text
+  refundedAt          DateTime? @map("refunded_at")
+  refundedBy          String?   @map("refunded_by") @db.VarChar(20)
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([paypalSaleId])
+  @@map("payments")
+}
+
+model PromoCode {
+  id              String    @id @db.VarChar(64)
+  code            String    @unique @db.VarChar(32)
+  discountPercent Int       @map("discount_percent")
+  maxUses         Int?      @map("max_uses")
+  usedCount       Int       @default(0) @map("used_count")
+  validFrom       DateTime? @map("valid_from")
+  validUntil      DateTime? @map("valid_until")
+  planCategory    String?   @map("plan_category") @db.VarChar(20)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  subscriptions Subscription[]
+
+  @@map("promo_codes")
+}
+
+// ─── Ad-Gated Download System ─────────────────────────────────────────────────
+
+enum CampaignMode {
+  specific
+  random
+  all
+}
+
+model AdCampaign {
+  id               String   @id @default(cuid())
+  name             String   @db.VarChar(255)
+  isActive         Boolean  @default(true) @map("is_active")
+
+  // Sponsor card (toggleable)
+  sponsorEnabled   Boolean  @default(false) @map("sponsor_enabled")
+  sponsorName      String?  @map("sponsor_name") @db.VarChar(255)
+  sponsorTagline   String?  @map("sponsor_tagline") @db.VarChar(500)
+  sponsorLogoUrl   String?  @map("sponsor_logo_url") @db.VarChar(500)
+  sponsorCtaText   String?  @map("sponsor_cta_text") @db.VarChar(100)
+  sponsorCtaUrl    String?  @map("sponsor_cta_url") @db.VarChar(500)
+
+  // Video ad
+  videoUrl         String   @map("video_url") @db.VarChar(500)
+  videoDurationSecs Int     @default(30) @map("video_duration_secs")
+
+  // Page customization
+  headlineTemplate String?  @map("headline_template") @db.VarChar(500)
+  subheadline      String?  @db.VarChar(500)
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  links            AdDownloadLink[]
+
+  @@map("ad_campaigns")
+}
+
+model AdDownloadLink {
+  id              String       @id @default(cuid())
+  slug            String       @unique @db.VarChar(200)
+  resourceName    String       @map("resource_name") @db.VarChar(255)
+  downloadUrl     String       @map("download_url") @db.VarChar(1000)
+  sftpgoPath      String?      @map("sftpgo_path") @db.VarChar(500)
+  adEnabled       Boolean      @default(true) @map("ad_enabled")
+  isActive        Boolean      @default(true) @map("is_active")
+
+  // Campaign assignment
+  campaignId      String?      @map("campaign_id")
+  campaignMode    CampaignMode @default(specific) @map("campaign_mode")
+
+  // Optional metadata
+  thumbnailUrl    String?      @map("thumbnail_url") @db.VarChar(500)
+  editorName      String?      @map("editor_name") @db.VarChar(255)
+  description     String?      @db.Text
+  password        String?      @db.VarChar(255)
+  expiresAt       DateTime?    @map("expires_at")
+
+  // Counters (denormalized for fast reads)
+  totalViews      Int          @default(0) @map("total_views")
+  totalCompletes  Int          @default(0) @map("total_completes")
+  totalDownloads  Int          @default(0) @map("total_downloads")
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  campaign        AdCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  analyticsEvents AdAnalyticsEvent[]
+
+  @@index([campaignId])
+  @@index([slug])
+  @@map("ad_download_links")
+}
+
+model AdAnalyticsEvent {
+  id           String   @id @default(cuid())
+  linkId       String   @map("link_id")
+  eventType    String   @map("event_type") @db.VarChar(50) // view | ad_start | ad_complete | sponsor_click | download
+  ipHash       String?  @map("ip_hash") @db.VarChar(64)
+  userAgent    String?  @map("user_agent") @db.VarChar(500)
+  referer      String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  link         AdDownloadLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("ad_analytics_events")
+}

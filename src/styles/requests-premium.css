@@ -1,0 +1,499 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+ *  REQUESTS PAGE — PREMIUM DESIGN LAYER
+ *  Aesthetic: Aurora UI + Glassmorphism (faux) + Dark OLED
+ *  PERF: No backdrop-filter on repeated elements. Aurora uses transform/opacity
+ *         (GPU-composited) instead of animating the background property.
+ * ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 1. AURORA BACKGROUND — GPU-accelerated floating orbs via transform+opacity
+ *    Three separate pseudo/child layers, each with a static gradient,
+ *    animated via transform (translateX/Y) and opacity — fully composited.
+ * ────────────────────────────────────────────────────────────────────────────── */
+.requests-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.requests-container::before,
+.requests-container::after {
+  content: '';
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/* Orb 1 — large blurple, top-left drift */
+.requests-container::before {
+  width: 700px;
+  height: 700px;
+  top: -10%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(88, 101, 242, 0.13) 0%, transparent 70%);
+  animation: aurora-orb1 18s ease-in-out infinite alternate;
+}
+
+/* Orb 2 — purple, bottom-right drift */
+.requests-container::after {
+  width: 600px;
+  height: 600px;
+  bottom: -10%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.11) 0%, transparent 70%);
+  animation: aurora-orb2 22s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-orb1 {
+  0%   { transform: translate(0, 0);       opacity: 0.8; }
+  50%  { transform: translate(15vw, 20vh);  opacity: 1; }
+  100% { transform: translate(5vw, 40vh);   opacity: 0.7; }
+}
+
+@keyframes aurora-orb2 {
+  0%   { transform: translate(0, 0);        opacity: 0.7; }
+  50%  { transform: translate(-12vw, -18vh); opacity: 1; }
+  100% { transform: translate(-8vw, -30vh);  opacity: 0.8; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 2. HERO SECTION — Cinematic typography & animated gradient text
+ * ────────────────────────────────────────────────────────────────────────────── */
+.requests-hero {
+  padding: 60px 0 48px 0;
+  margin-bottom: 48px;
+}
+
+/* Logo glow pulse on idle */
+.requests-hero-logo img {
+  filter:
+    drop-shadow(0 0 30px rgba(88, 101, 242, 0.25))
+    drop-shadow(0 0 60px rgba(124, 58, 237, 0.15))
+    drop-shadow(0 8px 32px rgba(88, 101, 242, 0.4))
+    drop-shadow(0 0 4px rgba(255, 255, 255, 0.08));
+}
+
+.requests-hero-logo:hover img {
+  filter:
+    drop-shadow(0 0 40px rgba(88, 101, 242, 0.4))
+    drop-shadow(0 0 80px rgba(124, 58, 237, 0.25))
+    drop-shadow(0 12px 40px rgba(88, 101, 242, 0.55))
+    drop-shadow(0 0 6px rgba(255, 255, 255, 0.12));
+}
+
+/* Hero title — animated gradient text */
+.requests-hero-title {
+  font-size: clamp(40px, 7vw, 80px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -3px;
+  margin-bottom: 24px;
+}
+
+.requests-gradient-text {
+  background: linear-gradient(135deg, #818cf8, #7c3aed, #a78bfa, #6366f1, #818cf8);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-flow 6s ease-in-out infinite;
+}
+
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.requests-hero-subtitle {
+  font-size: clamp(16px, 2.2vw, 22px);
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto 32px auto;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* Submit button — glow without backdrop-filter */
+.requests-btn-submit {
+  position: relative;
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.9) 0%, rgba(124, 58, 237, 0.9) 100%);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 32px rgba(88, 101, 242, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.requests-btn-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 40px rgba(88, 101, 242, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 3. STAT CARDS — NO backdrop-filter; use solid tinted backgrounds
+ * ────────────────────────────────────────────────────────────────────────────── */
+.requests-stat-card {
+  position: relative;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(114, 137, 218, 0.06) 0%, transparent 50%),
+    color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+/* Shine sweep — single lightweight pseudo (transform-only, GPU-composited) */
+.requests-stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  animation: stat-shine 5s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes stat-shine {
+  0%, 100% { transform: translateX(0); opacity: 0; }
+  15% { opacity: 1; }
+  50% { transform: translateX(600%); opacity: 1; }
+  65% { opacity: 0; }
+  66% { transform: translateX(0); }
+}
+
+.requests-stat-card-total::after  { animation-delay: 0s; }
+.requests-stat-card-pending::after  { animation-delay: 0.8s; }
+.requests-stat-card-completed::after { animation-delay: 1.6s; }
+.requests-stat-card-users::after  { animation-delay: 2.4s; }
+
+.requests-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.requests-stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 4. SEARCH BAR — Glow focus, no blur
+ * ────────────────────────────────────────────────────────────────────────────── */
+.requests-search-input {
+  background: color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 14px 18px 14px 46px;
+  font-size: 15px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.requests-search-input:focus {
+  outline: none;
+  border-color: rgba(88, 101, 242, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(88, 101, 242, 0.1),
+    0 4px 20px rgba(88, 101, 242, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 5. REQUEST CARDS — Stagger entrance, NO backdrop-filter
+ * ────────────────────────────────────────────────────────────────────────────── */
+
+/* Staggered entrance — fade-up with transform (GPU-composited) */
+.requests-grid > li {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: card-entrance 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Stagger: first 9 cards get individual delays, rest share a group delay */
+.requests-grid > li:nth-child(1)  { animation-delay: 0ms; }
+.requests-grid > li:nth-child(2)  { animation-delay: 40ms; }
+.requests-grid > li:nth-child(3)  { animation-delay: 80ms; }
+.requests-grid > li:nth-child(4)  { animation-delay: 120ms; }
+.requests-grid > li:nth-child(5)  { animation-delay: 160ms; }
+.requests-grid > li:nth-child(6)  { animation-delay: 200ms; }
+.requests-grid > li:nth-child(7)  { animation-delay: 240ms; }
+.requests-grid > li:nth-child(8)  { animation-delay: 280ms; }
+.requests-grid > li:nth-child(9)  { animation-delay: 320ms; }
+.requests-grid > li:nth-child(n+10) { animation-delay: 350ms; }
+
+@keyframes card-entrance {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card depth — solid background, no backdrop-filter */
+.request-card {
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s ease;
+}
+
+.request-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow:
+    0 20px 50px rgba(88, 101, 242, 0.2),
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-color: rgba(88, 101, 242, 0.35);
+}
+
+/* Image zoom is subtler and smoother */
+.request-card:hover .request-image img {
+  transform: scale(1.08);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 6. IMAGE AREA — Vignette + smooth zoom
+ * ────────────────────────────────────────────────────────────────────────────── */
+.request-image-wrapper {
+  height: 220px;
+  background: linear-gradient(145deg, rgba(88, 101, 242, 0.08), var(--bg-primary));
+}
+
+.image-overlay {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.08) 55%,
+    rgba(0, 0, 0, 0.35) 75%,
+    rgba(0, 0, 0, 0.7) 90%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+}
+
+.request-image img {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Placeholder — subtle gradient shift (background-position is cheap) */
+.request-image-placeholder {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bg-tertiary) 90%, rgba(88, 101, 242, 0.1)),
+    color-mix(in srgb, var(--bg-primary) 90%, rgba(124, 58, 237, 0.05))
+  );
+  background-size: 200% 200%;
+  animation: placeholder-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes placeholder-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 7. CONTENT AREA — Refined spacing + typography
+ * ────────────────────────────────────────────────────────────────────────────── */
+.request-content {
+  padding: 18px 20px 16px 20px;
+}
+
+.request-title {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+
+.request-description {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 8. UPVOTE BUTTON — Tactile press with spring (transform only)
+ * ────────────────────────────────────────────────────────────────────────────── */
+.btn-upvote {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.2s ease,
+              border-color 0.2s ease;
+  border-radius: 10px;
+}
+
+.btn-upvote:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.btn-upvote:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-upvote.upvoted {
+  background: rgba(88, 101, 242, 0.15) !important;
+  border-color: rgba(88, 101, 242, 0.3) !important;
+  color: #818cf8 !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 9. COMPLETED BADGE — Solid tinted background
+ * ────────────────────────────────────────────────────────────────────────────── */
+.completed-badge {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 10. PAGINATION — Lightweight hover
+ * ────────────────────────────────────────────────────────────────────────────── */
+.pagination {
+  margin-top: 40px;
+  padding: 20px 24px;
+  background: transparent;
+}
+
+.pagination-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+}
+
+.pagination-num.active {
+  background: rgba(88, 101, 242, 0.25);
+  border-color: rgba(88, 101, 242, 0.4);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 11. LINK BUTTONS — Hover glow
+ * ────────────────────────────────────────────────────────────────────────────── */
+.request-link-btn {
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 10px;
+}
+
+.request-link-btn:hover {
+  background: rgba(88, 101, 242, 0.12);
+  box-shadow: 0 2px 8px rgba(88, 101, 242, 0.15);
+}
+
+/* Download Discord button — glow */
+.btn-leak {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-leak:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(88, 166, 255, 0.25);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 12. REDUCED MOTION — Respect user preferences
+ * ────────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .requests-container::before,
+  .requests-container::after,
+  .requests-gradient-text,
+  .requests-stat-card::after,
+  .request-image-placeholder {
+    animation: none !important;
+  }
+
+  .requests-grid > li {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .request-card,
+  .request-image img,
+  .requests-btn-submit,
+  .requests-stat-card,
+  .pagination-btn,
+  .btn-upvote {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────────
+ * 13. MOBILE REFINEMENTS — Touch-friendly
+ * ────────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .requests-hero {
+    padding: 40px 0 32px 0;
+    margin-bottom: 32px;
+  }
+
+  .requests-hero-logo img {
+    height: 90px;
+  }
+
+  .requests-hero-title {
+    letter-spacing: -1.5px;
+  }
+
+  /* Simpler hover on touch devices */
+  .request-card:hover {
+    transform: translateY(-3px) scale(1.005);
+  }
+
+  /* Shorter stagger on mobile */
+  .requests-grid > li {
+    animation-duration: 0.3s;
+  }
+  .requests-grid > li:nth-child(n+4) {
+    animation-delay: 150ms;
+  }
+
+  /* Smaller aurora orbs on mobile for less GPU pressure */
+  .requests-container::before {
+    width: 400px;
+    height: 400px;
+  }
+  .requests-container::after {
+    width: 350px;
+    height: 350px;
+  }
+}

@@ -1,0 +1,192 @@
+/*
+ * 6ure UI Core v1 — Footer
+ * Matching requests.6ureleaks.com footer
+ */
+
+.ure-footer {
+  margin-top: 100px;
+  padding: 60px 20px 30px;
+  background: var(--glass-bg);
+  border-top: var(--glass-border);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+.ure-footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--discord-blurple), var(--discord-blurple-hover), var(--discord-blurple), transparent);
+  background-size: 200% 100%;
+  animation: footerShimmer 6s ease-in-out infinite;
+}
+@keyframes footerShimmer {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -200% 0; }
+}
+
+.ure-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(200px, auto) 1fr;
+  gap: 48px 60px;
+  margin-bottom: 40px;
+}
+
+.ure-footer-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.ure-footer-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(88, 101, 242, 0.2))
+          drop-shadow(0 4px 14px rgba(88, 101, 242, 0.35))
+          drop-shadow(0 0 1px rgba(255, 255, 255, 0.06));
+  transition: filter 0.35s ease, transform 0.35s ease;
+  flex-shrink: 0;
+}
+.ure-footer-logo:hover {
+  filter: drop-shadow(0 0 20px rgba(88, 101, 242, 0.35))
+          drop-shadow(0 6px 20px rgba(88, 101, 242, 0.45))
+          drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
+  transform: scale(1.04);
+}
+.ure-footer-brand-text h3 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--discord-blurple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ure-footer-brand-text p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ure-footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 32px 24px;
+  min-width: 0;
+}
+.ure-footer-column h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ure-footer-column a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+  padding: 4px 0;
+}
+.ure-footer-column a:hover {
+  color: var(--discord-blurple);
+  transform: translateX(4px);
+}
+
+.ure-footer-contact-trigger {
+  display: block;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  margin-bottom: 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.ure-footer-contact-trigger:hover {
+  color: var(--discord-blurple);
+  transform: translateX(4px);
+}
+
+.ure-footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 30px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.ure-footer-copyright {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  margin: 0;
+}
+.ure-footer-made-with {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Simple footer (for small pages like password, verify) */
+.ure-footer-simple {
+  position: fixed;
+  bottom: 0; left: 0;
+  width: 100%;
+  background: rgba(10, 10, 11, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0;
+  z-index: 10;
+}
+.ure-footer-simple-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ure-footer { padding: 40px 16px 24px; margin-top: 60px; }
+  .ure-footer-content { grid-template-columns: 1fr; gap: 40px; }
+  .ure-footer-links { grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
+  .ure-footer-bottom { flex-direction: column; align-items: flex-start; text-align: left; }
+  .ure-footer-simple-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px 24px;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .ure-footer-links { grid-template-columns: 1fr; gap: 24px; }
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .ure-footer { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  }
+}

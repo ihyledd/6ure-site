@@ -1,0 +1,31 @@
+{
+  "staff": [
+    {
+      "id": "617249450867425301",
+      "name": "ledd",
+      "username": "ihyledd",
+      "role": "Founder, Developer",
+      "avatar": "https://cdn.discordapp.com/avatars/617249450867425301/a_6dfd61bb4b0baf0ea4b5979ec1ec831b.gif?size=256",
+      "display": true,
+      "order": 0
+    },
+    {
+      "id": "835509302718496780",
+      "name": "tcmmi.ae",
+      "username": "tcmmi.ae",
+      "role": "Developer",
+      "avatar": "https://cdn.discordapp.com/avatars/835509302718496780/01d0946be6d3c4d12fe9a421c45bc7dd.webp?size=256",
+      "display": true,
+      "order": 1
+    },
+    {
+      "id": "1058855414718017586",
+      "name": "tovkz",
+      "username": "tovkz",
+      "role": "Co_Founder",
+      "avatar": "https://cdn.discordapp.com/avatars/1058855414718017586/b43fad8f267cd593a2913c7cf31b1051.webp?size=256",
+      "display": true,
+      "order": 2
+    }
+  ]
+}
